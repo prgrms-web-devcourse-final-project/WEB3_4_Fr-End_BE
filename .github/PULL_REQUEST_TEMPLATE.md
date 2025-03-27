@@ -1,4 +1,4 @@
-- 제목 : Feature/beanch 이름(#issue 번호): 기능명 간략하게 작성
+- 제목 : Feature/branch 이름(#issue 번호): 기능명 간략하게 작성
 <br/>
 ex) Feature/B-01 #1 : pull request template 작성
   (확인 후 지워 주세요)

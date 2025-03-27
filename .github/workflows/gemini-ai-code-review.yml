@@ -26,8 +26,14 @@ jobs:
 
       - name: Get git diff # 코드 변경사항 추출 단계
         run: |
-               BASE_COMMIT="${{ github.event.pull_request.base.sha }}"
-               git diff --unified=0 $BASE_COMMIT $HEAD_COMMIT > diff.txt
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # GitHub에서 base와 head 정보를 가져옴
+            BASE_COMMIT="${{ github.event.pull_request.base.sha }}"
+            HEAD_COMMIT="${{ github.event.pull_request.head.sha }}"
+            git diff --unified=0 $BASE_COMMIT $HEAD_COMMIT > diff.txt
+          else
+            git diff --unified=0 HEAD^ HEAD > diff.txt
+          fi
 
       - name: Run Gemini-1.5-flash # Gemini AI로 코드 리뷰 수행 단계
         uses: actions/github-script@v7 # JavaScript 실행 액션

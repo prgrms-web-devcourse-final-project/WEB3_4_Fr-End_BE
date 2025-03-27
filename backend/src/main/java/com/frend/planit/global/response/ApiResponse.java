@@ -1,48 +1,35 @@
 package com.frend.planit.global.response;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.frend.planit.global.validation.CodeValidation;
+import lombok.NonNull;
+import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 /*
- * Api 응답을 위한 헬퍼 클래스입니다.
+ * Api 응답을 위한 클래스입니다.
  * 클래스 객체는 생성하지 않아도 됩니다.
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class ApiResponse<T> {
 
-    private static final String WRONG_SUCCESS_CODE = "잘못된 응답 코드입니다.";
+    public <T> ResponseEntity<T> success(@NonNull HttpStatus successStatus) {
+        CodeValidation.validateSuccessCode(successStatus);
+        return ResponseEntity.status(successStatus).build();
+    }
 
-    public static <T> ResponseEntity<T> success(HttpStatus successCode) {
-        checkSuccessCode(successCode);
+    public <T> ResponseEntity<T> success(@NonNull HttpStatus successStatus, @NonNull T data) {
+        CodeValidation.validateSuccessCode(successStatus);
+        return ResponseEntity.status(successStatus).body(data);
+    }
+
+    public <T> ResponseEntity<T> success(int successCode) {
+        CodeValidation.validateSuccessCode(successCode);
         return ResponseEntity.status(successCode).build();
     }
 
-    public static <T> ResponseEntity<T> success(HttpStatus successCode, T data) {
-        checkSuccessCode(successCode);
+    public <T> ResponseEntity<T> success(int successCode, @NonNull T data) {
+        CodeValidation.validateSuccessCode(successCode);
         return ResponseEntity.status(successCode).body(data);
-    }
-
-    public static <T> ResponseEntity<T> success(int successCode) {
-        checkSuccessCode(successCode);
-        return ResponseEntity.status(successCode).build();
-    }
-
-    public static <T> ResponseEntity<T> success(int successCode, T data) {
-        checkSuccessCode(successCode);
-        return ResponseEntity.status(successCode).body(data);
-    }
-
-    private static void checkSuccessCode(HttpStatus successCode) {
-        if (!successCode.is2xxSuccessful()) {
-            throw new IllegalArgumentException(WRONG_SUCCESS_CODE);
-        }
-    }
-
-    private static void checkSuccessCode(int successCode) {
-        if (successCode < 200 || successCode >= 300) {
-            throw new IllegalArgumentException(WRONG_SUCCESS_CODE);
-        }
     }
 }

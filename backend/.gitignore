@@ -36,5 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
-### Cusrom ###
+### Custom ###
 .DS_*
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store

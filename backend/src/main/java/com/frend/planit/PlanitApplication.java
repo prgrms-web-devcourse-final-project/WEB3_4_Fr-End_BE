@@ -1,13 +1,13 @@
-package com.ll.web3_4_frend_be;
+package com.frend.planit;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Web34FrEndBeApplication {
+public class PlanitApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Web34FrEndBeApplication.class, args);
+		SpringApplication.run(PlanitApplication.class, args);
 	}
 
 }

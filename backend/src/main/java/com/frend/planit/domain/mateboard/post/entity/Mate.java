@@ -1,4 +1,4 @@
-package com.frend.planit.domain.board.mate.post.entity;
+package com.frend.planit.domain.mateboard.post.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

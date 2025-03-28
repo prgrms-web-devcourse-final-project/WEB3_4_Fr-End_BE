@@ -1,4 +1,4 @@
-package com.frend.planit.domain.board.mate.post.entity;
+package com.frend.planit.domain.mateboard.post.entity;
 
 /**
  * 여행 지역을 정의하는 Enum입니다. 19개의 항목이 존재합니다.

@@ -44,6 +44,6 @@ out/
 **/._.DS_Store
 /logs
 
-## yml ##
-application-secret.yml
+### yml ###
 application-local.yml
+application-secret.yml

@@ -1,4 +1,4 @@
-package com.example.domain.user;
+package com.frend.planit.domain.user.entity;
 
 import com.frend.planit.domain.user.enums.Gender;
 import com.frend.planit.domain.user.enums.LoginType;

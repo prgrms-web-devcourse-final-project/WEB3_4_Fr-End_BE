@@ -1,9 +1,11 @@
 package com.frend.planit.global.response;
 
 import com.frend.planit.global.validation.CodeValidation;
+import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 /*
@@ -19,22 +21,30 @@ public class ApiResponseHelper<T> {
      */
     public <T> ResponseEntity<T> success(@NonNull HttpStatus status) {
         CodeValidation.validateSuccessCode(status);
-        return ResponseEntity.status(status).build();
+        return ResponseEntity.status(status)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .build();
     }
 
     public <T> ResponseEntity<T> success(@NonNull HttpStatus status, @NonNull T data) {
         CodeValidation.validateSuccessCode(status);
-        return ResponseEntity.status(status).body(data);
+        return ResponseEntity.status(status)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .body(data);
     }
 
     public <T> ResponseEntity<T> success(int code) {
         CodeValidation.validateSuccessCode(code);
-        return ResponseEntity.status(code).build();
+        return ResponseEntity.status(code)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .build();
     }
 
     public <T> ResponseEntity<T> success(int code, @NonNull T data) {
         CodeValidation.validateSuccessCode(code);
-        return ResponseEntity.status(code).body(data);
+        return ResponseEntity.status(code)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .body(data);
     }
 
     /*
@@ -44,11 +54,15 @@ public class ApiResponseHelper<T> {
      */
     public <T> ResponseEntity<T> error(@NonNull HttpStatus status, @NonNull T data) {
         CodeValidation.validateErrorCode(status);
-        return ResponseEntity.status(status).body(data);
+        return ResponseEntity.status(status)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .body(data);
     }
 
     public <T> ResponseEntity<T> error(@NonNull int code, @NonNull T data) {
         CodeValidation.validateErrorCode(code);
-        return ResponseEntity.status(code).body(data);
+        return ResponseEntity.status(code)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .body(data);
     }
 }

@@ -31,6 +31,9 @@ public class User extends BaseTime {
     @Column(length = 50)
     private String email;
 
+    @Column(length = 20)
+    private String phone;
+
     @Column(nullable = false, length = 50)
     private String nickname;
 

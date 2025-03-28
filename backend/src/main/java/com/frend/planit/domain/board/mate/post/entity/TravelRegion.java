@@ -1,13 +1,14 @@
 package com.frend.planit.domain.board.mate.post.entity;
 
 /**
- * 여행 지역을 정의하는 Enum입니다. 18개의 항목이 존재합니다.
+ * 여행 지역을 정의하는 Enum입니다. 19개의 항목이 존재합니다.
  *
  * @author zelly
  * @version 1.0
  * @since 2025-03-28
  */
 public enum TravelRegion {
+    ALL("전국"),
     SEOUL("서울"),
     INCHEON("인천"),
     DAEJEON("대전"),

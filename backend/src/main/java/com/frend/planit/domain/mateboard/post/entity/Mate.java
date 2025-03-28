@@ -73,7 +73,7 @@ public class Mate extends BaseTime {
      */
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RecruitmentStatus recruitmentStatus;
+    private RecruitmentStatus recruitmentStatus = RecruitmentStatus.OPEN;
 
     /**
      * 메이트 성별

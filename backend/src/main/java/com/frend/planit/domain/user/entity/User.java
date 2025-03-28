@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,22 +35,27 @@ public class User extends BaseTime {
     @Column(length = 20)
     private String phone;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String nickname;
 
     @Column(name = "profile_image")
     private String profileImage;
+
+    @Column(length = 255)
+    private String bio; // 자기소개
 
     @Enumerated(EnumType.STRING)
     @Column(name = "social_type")
     private SocialType socialType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     @Builder.Default
     private Gender gender = Gender.UNSPECIFIED;
 
-    @Column(name = "mailing_type", nullable = false)
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "mailing_type")
     @Builder.Default
     private boolean mailingType = false;
 

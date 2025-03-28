@@ -20,8 +20,6 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class GoogleOauthClient {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
     @Value("${oauth2.google.client-id}")
     private String clientId;
 
@@ -37,7 +35,9 @@ public class GoogleOauthClient {
     @Value("${oauth2.google.user-info-uri}")
     private String userInfoUri;
 
-    // 인가 코드로 access_token 요청
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    // 🔹 인가 코드로 access_token 요청
     public GoogleTokenResponse getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -60,7 +60,7 @@ public class GoogleOauthClient {
         return response.getBody();
     }
 
-    // access_token으로 사용자 정보 조회
+    // 🔹 access_token으로 사용자 정보 조회
     public GoogleUserInfoResponse getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);

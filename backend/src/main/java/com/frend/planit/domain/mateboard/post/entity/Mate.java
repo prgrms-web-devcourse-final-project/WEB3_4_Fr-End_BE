@@ -1,5 +1,6 @@
 package com.frend.planit.domain.mateboard.post.entity;
 
+import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,7 +11,8 @@ import jakarta.persistence.Id;
 import java.time.LocalDate;
 
 /**
- * 메이트 모집 게시글을 나타내는 엔티티입니다. 사용자가 여행 동행자를 모집할 때 사용됩니다.
+ * 메이트 모집 게시글을 나타내는 엔티티입니다. 사용자가 여행 동행자를 모집할 때 사용됩니다. 게시글 수정 일자(modified_at)과 게시글 생성 날짜(created_at)는
+ * BaseTime을 상속합니다.
  *
  * @author zelly
  * @version 1.0
@@ -18,7 +20,7 @@ import java.time.LocalDate;
  */
 
 @Entity
-public class Mate { // TODO: extends BaseEntity
+public class Mate extends BaseTime {
 
     /**
      * 메이트 구함 게시글 ID
@@ -81,7 +83,12 @@ public class Mate { // TODO: extends BaseEntity
     private MateGender mateGender;
 
     /**
-     * 게시글 생성 날짜 TODO:createdAt은 BaseEntity에서 상속
+     * 게시글 생성 날짜(createdAt) BaseEntity 상속
+     */
+    //
+
+    /**
+     * 게시글 수정 날짜(modified_at) BaseEntity 상속
      */
     //
 

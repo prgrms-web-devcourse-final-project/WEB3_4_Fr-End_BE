@@ -61,7 +61,7 @@ public class User extends BaseTime {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private UserStatus status = UserStatus.ACTIVE;
+    private UserStatus status = UserStatus.UNREGISTERED;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "login_type", nullable = false)

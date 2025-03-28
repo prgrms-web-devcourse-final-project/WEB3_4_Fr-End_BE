@@ -42,3 +42,6 @@ out/
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
+
+## secret.yml ##
+application-secret.yml

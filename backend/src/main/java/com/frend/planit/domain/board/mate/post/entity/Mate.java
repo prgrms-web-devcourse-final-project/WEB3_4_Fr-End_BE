@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDate;
 
@@ -22,6 +24,7 @@ public class Mate { // TODO: extends BaseEntity
      * 메이트 구함 게시글 ID
      */
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long matePostId;
 
     /**
@@ -30,43 +33,50 @@ public class Mate { // TODO: extends BaseEntity
      * @ManyToOne(fetch = FetchType.LAZY) private User id;
      */
     @Column(name = "id")
-    private Long userID;
+    private Long userId;
 
     /**
      * 게시글 제목
      */
-    private String title; // 제목
-    
+    @Column(nullable = false)
+    private String title;
+
     /**
      * 게시글 내용
      */
-    private String content;  // 내용
+    @Column(nullable = false)
+    private String content;
 
     /**
      * 여행 지역
      */
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TravelRegion travelRegion;
 
     /**
      * 여행 시작 날짜
      */
+    @Column(nullable = false)
     private LocalDate travelStartDate;
 
     /**
      * 여행 종료 날짜
      */
+    @Column(nullable = false)
     private LocalDate travelEndDate;
 
     /**
      * 메이트 구함 상태
      */
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RecruitmentStatus recruitmentStatus;
 
     /**
      * 메이트 성별
      */
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MateGender mateGender;
 

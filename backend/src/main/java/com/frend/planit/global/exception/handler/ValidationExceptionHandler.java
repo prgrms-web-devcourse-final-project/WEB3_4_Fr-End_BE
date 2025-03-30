@@ -1,0 +1,136 @@
+package com.frend.planit.global.exception.handler;
+
+import com.frend.planit.global.response.ApiResponseHelper;
+import com.frend.planit.global.response.ErrorResponse;
+import com.frend.planit.global.response.ErrorResponse.Detail;
+import com.frend.planit.global.response.ErrorType;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.List;
+import java.util.Set;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+/*
+ * 유효성 검사 예외 처리를 위한 핸들러 클래스입니다.
+ */
+@RestControllerAdvice
+public class ValidationExceptionHandler {
+
+    // RequestBody 의 유효성 검사 예외를 처리합니다.
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleArgumentNotValidException(
+            MethodArgumentNotValidException exception) {
+        List<Detail> details = exception.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> new Detail(
+                        fieldError.getField(),
+                        fieldError.getRejectedValue(),
+                        fieldError.getDefaultMessage()))
+                .toList();
+
+        return ApiResponseHelper.error(ErrorType.ARGUMENT_NOT_VALID.getCode(),
+                new ErrorResponse(ErrorType.ARGUMENT_NOT_VALID.getMessage(), details));
+    }
+
+    // ModelAttribute 의 유효성 검사 예외를 처리합니다.
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<ErrorResponse> handleBindException(BindException exception) {
+        List<Detail> details = exception.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> new Detail(
+                        fieldError.getField(),
+                        fieldError.getRejectedValue(),
+                        fieldError.getDefaultMessage()))
+                .toList();
+
+        return ApiResponseHelper.error(ErrorType.ATTRIBUTE_BINDING_ERROR.getCode(),
+                new ErrorResponse(ErrorType.ATTRIBUTE_BINDING_ERROR.getMessage(), details));
+    }
+
+    // RequestParam, PathVariable 혹은 서비스 계층의 유효성 검사 예외를 처리합니다.
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+            ConstraintViolationException exception) {
+        Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
+
+        // 예외 발생 계층 분석 및 에러 정보 추출
+        String className = violations.iterator().next().getRootBeanClass().getName();
+        List<Detail> details = violations.stream()
+                .map(violation -> new Detail(
+                        violation.getPropertyPath().toString(),
+                        violation.getInvalidValue(),
+                        violation.getMessage()))
+                .toList();
+
+        // 컨트롤러 계층일 경우 잘못된 요청으로 판단
+        if (className.contains("controller")) {
+            return ApiResponseHelper.error(ErrorType.CONSTRAINT_VIOLATION.getCode(),
+                    new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage(), details));
+        }
+
+        // 서비스 계층일 경우 내부 오류로 판단
+        return ApiResponseHelper.error(ErrorType.COMMON_SERVER_ERROR.getCode(),
+                new ErrorResponse(ErrorType.COMMON_SERVER_ERROR.getMessage(), details));
+    }
+
+    // RequestParam, PathVariable 의 타입 변환 예외를 처리합니다.
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException exception) {
+        Detail detail = new Detail(
+                exception.getName(),
+                exception.getValue(),
+                exception.getRequiredType().getSimpleName() + " 타입으로 변환할 수 없습니다.");
+
+        return ApiResponseHelper.error(ErrorType.ARGUMENT_TYPE_MISMATCH.getCode(),
+                new ErrorResponse(ErrorType.ARGUMENT_TYPE_MISMATCH.getMessage(), List.of(detail)));
+    }
+
+    // RequestParam 의 누락 예외를 처리합니다.
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException exception) {
+        Detail detail = new Detail(
+                exception.getParameterName(),
+                exception.getMessage());
+
+        return ApiResponseHelper.error(ErrorType.MISSING_REQUEST_PARAMETER.getCode(),
+                new ErrorResponse(ErrorType.MISSING_REQUEST_PARAMETER.getMessage(),
+                        List.of(detail)));
+    }
+
+    // PathVariable 의 누락 예외를 처리합니다.
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ResponseEntity<ErrorResponse> handleMissingPathVariableException(
+            MissingPathVariableException exception) {
+        Detail detail = new Detail(
+                exception.getVariableName(),
+                exception.getMessage());
+
+        return ApiResponseHelper.error(ErrorType.MISSING_PATH_VARIABLE.getCode(),
+                new ErrorResponse(ErrorType.MISSING_PATH_VARIABLE.getMessage(), List.of(detail)));
+    }
+
+    // RequestBody 의 파싱 예외를 처리합니다.
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException exception) {
+        return ApiResponseHelper.error(ErrorType.JSON_NOT_READABLE.getCode(),
+                new ErrorResponse(ErrorType.JSON_NOT_READABLE.getMessage()));
+    }
+
+    // HTTP 메소드의 지원 예외를 처리합니다.
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException exception) {
+        return ApiResponseHelper.error(ErrorType.METHOD_NOT_ALLOWED.getCode(),
+                new ErrorResponse(ErrorType.METHOD_NOT_ALLOWED.getMessage()));
+    }
+}

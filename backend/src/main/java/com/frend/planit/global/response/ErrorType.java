@@ -19,6 +19,21 @@ public enum ErrorType {
     EXAMPLE_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     EXAMPLE_CUSTOM_ERROR(444, "오류가 발생했습니다."),
 
+    // 1000 ~ 1999 : 인증/인가, User 도메인 관련 오류
+
+    // 2000 ~ 2999 : Schedule 도메인 관련 오류
+
+    // 3000 ~ 3999 :  Calendar 도메인 관련 오류
+
+    // 4000 ~ 4999 :  Booking 도메인 관련 오류
+
+    // 5000 ~ 5999 :  MateBoard 도메인 관련 오류
+
+    // 6000 ~ 6999 :  Mailing 도메인 관련 오류
+
+    // 7000 ~ 7999 :  Chatbot 도메인 관련 오류
+
+
     /*********************************************************************************/
 
     // Global
@@ -32,6 +47,12 @@ public enum ErrorType {
     NO_RESOURCE_FOUND(HttpStatus.NOT_FOUND, "요청한 경로를 찾을 수 없습니다."),
     COMMON_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     GLOBAL_TEST_CODE(444, "테스트 컨트롤러의 코드입니다."),
+
+    // Schedule
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다."),
+
+    // Calendar
+    CALENDAR_NOT_FOUND(HttpStatus.NOT_FOUND, "캘린더를 찾을 수 없습니다."),
 
     // MateBoard
     MATE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물이 존재하지 않습니다.");

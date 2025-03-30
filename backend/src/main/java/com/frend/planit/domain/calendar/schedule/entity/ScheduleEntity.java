@@ -1,5 +1,6 @@
 package com.frend.planit.domain.calendar.schedule.entity;
 
+import com.frend.planit.domain.calendar.schedule.dto.request.ScheduleRequest;
 import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -57,4 +58,27 @@ public class ScheduleEntity extends BaseTime {
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Travel> travelList = new ArrayList<>();
+
+    // Bussiness Logic
+    public void createSchedule(Calendar calendar, ScheduleRequest scheduleRequest) {
+        return ScheduleEntity.builder()
+                .calendar(calendarId)
+                .title(scheduleRequest.getTitle())
+                .startDate(scheduleRequest.getStartDate())
+                .endDate(scheduleRequest.getEndDate())
+                .alertTime(scheduleRequest.getAlertTime())
+                .note(scheduleRequest.getNote())
+                .build();
+    }
+
+    public void updateSchedule(ScheduleRequest scheduleRequest) {
+        ScheduleEntity schedule = ScheduleEntity.builder()
+                .title(scheduleRequest.getTitle())
+                .startDate(scheduleRequest.getStartDate())
+                .endDate(scheduleRequest.getEndDate())
+                .alertTime(scheduleRequest.getAlertTime())
+                .note(scheduleRequest.getNote())
+                .travelList(travelResponses)
+                .build();
+    }
 }

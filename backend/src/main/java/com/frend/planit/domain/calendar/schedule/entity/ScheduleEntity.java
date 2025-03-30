@@ -1,6 +1,7 @@
 package com.frend.planit.domain.calendar.schedule.entity;
 
 import com.frend.planit.global.base.BaseTime;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,10 +10,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,12 +49,12 @@ public class ScheduleEntity extends BaseTime {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column(name = "time", nullable = false)
-    private LocalTime time;
-
     @Column(name = "alert_time", nullable = true)
     private LocalTime alertTime;
 
     @Column(name = "note", nullable = true, length = 1000)
     private String note;
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Travel> travelList = new ArrayList<>();
 }

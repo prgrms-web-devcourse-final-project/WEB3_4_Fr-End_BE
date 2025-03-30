@@ -1,6 +1,9 @@
 package com.frend.planit.domain.calendar.schedule.controller;
 
+import com.frend.planit.domain.calendar.schedule.dto.request.ScheduleRequest;
+import com.frend.planit.domain.calendar.schedule.dto.response.ScheduleResponse;
 import com.frend.planit.global.response.ApiResponseHelper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +26,7 @@ public class ScheduleController {
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 조회")
-    public ResponseEntity<SchdeuleResponse> getSchedule(@PathVariable Long scheduleId) {
+    public ResponseEntity<ScheduleResponse> getSchedule(@PathVariable Long scheduleId) {
         ScheduleResponse scheduleResponse = scheduleService.getSchedule(scheduleId);
         return ApiResponseHelper.success(HttpStatus.OK, scheduleResponse);
     }
@@ -33,7 +36,7 @@ public class ScheduleController {
     @Operation(summary = "여행 일정 수정")
     public ResponseEntity<void> updateSchedule(
             @PathVariable Long scheduleId,
-            @RequestBody ScheduleRequest scheduleRequest
+            @Valid @RequestBody ScheduleRequest scheduleRequest
     ) {
         scheduleService.updateSchedule(scheduleId, scheduleRequest);
         return ApiResponseHelper.success(HttpStatus.OK);

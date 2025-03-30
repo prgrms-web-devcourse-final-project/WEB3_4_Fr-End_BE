@@ -8,11 +8,11 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Set;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,25 +22,11 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 /*
  * 유효성 검사 예외 처리를 위한 핸들러 클래스입니다.
  */
+@Order(2)
 @RestControllerAdvice
 public class ValidationExceptionHandler {
 
-    // RequestBody 의 유효성 검사 예외를 처리합니다.
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleArgumentNotValidException(
-            MethodArgumentNotValidException exception) {
-        List<Detail> details = exception.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> new Detail(
-                        fieldError.getField(),
-                        fieldError.getRejectedValue(),
-                        fieldError.getDefaultMessage()))
-                .toList();
-
-        return ApiResponseHelper.error(ErrorType.ARGUMENT_NOT_VALID.getCode(),
-                new ErrorResponse(ErrorType.ARGUMENT_NOT_VALID.getMessage(), details));
-    }
-
-    // ModelAttribute 의 유효성 검사 예외를 처리합니다.
+    // RequestBody, ModelAttribute 의 유효성 검사 예외를 처리합니다.
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResponse> handleBindException(BindException exception) {
         List<Detail> details = exception.getBindingResult().getFieldErrors().stream()
@@ -50,8 +36,8 @@ public class ValidationExceptionHandler {
                         fieldError.getDefaultMessage()))
                 .toList();
 
-        return ApiResponseHelper.error(ErrorType.ATTRIBUTE_BINDING_ERROR.getCode(),
-                new ErrorResponse(ErrorType.ATTRIBUTE_BINDING_ERROR.getMessage(), details));
+        return ApiResponseHelper.error(ErrorType.ARGUMENT_BINDING_ERROR.getCode(),
+                new ErrorResponse(ErrorType.ARGUMENT_BINDING_ERROR.getMessage(), details));
     }
 
     // RequestParam, PathVariable 혹은 서비스 계층의 유효성 검사 예외를 처리합니다.
@@ -63,14 +49,21 @@ public class ValidationExceptionHandler {
         // 예외 발생 계층 분석 및 에러 정보 추출
         String className = violations.iterator().next().getRootBeanClass().getName();
         List<Detail> details = violations.stream()
-                .map(violation -> new Detail(
-                        violation.getPropertyPath().toString(),
-                        violation.getInvalidValue(),
-                        violation.getMessage()))
+                .map(violation -> {
+                    String fullPath = violation.getPropertyPath().toString();
+                    String field = fullPath.contains(".")
+                            ? fullPath.substring(fullPath.lastIndexOf('.') + 1)
+                            : fullPath;
+
+                    return new Detail(
+                            field,
+                            violation.getInvalidValue(),
+                            violation.getMessage());
+                })
                 .toList();
 
         // 컨트롤러 계층일 경우 잘못된 요청으로 판단
-        if (className.contains("controller")) {
+        if (className.contains("controller") || className.contains("Controller")) {
             return ApiResponseHelper.error(ErrorType.CONSTRAINT_VIOLATION.getCode(),
                     new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage(), details));
         }
@@ -99,7 +92,7 @@ public class ValidationExceptionHandler {
             MissingServletRequestParameterException exception) {
         Detail detail = new Detail(
                 exception.getParameterName(),
-                exception.getMessage());
+                exception.getParameterType() + " 타입의 요청 파라미터가 누락되었습니다.");
 
         return ApiResponseHelper.error(ErrorType.MISSING_REQUEST_PARAMETER.getCode(),
                 new ErrorResponse(ErrorType.MISSING_REQUEST_PARAMETER.getMessage(),
@@ -112,7 +105,7 @@ public class ValidationExceptionHandler {
             MissingPathVariableException exception) {
         Detail detail = new Detail(
                 exception.getVariableName(),
-                exception.getMessage());
+                "해당 경로 파라미터가 누락되었습니다.");
 
         return ApiResponseHelper.error(ErrorType.MISSING_PATH_VARIABLE.getCode(),
                 new ErrorResponse(ErrorType.MISSING_PATH_VARIABLE.getMessage(), List.of(detail)));

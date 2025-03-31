@@ -1,0 +1,92 @@
+name: Gemini AI Code Review # 워크플로우의 이름 정의
+
+on: # 워크플로우 트리거 정의
+  workflow_dispatch: # GitHub 웹 UI에서 수동으로 워크플로우 실행 가능
+  pull_request: # PR이 열리거나 업데이트될 때 실행
+    types: [ opened, synchronize ]
+
+jobs:
+  code-review: # 작업 이름 정의
+    runs-on: ubuntu-latest # 작업이 실행될 환경 지정
+    permissions: # 필요한 권한 설정
+      contents: read # 저장소 내용 읽기 권한
+      pull-requests: write # PR 댓글 작성 권한
+    steps:
+      - name: Checkout repository # 저장소 체크아웃 단계
+        uses: actions/checkout@v3 # GitHub 제공 액션 사용
+        with:
+          fetch-depth: 0 # 전체 히스토리 가져오기 (diff 계산을 위해 필요)
+
+      - name: Set up Node # Node.js 환경 설정 단계
+        uses: actions/setup-node@v3 # Node.js 설치 액션
+
+      - name: Install GoogleGenerativeAI # Gemini API 라이브러리 설치 단계
+        run: |
+          npm install @google/generative-ai # Gemini API 클라이언트 설치
+
+      - name: Get git diff # 코드 변경사항 추출 단계
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # GitHub에서 base와 head 정보를 가져옴
+            BASE_COMMIT="${{ github.event.pull_request.base.sha }}"
+            HEAD_COMMIT="${{ github.event.pull_request.head.sha }}"
+            git diff --unified=0 $BASE_COMMIT $HEAD_COMMIT > diff.txt
+          else
+            git diff --unified=0 HEAD^ HEAD > diff.txt
+          fi
+
+      - name: Run Gemini-1.5-flash # Gemini AI로 코드 리뷰 수행 단계
+        uses: actions/github-script@v7 # JavaScript 실행 액션
+        with:
+          script: |
+            const fs = require("fs");
+            const diff_output = fs.readFileSync("diff.txt", "utf8");
+            
+            const { GoogleGenerativeAI } = require("@google/generative-ai");
+            const genAI = new GoogleGenerativeAI("${{ secrets.GEMINI_API_KEY }}");
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            
+            // 한국어로 코드 리뷰 요청 및 특정 JSON 형식으로 응답 요청
+            const prompt = `Explain in korean. You are a senior software engineer and need to perform a code review based on the results of a given git diff.
+            Review the changed code from different perspectives and let us know if there are any changes that need to be made.
+            If you see any code that needs to be fixed in the result of the git diff, you need to calculate the exact line number by referring to the "@@ -0,0 +0,0 @@" part.
+            The output format is [{"path":"{ filepath }", "line": { line }, "text": { review comment }, "side": "RIGHT"}] format must be respected.
+            If the line number is not available or the code was entirely deleted, skip that file from the output.
+            Only include comments for lines with valid, non-zero numbers that exist in the PR diff.
+            If you detect that a code block was removed and then re-added (especially with the same content), please comment on whether that makes sense or seems unnecessary.
+
+
+            <git diff>${diff_output}</git diff>`;
+            
+            async function run() {
+              const result = await model.generateContent(prompt);
+              const response = await result.response;
+              const text = response.text();
+              fs.writeFileSync("review_result.txt", text);
+              console.log("Review results saved!");
+            }
+            
+            return run();
+
+      - name: Format PR review comments # 리뷰 결과를 PR 코멘트 형식으로 변환 단계
+        if: github.event_name == 'pull_request' # PR인 경우에만 실행
+        id: store # 다음 단계에서 참조할 ID
+        run: |
+          # Markdown 코드 블록 제거 후 JSON 형식으로 변환
+          COMMENT=$(sed '/^```/d' review_result.txt | jq -c .)
+          echo "comment=$COMMENT" >> $GITHUB_OUTPUT # 출력 변수에 저장
+
+      - name: Add Pull Request Review Comment # PR에 코드 리뷰 코멘트 추가 단계
+        if: github.event_name == 'pull_request' # PR인 경우에만 실행
+        uses: nbaztec/add-pr-review-comment@v1.0.7 # 코드 리뷰 코멘트 추가 액션
+        with:
+          comments: ${{ steps.store.outputs.comment }} # 이전 단계의 출력 사용
+          repo-token: ${{ secrets.GITHUB_TOKEN }} # GitHub 토큰 사용
+          repo-token-user-login: 'github-actions[bot]' # 코멘트 작성자 설정
+          allow-repeats: false # 중복 코멘트 방지
+
+      - name: Debug show diff
+        run: |
+          echo "==== diff.txt ===="
+          cat diff.txt
+          echo "=================="

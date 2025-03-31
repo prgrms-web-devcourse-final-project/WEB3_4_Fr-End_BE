@@ -3,12 +3,14 @@ package com.frend.planit.domain.mateboard.post.controller;
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.service.MateService;
+import com.frend.planit.global.response.ApiResponseHelper;
+import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +48,7 @@ public class MateController {
         // TODO: 로그인 기능 연동 필요
         Long userId = 1L; // 로그인 기능 연동 전까지 임시 값
         Long mateId = mateService.createMate(userId, mateRequestDto);
-        return ResponseEntity.ok(mateId);
+        return ApiResponseHelper.success(HttpStatus.OK, mateId);
     }
 
     /**
@@ -56,11 +58,11 @@ public class MateController {
      * @return mates 페이징 된 게시글 목록
      */
     @GetMapping
-    public ResponseEntity<Page<MateResponseDto>> getAllMates(
+    public ResponseEntity<PageResponse<MateResponseDto>> getAllMates(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        Page<MateResponseDto> mates = mateService.getAllMates(pageable);
-        return ResponseEntity.ok(mates);
+        PageResponse<MateResponseDto> mates = mateService.getAllMates(pageable);
+        return ApiResponseHelper.success(HttpStatus.OK, mates);
     }
 
     /**
@@ -72,7 +74,7 @@ public class MateController {
     @GetMapping("/{id}")
     public ResponseEntity<MateResponseDto> getMate(@PathVariable Long id) {
         MateResponseDto mate = mateService.getMate(id);
-        return ResponseEntity.ok(mate);
+        return ApiResponseHelper.success(HttpStatus.OK, mate);
     }
 
     /**
@@ -86,7 +88,7 @@ public class MateController {
     public ResponseEntity<MateResponseDto> updateMate(@PathVariable Long id,
             @RequestBody @Valid MateRequestDto mateRequestDto) {
         MateResponseDto updatedMate = mateService.updateMate(id, mateRequestDto);
-        return ResponseEntity.ok(updatedMate);
+        return ApiResponseHelper.success(HttpStatus.OK, updatedMate);
     }
 
     /**
@@ -98,6 +100,6 @@ public class MateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<MateResponseDto> deleteMate(@PathVariable Long id) {
         MateResponseDto deleteMate = mateService.deleteMate(id);
-        return ResponseEntity.ok(deleteMate);
+        return ApiResponseHelper.success(HttpStatus.OK, deleteMate);
     }
 }

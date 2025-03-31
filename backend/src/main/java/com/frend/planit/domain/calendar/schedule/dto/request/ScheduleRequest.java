@@ -17,7 +17,7 @@ public class ScheduleRequest {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ScheduleRequest {
+    public static class ScheduleRequestData {
 
         @Size(min = 3, message = "일정 제목은 최소 3자 이상이어야 합니다.")
         private String title;

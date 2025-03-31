@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- 환경 데이터 -->
+  <property name="LOG_PATTERN"
+    value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+  <property name="LOG_PATTERN_COLORED"
+    value="%green(%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread]) %highlight(%-5level) %cyan(%logger{36})\n- %msg%n"/>
+  <timestamp key="DATE" datePattern="yyyy-MM-dd"/>
+  <springProperty scope="context" name="PROFILE" source="spring.profiles.active"/>
+
+  <!-- 콘솔 출력 (INFO 이상 출력, 색상 적용) -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+    <encoder>
+      <pattern>${LOG_PATTERN_COLORED}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- 로그 파일 저장 (전체 레벨 저장, 색상 없음) -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>backend/logs/%d{yyyyMMdd}/${PROFILE}_%d{yyyyMMdd_HHmmss}_%i.log.gz
+      </fileNamePattern>
+      <maxFileSize>20MB</maxFileSize>
+      <maxHistory>7</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- 패키지 별 로그 레벨  -->
+  <logger name="com.frend.planit" level="INFO"/>
+
+  <!-- 기본 로그 레벨 (콘솔은 필터링하여 INFO 부터 출력) -->
+  <root level="TRACE">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
+</configuration>

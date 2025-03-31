@@ -1,14 +1,10 @@
 package com.frend.planit.domain.mateboard.post.service;
 
-import static com.frend.planit.global.response.ErrorType.MATE_POST_NOT_FOUND;
-
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.mateboard.post.mapper.MateMapper;
 import com.frend.planit.domain.mateboard.post.repository.MateRepository;
-import com.frend.planit.global.exception.ServiceException;
-import com.frend.planit.global.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,12 +52,11 @@ public class MateService {
      * @param pageable 페이징 정보 (페이지 번호, 크기, 정렬)
      * @return 페이징 처리된 게시글 응답 DTO 목록
      */
-    public PageResponse<MateResponseDto> getAllMates(Pageable pageable) {
+    public Page<MateResponseDto> getAllMates(Pageable pageable) {
         // DB에서 전체 게시글 조회
         Page<Mate> mates = mateRepository.findAll(pageable);
-        Page<MateResponseDto> dtoPage = mates.map(MateMapper::toResponseDto);
         // Entity에서 DTO로 변환하여 반환
-        return new PageResponse<>(dtoPage);
+        return mates.map(MateMapper::toResponseDto);
     }
 
     /**
@@ -73,7 +68,7 @@ public class MateService {
      */
     public MateResponseDto getMate(Long id) {
         Mate mate = mateRepository.findById(id).orElseThrow(()
-                -> new ServiceException(MATE_POST_NOT_FOUND));
+                -> new RuntimeException("해당 게시글이 존재하지 않습니다."));
         return MateMapper.toResponseDto(mate);
     }
 
@@ -87,8 +82,8 @@ public class MateService {
      */
     public MateResponseDto updateMate(Long id, MateRequestDto mateRequestDto) {
         // 1. 수정할 게시글 찾기
-        Mate updatemate = mateRepository.findById(id).orElseThrow(()
-                -> new ServiceException(MATE_POST_NOT_FOUND));
+        Mate updatemate = mateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 게시글이 존재하지 않습니다."));
         // 2. 수정할 게시글 내용 입력
         updatemate.setTitle(mateRequestDto.getTitle());
         updatemate.setContent(mateRequestDto.getContent());
@@ -111,8 +106,8 @@ public class MateService {
      */
     public MateResponseDto deleteMate(Long id) {
         // 1. 게시글 조회 -> 없을 시 예외
-        Mate deleteMate = mateRepository.findById(id).orElseThrow(()
-                -> new ServiceException(MATE_POST_NOT_FOUND));
+        Mate deleteMate = mateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("삭제할 게시글이 존재하지 않습니다"));
         // 2. 게시글 삭제
         mateRepository.delete(deleteMate);
         // 3. 삭제된 게시글 정보 리턴

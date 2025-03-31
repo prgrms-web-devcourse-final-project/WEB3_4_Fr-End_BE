@@ -85,6 +85,14 @@ public class ValidationExceptionHandler {
                 .body(new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage()));
     }
 
+    // ModelAttribute, RequestParam 의 유효성 검사 예외를 처리합니다.
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handleHandlerMethodValidationException(
+            HandlerMethodValidationException exception) {
+        return ApiResponseHelper.error(ErrorType.CONSTRAINT_VIOLATION.getCode(),
+                new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage()));
+    }
+
     // RequestParam, PathVariable 의 타입 변환 예외를 처리합니다.
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleArgumentTypeMismatchException(

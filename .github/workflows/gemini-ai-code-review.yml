@@ -94,3 +94,9 @@ jobs:
           echo "==== diff.txt ===="
           cat diff.txt
           echo "=================="
+
+      - name: Print Gemini raw output
+        run: |
+          echo "===== Gemini Output ====="
+          cat review_result.txt
+          echo "========================="

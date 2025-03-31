@@ -21,13 +21,12 @@ jobs:
         uses: actions/setup-node@v3 # Node.js 설치 액션
 
       - name: Install GoogleGenerativeAI # Gemini API 라이브러리 설치 단계
-        run: |
-          npm install @google/generative-ai # Gemini API 클라이언트 설치
+        run: | # Gemini API 클라이언트 설치
+          npm install @google/generative-ai
 
       - name: Get git diff # 코드 변경사항 추출 단계
-        run: |
+        run: | # GitHub에서 base와 head 정보를 가져옴
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # GitHub에서 base와 head 정보를 가져옴
             BASE_COMMIT="${{ github.event.pull_request.base.sha }}"
             HEAD_COMMIT="${{ github.event.pull_request.head.sha }}"
             git diff --unified=0 $BASE_COMMIT $HEAD_COMMIT > diff.txt

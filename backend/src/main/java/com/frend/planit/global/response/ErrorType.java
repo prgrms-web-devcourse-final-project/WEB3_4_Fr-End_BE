@@ -1,6 +1,5 @@
 package com.frend.planit.global.response;
 
-import com.frend.planit.global.validation.CodeValidation;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -35,7 +34,6 @@ public enum ErrorType {
     GLOBAL_TEST_CODE(444, "테스트 컨트롤러의 코드입니다."),
 
     // MateBoard
-
     MATE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물이 존재하지 않습니다.");
 
     /*********************************************************************************/
@@ -44,13 +42,11 @@ public enum ErrorType {
     private final String message;
 
     ErrorType(HttpStatus status, String message) {
-        CodeValidation.validateErrorCode(status);
         this.code = status.value();
         this.message = message;
     }
 
     ErrorType(int code, String message) {
-        CodeValidation.validateErrorCode(code);
         this.code = code;
         this.message = message;
     }

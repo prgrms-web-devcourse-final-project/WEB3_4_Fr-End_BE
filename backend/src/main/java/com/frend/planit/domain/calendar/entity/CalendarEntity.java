@@ -1,6 +1,6 @@
 package com.frend.planit.domain.calendar.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,8 +35,6 @@ public class CalendarEntity {
     @Column(name = "note")
     private String note;
 
-
-
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -47,7 +45,6 @@ public class CalendarEntity {
     public void onUpdate() {
         this.modifiedAt = LocalDateTime.now();
     }
-
 
     public CalendarEntity() {}
 

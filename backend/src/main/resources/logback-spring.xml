@@ -3,9 +3,9 @@
 
   <!-- 환경 데이터 -->
   <property name="LOG_PATTERN"
-    value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+    value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} >> %msg%n"/>
   <property name="LOG_PATTERN_COLORED"
-    value="%green(%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread]) %highlight(%-5level) %cyan(%logger{36})\n- %msg%n"/>
+    value="%green([%d{yyyy-MM-dd HH:mm:ss.SSS}]) [%thread] %highlight([%level]) %cyan(%logger{36}) >> %msg%n"/>
   <timestamp key="DATE" datePattern="yyyy-MM-dd"/>
   <springProperty scope="context" name="PROFILE" source="spring.profiles.active"/>
 
@@ -31,9 +31,6 @@
       <pattern>${LOG_PATTERN}</pattern>
     </encoder>
   </appender>
-
-  <!-- 패키지 별 로그 레벨  -->
-  <logger name="com.frend.planit" level="INFO"/>
 
   <!-- 기본 로그 레벨 (콘솔은 필터링하여 INFO 부터 출력) -->
   <root level="TRACE">

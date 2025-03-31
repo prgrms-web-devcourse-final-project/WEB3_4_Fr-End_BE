@@ -78,7 +78,7 @@ jobs:
         run: |
           # Markdown 코드 블록 제거 후 JSON 형식으로 변환
           COMMENT=$(sed '/^```/d' review_result.txt | jq -c .)
-          echo "comment=$COMMENT" >> $GITHUB_OUTPUT # 출력 변수에 저장
+          echo "comment=$COMMENT" >> $GITHUB_OUTPUT
 
       - name: Add Pull Request Review Comment # PR에 코드 리뷰 코멘트 추가 단계
         if: github.event_name == 'pull_request' # PR인 경우에만 실행

@@ -17,6 +17,7 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /*
@@ -71,6 +72,14 @@ public class ValidationExceptionHandler {
         // 서비스 계층일 경우 내부 오류로 판단
         return ApiResponseHelper.error(ErrorType.COMMON_SERVER_ERROR.getCode(),
                 new ErrorResponse(ErrorType.COMMON_SERVER_ERROR.getMessage(), details));
+    }
+
+    // ModelAttribute, RequestParam 의 유효성 검사 예외를 처리합니다.
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handleHandlerMethodValidationException(
+            HandlerMethodValidationException exception) {
+        return ApiResponseHelper.error(ErrorType.CONSTRAINT_VIOLATION.getCode(),
+                new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage()));
     }
 
     // RequestParam, PathVariable 의 타입 변환 예외를 처리합니다.

@@ -1,8 +1,6 @@
 package com.frend.planit.domain.booking.entity;
 
-import com.frend.planit.domain.user.entity.User;
-import com.frend.planit.domain.accommodation.entity.Accommodation;
-import com.frend.planit.global.entity.BaseTimeEntity;
+import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,8 +9,6 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "booking",
         indexes = {
-                @Index(name = "idx_booking_user", columnList = "user_id"),
-                @Index(name = "idx_booking_accodation", columnLommist = "accommodation_id"),
                 @Index(name = "idx_booking_checkin_checkout", columnList = "check_in, check_out")
         }
 )
@@ -21,19 +17,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookingEntity extends BaseTimeEntity {
+public class BookingEntity extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "accommodation_id", nullable = false)
-    private Accommodation accommodation;  // 숙소 이름 저장
+    private Long id;  // 예약 PK
 
     @Column(nullable = false)
     private LocalDate checkIn;  // 체크인 날짜
@@ -43,15 +31,15 @@ public class BookingEntity extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private BookingStatus status;  // 예약 상태 아래내용참고
+    private BookingStatus status;  // 예약 상태 (예: PENDING, CONFIRMED, CANCELED)
 
     @Column(nullable = false)
-    private int person; // 예약 인원수
+    private int person;  // 예약 인원
 
     @Column(nullable = false)
-    private int price;
+    private int price;  // 총 가격
 
-    // 예약 상태
+    // 예약 상태 ENUM
     public enum BookingStatus {
         PENDING,   // 예약 대기
         CONFIRMED, // 예약 확정

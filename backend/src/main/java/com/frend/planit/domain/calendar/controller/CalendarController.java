@@ -1,7 +1,7 @@
 package com.frend.planit.domain.calendar.controller;
 
-import com.frend.planit.domain.calendar.dto.CalendarRequestDto;
-import com.frend.planit.domain.calendar.dto.CalendarResponseDto;
+import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
+import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.service.CalendarService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

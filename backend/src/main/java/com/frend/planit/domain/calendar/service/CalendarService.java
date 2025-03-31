@@ -1,15 +1,17 @@
 package com.frend.planit.domain.calendar.service;
 
-import com.frend.planit.domain.calendar.dto.CalendarRequestDto;
-import com.frend.planit.domain.calendar.dto.CalendarResponseDto;
+import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
+import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.entity.CalendarEntity;
 import com.frend.planit.domain.calendar.repository.CalendarRepository;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 @Service
 public class CalendarService {
     private final CalendarRepository calendarRepository;

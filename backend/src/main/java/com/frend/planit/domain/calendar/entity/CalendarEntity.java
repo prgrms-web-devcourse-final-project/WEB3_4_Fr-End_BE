@@ -3,12 +3,14 @@ package com.frend.planit.domain.calendar.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "calendar")
 @Getter
+@Setter
 @NoArgsConstructor
 public class CalendarEntity {
 

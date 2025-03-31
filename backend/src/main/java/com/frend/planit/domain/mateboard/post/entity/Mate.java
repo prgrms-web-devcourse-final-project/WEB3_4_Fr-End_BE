@@ -5,36 +5,33 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import java.time.LocalDate;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * 메이트 모집 게시글을 나타내는 엔티티입니다. 사용자가 여행 동행자를 모집할 때 사용됩니다. 게시글 수정 일자(modified_at)과 게시글 생성 날짜(created_at)는
- * BaseTime을 상속합니다.
+ * 메이트 모집 게시글을 나타내는 엔티티입니다. 사용자가 여행 동행자를 모집할 때 사용됩니다.
+ * <p>게시글 수정 일자(modified_at)과 게시글 생성 날짜(created_at)는 BaseTime을 상속합니다.</p>
  *
  * @author zelly
  * @version 1.0
  * @since 2025-03-28
  */
-
+@Getter
+@Setter
 @Entity
 public class Mate extends BaseTime {
 
     /**
-     * 메이트 구함 게시글 ID
+     * 메이트 구함 게시글 ID는 BaseEntity 상속
      */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long matePostId;
 
     /**
      * 사용자 ID (TODO: User 엔티티와 연관 관계 매핑 예정)
      *
      * @ManyToOne(fetch = FetchType.LAZY) private User id;
      */
-    @Column(name = "id")
+    @Column(name = "user_id")
     private Long userId;
 
     /**
@@ -83,12 +80,12 @@ public class Mate extends BaseTime {
     private MateGender mateGender;
 
     /**
-     * 게시글 생성 날짜(createdAt) BaseEntity 상속
+     * 게시글 생성 날짜(createdAt) BaseTime 상속
      */
     //
 
     /**
-     * 게시글 수정 날짜(modified_at) BaseEntity 상속
+     * 게시글 수정 날짜(modified_at) BaseTime 상속
      */
     //
 

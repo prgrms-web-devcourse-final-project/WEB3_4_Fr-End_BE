@@ -65,10 +65,16 @@ class CalendarTest {
         );
     }
 
-    // 캘린터 생성 테스트
+  // 캘린더 생성 테스트
     @Test
-    void createCalendar() throws Exception {
-        when(calendarService.createCalendar(Mockito.any(CalendarRequestDto.class))).thenReturn(calendarResponseDto);
+    void createCalendarTest() throws Exception {
+        CalendarRequestDto requestDto = new CalendarRequestDto();
+        requestDto.setCalendarTitle("New Calendar");
+        requestDto.setStartDate(LocalDateTime.now());
+        requestDto.setEndDate(LocalDateTime.now().plusDays(1));
+        requestDto.setTime(LocalDateTime.now());
+        requestDto.setAlertTime(LocalDateTime.now().minusHours(1));
+        requestDto.setNote("New Note");
 
         mockMvc.perform(post("/api/calendar")
                         .contentType("application/json")

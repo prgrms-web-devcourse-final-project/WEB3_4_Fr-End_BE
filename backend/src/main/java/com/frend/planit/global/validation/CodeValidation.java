@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 
 /*
  * 코드 유효성 검사를 위한 클래스입니다.
+ * 코드 범위 검사를 위한 클래스입니다.
  */
+
 @UtilityClass
 public class CodeValidation {
 
@@ -15,12 +17,20 @@ public class CodeValidation {
 
     public void validateSuccessCode(@NonNull HttpStatus successCode) {
         if (!successCode.is2xxSuccessful()) {
+
+    private final String WRONG_ERROR_CODE = "잘못된 에러 코드입니다.";
+
+    public void validateSuccessCode(@NonNull HttpStatus status) {
+        if (!status.is2xxSuccessful()) {
             throw new IllegalArgumentException(WRONG_SUCCESS_CODE);
         }
     }
 
     public void validateSuccessCode(int successCode) {
         if (successCode < 200 || 300 <= successCode) {
+
+    public void validateSuccessCode(int code) {
+        if (!is2xxSuccessful(code)) {
             throw new IllegalArgumentException(WRONG_SUCCESS_CODE);
         }
     }
@@ -35,5 +45,21 @@ public class CodeValidation {
         if (200 <= failureCode && failureCode < 300) {
             throw new IllegalArgumentException(WRONG_FAILURE_CODE);
         }
+    }
+
+    public void validateErrorCode(@NonNull HttpStatus status) {
+        if (status.is2xxSuccessful()) {
+            throw new IllegalArgumentException(WRONG_ERROR_CODE);
+        }
+    }
+
+    public void validateErrorCode(int code) {
+        if (is2xxSuccessful(code)) {
+            throw new IllegalArgumentException(WRONG_ERROR_CODE);
+        }
+    }
+
+    private boolean is2xxSuccessful(int code) {
+        return 200 <= code && code < 300;
     }
 }

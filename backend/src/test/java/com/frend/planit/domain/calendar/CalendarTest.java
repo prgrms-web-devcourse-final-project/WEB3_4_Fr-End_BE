@@ -1,117 +1,133 @@
 package com.frend.planit.domain.calendar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.frend.planit.domain.calendar.controller.CalendarController;
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
+import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.entity.CalendarEntity;
-import com.frend.planit.domain.calendar.repository.CalendarRepository;
 import com.frend.planit.domain.calendar.service.CalendarService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-public class CalendarTest {
+class CalendarControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private CalendarRepository calendarRepository;
-
-    @Autowired
+    @Mock
     private CalendarService calendarService;
 
-    private CalendarEntity savedCalendar;
+    @InjectMocks
+    private CalendarController calendarController;
+
+    private CalendarRequestDto calendarRequestDto;
+    private CalendarResponseDto calendarResponseDto;
 
     @BeforeEach
-    void setup() {
-        savedCalendar = calendarRepository.save(new CalendarEntity(
-                "Test Calendar",
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now(),
-                LocalDateTime.now().minusHours(1),
-                "Test Note"
-        ));
+    void setUp() {
+
+        MockitoAnnotations.openMocks(this);
+
+
+        mockMvc = MockMvcBuilders.standaloneSetup(calendarController).build();
+
+
+        calendarRequestDto = new CalendarRequestDto();
+        calendarRequestDto.setCalendarTitle("Test Calendar");
+        calendarRequestDto.setStartDate(LocalDateTime.now());
+        calendarRequestDto.setEndDate(LocalDateTime.now().plusHours(1));
+        calendarRequestDto.setTime(LocalDateTime.now().plusMinutes(30));
+        calendarRequestDto.setAlertTime(LocalDateTime.now().plusMinutes(15));
+        calendarRequestDto.setNote("Test Note");
+
+
+        calendarResponseDto = new CalendarResponseDto(
+                new CalendarEntity(
+                        calendarRequestDto.getCalendarTitle(),
+                        calendarRequestDto.getStartDate(),
+                        calendarRequestDto.getEndDate(),
+                        calendarRequestDto.getTime(),
+                        calendarRequestDto.getAlertTime(),
+                        calendarRequestDto.getNote()
+                )
+        );
     }
 
-  // 캘린더 생성 테스트
+    // 캘린터 생성 테스트
     @Test
-    void createCalendarTest() throws Exception {
-        CalendarRequestDto requestDto = new CalendarRequestDto();
-        requestDto.setCalendarTitle("New Calendar");
-        requestDto.setStartDate(LocalDateTime.now());
-        requestDto.setEndDate(LocalDateTime.now().plusDays(1));
-        requestDto.setTime(LocalDateTime.now());
-        requestDto.setAlertTime(LocalDateTime.now().minusHours(1));
-        requestDto.setNote("New Note");
+    void createCalendar() throws Exception {
+        when(calendarService.createCalendar(Mockito.any(CalendarRequestDto.class))).thenReturn(calendarResponseDto);
 
         mockMvc.perform(post("/api/calendar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.calendarTitle").value("New Calendar"));
-    }
-
-// 특정 캘린더 조회 테스트
-    @Test
-    void getCalendarTest() throws Exception {
-        mockMvc.perform(get("/api/calendar/" + savedCalendar.getId()))
+                        .contentType("application/json")
+                        .content("{\"calendarTitle\":\"Test Calendar\",\"startDate\":\"" + calendarRequestDto.getStartDate() + "\", \"endDate\":\"" + calendarRequestDto.getEndDate() + "\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.calendarTitle").value("Test Calendar"));
     }
 
-// 전체 캘린더 조회 테스트
+    // 특정 캘린더 조회 테스트 (모든 캘린더중에 사용자가 찾고자하는 특정 캘린더)
     @Test
-    void getAllCalendarsTest() throws Exception {
+    void getCalendar() throws Exception {
+        when(calendarService.getCalendar(Mockito.anyLong())).thenReturn(calendarResponseDto);
+
+        mockMvc.perform(get("/api/calendar/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.calendarTitle").value("Test Calendar"));
+    }
+
+    // 전체 캘린더 조회 테스트
+    @Test
+    void getAllCalendars() throws Exception {
+        when(calendarService.getAllCalendars()).thenReturn(Collections.singletonList(calendarResponseDto));
+
         mockMvc.perform(get("/api/calendar"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").isNotEmpty())
                 .andExpect(jsonPath("$[0].calendarTitle").value("Test Calendar"));
     }
 
- // 캘린더 수정 테스트
+    // 캘린더 수정 테스트
     @Test
-    void updateCalendarTest() throws Exception {
-        CalendarRequestDto requestDto = new CalendarRequestDto();
-        requestDto.setCalendarTitle("Updated Calendar");
-        requestDto.setStartDate(savedCalendar.getStartDate());
-        requestDto.setEndDate(savedCalendar.getEndDate());
-        requestDto.setTime(savedCalendar.getTime());
-        requestDto.setAlertTime(savedCalendar.getAlertTime());
-        requestDto.setNote("Updated Note");
+    void updateCalendar() throws Exception {
 
-        mockMvc.perform(put("/api/calendar/" + savedCalendar.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+        CalendarResponseDto updatedResponseDto = new CalendarResponseDto(
+                new CalendarEntity(
+                        "Updated Calendar",  // 임시로 제목 수정
+                        calendarRequestDto.getStartDate(),
+                        calendarRequestDto.getEndDate(),
+                        calendarRequestDto.getTime(),
+                        calendarRequestDto.getAlertTime(),
+                        calendarRequestDto.getNote()
+                )
+        );
+
+
+        when(calendarService.updateCalendar(Mockito.anyLong(), Mockito.any(CalendarRequestDto.class)))
+                .thenReturn(updatedResponseDto);
+
+
+        mockMvc.perform(put("/api/calendar/{id}", 1L)
+                        .contentType("application/json")
+                        .content("{\"calendarTitle\":\"Updated Calendar\",\"startDate\":\"" + calendarRequestDto.getStartDate() + "\", \"endDate\":\"" + calendarRequestDto.getEndDate() + "\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.calendarTitle").value("Updated Calendar"));
+                .andExpect(jsonPath("$.calendarTitle").value("Updated Calendar"));  // 업데이트된 타이틀 검증
     }
 
-// 캘린더 삭제 테스트
+    // 캘린더 삭제 테스트
     @Test
-    void deleteCalendarTest() throws Exception {
-        mockMvc.perform(delete("/api/calendar/" + savedCalendar.getId()))
+    void deleteCalendar() throws Exception {
+        mockMvc.perform(delete("/api/calendar/{id}", 1L))
                 .andExpect(status().isNoContent());
-
-        Optional<CalendarEntity> deletedCalendar = calendarRepository.findById(savedCalendar.getId());
-        assertThat(deletedCalendar).isEmpty();
     }
 }

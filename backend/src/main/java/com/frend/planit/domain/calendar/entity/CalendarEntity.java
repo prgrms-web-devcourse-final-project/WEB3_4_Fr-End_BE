@@ -1,10 +1,15 @@
 package com.frend.planit.domain.calendar.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "calendar")
+@Getter
+@NoArgsConstructor
 public class CalendarEntity {
 
     @Id
@@ -45,8 +50,6 @@ public class CalendarEntity {
     public void onUpdate() {
         this.modifiedAt = LocalDateTime.now();
     }
-
-    public CalendarEntity() {}
 
     public CalendarEntity(String calendarTitle, LocalDateTime startDate, LocalDateTime endDate,
                           LocalDateTime time, LocalDateTime alertTime, String note) {

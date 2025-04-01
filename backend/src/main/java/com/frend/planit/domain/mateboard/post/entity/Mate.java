@@ -1,6 +1,7 @@
 package com.frend.planit.domain.mateboard.post.entity;
 
 import com.frend.planit.global.base.BaseTime;
+import com.nimbusds.openid.connect.sdk.claims.Gender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,6 +34,18 @@ public class Mate extends BaseTime {
      */
     @Column(name = "user_id")
     private Long userId;
+
+    /**
+     * 사용자 프로필 이미지 (TODO: User 엔티티와 연관 관계 매핑 예정)
+     */
+    private String profile_image;
+
+    /**
+     * 작성자 성별 (TODO: User 엔티티와 연관 관계 매핑 예정)
+     */
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     /**
      * 게시글 제목

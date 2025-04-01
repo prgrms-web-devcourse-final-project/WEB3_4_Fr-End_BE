@@ -47,6 +47,13 @@ public class Mate extends BaseTime {
     private AuthorGender authorGender;
 
     /**
+     * 게시글에 등록된 이미지 (최대 5장)
+     * TODO: Picture 테이블과 연동 예정
+     private List<Picture> pictures;
+     *
+     */
+
+    /**
      * 게시글 제목
      */
     @Column(nullable = false)

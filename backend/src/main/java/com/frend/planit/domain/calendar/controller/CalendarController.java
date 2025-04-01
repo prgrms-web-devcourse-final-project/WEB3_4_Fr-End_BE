@@ -6,6 +6,7 @@ import com.frend.planit.domain.calendar.service.CalendarService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -19,7 +20,11 @@ public class CalendarController {
 
     @PostMapping
     public ResponseEntity<CalendarResponseDto> createCalendar(@RequestBody CalendarRequestDto requestDto) {
-        return ResponseEntity.ok(calendarService.createCalendar(requestDto));
+        CalendarResponseDto responseDto = calendarService.createCalendar(requestDto);
+
+        URI location = URI.create("/api/calendar/" + responseDto.getId());
+        // Create를 201로 반환
+        return ResponseEntity.created(location).body(responseDto);
     }
 
     @GetMapping("/{id}")

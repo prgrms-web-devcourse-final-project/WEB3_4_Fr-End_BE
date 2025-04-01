@@ -6,6 +6,7 @@ import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.GoogleTokenResponse;
 import com.frend.planit.domain.user.dto.response.GoogleUserInfoResponse;
 import com.frend.planit.domain.user.dto.response.LoginResponse;
+import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.Role;
@@ -96,5 +97,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean isNicknameAvailable(String nickname) {
         return !userRepository.existsByNickname(nickname);
+    }
+
+    @Transactional(readOnly = true)
+    public UserMeResponse getMyInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.COMMON_SERVER_ERROR));
+
+        return UserMeResponse.from(user);
     }
 }

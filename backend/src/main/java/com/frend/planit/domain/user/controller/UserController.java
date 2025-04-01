@@ -2,8 +2,11 @@ package com.frend.planit.domain.user.controller;
 
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.LoginResponse;
+import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.service.UserService;
+import com.frend.planit.global.exception.ServiceException;
+import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.global.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -31,7 +34,6 @@ public class UserController {
      * @param socialType GOOGLE, KAKAO, NAVER
      * @param code       인가 코드
      */
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
             @RequestParam("socialType") SocialType socialType,
@@ -65,11 +67,22 @@ public class UserController {
         return ResponseEntity.ok(available);
     }
 
+    /**
+     * 현재 로그인한 유저 정보 조회
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UserMeResponse> getMyInfo(HttpServletRequest request) {
+        String token = resolveTokenFromHeader(request);
+        Long userId = jwtTokenProvider.getUserIdFromToken(token);
+        UserMeResponse response = userService.getMyInfo(userId);
+        return ResponseEntity.ok(response);
+    }
+
     private String resolveTokenFromHeader(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
-        throw new IllegalArgumentException("토큰이 헤더에 없습니다.");
+        throw new ServiceException(ErrorType.UNAUTHORIZED);
     }
 }

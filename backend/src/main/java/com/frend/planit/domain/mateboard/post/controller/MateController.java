@@ -61,7 +61,7 @@ public class MateController {
     public ResponseEntity<PageResponse<MateResponseDto>> getAllMates(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        PageResponse<MateResponseDto> mates = mateService.getAllMates(pageable);
+        PageResponse<MateResponseDto> mates = mateService.findAllWithPaging(pageable);
         return ApiResponseHelper.success(HttpStatus.OK, mates);
     }
 

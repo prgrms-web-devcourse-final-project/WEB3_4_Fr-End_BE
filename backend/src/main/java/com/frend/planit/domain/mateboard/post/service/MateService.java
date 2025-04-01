@@ -31,6 +31,19 @@ public class MateService {
     private final MateRepository mateRepository;
 
     /**
+     * ID로 게시글을 조회하고, 존재하지 않으면 예외를 던집니다.
+     *
+     * @param id 조회할 게시글 ID
+     * @return 조회된 Mate 엔티티
+     * @throws ServiceException 게시글이 존재하지 않는 경우
+     */
+    @Transactional(readOnly = true)
+    public Mate findMateOrThrow(Long id) {
+        return mateRepository.findById(id).
+                orElseThrow(() -> new ServiceException(MATE_POST_NOT_FOUND));
+    }
+
+    /**
      * 메이트 모집 게시글을 생성합니다.
      *
      * @param userId         작성자 ID
@@ -39,18 +52,23 @@ public class MateService {
      */
     public Long createMate(Long userId, MateRequestDto mateRequestDto) {
         // 1. 메이트 엔티티 생성
-        Mate mate = new Mate();
-        mate.setUserId(userId);
-        mate.setTitle(mateRequestDto.getTitle());
-        mate.setContent(mateRequestDto.getContent());
-        mate.setTravelRegion(mateRequestDto.getTravelRegion());
-        mate.setTravelStartDate(mateRequestDto.getTravelStartDate());
-        mate.setTravelEndDate(mateRequestDto.getTravelEndDate());
-        mate.setMateGender(mateRequestDto.getMateGender());
+        Mate mate = createMateEntity(userId, mateRequestDto);
         // 2. 생성된 게시글 저장
         mateRepository.save(mate);
         // 3. 생성된 게시글 ID 반환
         return mate.getId();
+    }
+
+    /**
+     * 메이트 게시글을 단건 조회합니다.
+     *
+     * @param id 조회할 게시글 ID
+     * @return 조회된 게시글의 응답 DTO
+     * @throws RuntimeException 헤당 Id의 게시글이 존재하지 않을 경우 예외 발생
+     */
+    public MateResponseDto getMate(Long id) {
+        Mate mate = findMateOrThrow(id);
+        return MateMapper.toResponseDto(mate);
     }
 
     /**
@@ -65,18 +83,6 @@ public class MateService {
         Page<MateResponseDto> dtoPage = mates.map(MateMapper::toResponseDto);
         // Entity에서 DTO로 변환하여 반환
         return new PageResponse<>(dtoPage);
-    }
-
-    /**
-     * 메이트 게시글을 단건 조회합니다.
-     *
-     * @param id 조회할 게시글 ID
-     * @return 조회된 게시글의 응답 DTO
-     * @throws RuntimeException 헤당 Id의 게시글이 존재하지 않을 경우 예외 발생
-     */
-    public MateResponseDto getMate(Long id) {
-        Mate mate = findMateOrThrow(id);
-        return MateMapper.toResponseDto(mate);
     }
 
     /**
@@ -118,17 +124,26 @@ public class MateService {
         // 3. 삭제된 게시글 정보 리턴
         return MateMapper.toResponseDto(deleteMate);
     }
-    
+
     /**
-     * ID로 게시글을 조회하고, 존재하지 않으면 예외를 던집니다.
+     * MateRequestDto와 userId를 기반으로 Mate 엔티티를 생성합니다.
      *
-     * @param id 조회할 게시글 ID
-     * @return 조회된 Mate 엔티티
-     * @throws ServiceException 게시글이 존재하지 않는 경우
+     * @param userId         사용자 ID
+     * @param mateRequestDto 게시글 요청 DTO
+     * @return 생성된 Mate 엔티티
      */
-    @Transactional(readOnly = true)
-    public Mate findMateOrThrow(Long id) {
-        return mateRepository.findById(id).
-                orElseThrow(() -> new ServiceException(MATE_POST_NOT_FOUND));
+    private Mate createMateEntity(Long userId, MateRequestDto mateRequestDto) {
+        Mate mate = new Mate();
+        mate.setUserId(userId);
+        mate.setTitle(mateRequestDto.getTitle());
+        mate.setContent(mateRequestDto.getContent());
+        mate.setTravelRegion(mateRequestDto.getTravelRegion());
+        mate.setTravelStartDate(mateRequestDto.getTravelStartDate());
+        mate.setTravelEndDate(mateRequestDto.getTravelEndDate());
+        mate.setMateGender(mateRequestDto.getMateGender());
+        return mate;
+
     }
+
+
 }

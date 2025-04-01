@@ -1,57 +1,46 @@
 package com.frend.planit.domain.calendar.entity;
 
+import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "calendar")
 @Getter
-@Setter
 @NoArgsConstructor
-public class CalendarEntity {
+public class CalendarEntity extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "calendar_title", nullable = false)
+    @NotNull
+    @Size(min = 1, max = 20)
+    @Column(name = "calendar_title", nullable = false, length = 100)
     private String calendarTitle;
 
+    @NotNull
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
+    @NotNull
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
+    @NotNull
     @Column(name = "time", nullable = false)
     private LocalDateTime time;
 
     @Column(name = "alert_time")
     private LocalDateTime alertTime;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
-    @Column(name = "note")
+    @Column(name = "note", length = 200)
     private String note;
-
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.modifiedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        this.modifiedAt = LocalDateTime.now();
-    }
 
     public CalendarEntity(String calendarTitle, LocalDateTime startDate, LocalDateTime endDate,
                           LocalDateTime time, LocalDateTime alertTime, String note) {

@@ -1,15 +1,13 @@
 package com.frend.planit.domain.booking.controller;
 
-import com.frend.planit.booking.dto.request.BookingRequestDto;
-import com.frend.planit.booking.dto.response.BookingResponseDto;
-import com.frend.planit.booking.service.BookingService;
-import com.frend.planit.domain.booking.entity.BookingEntity;
-import com.frend.planit.domain.booking.repository.BookingRepository;
+import com.frend.planit.domain.booking.dto.request.BookingRequestDto;
+import com.frend.planit.domain.booking.dto.response.BookingResponseDto;
+import com.frend.planit.domain.booking.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/bookings")

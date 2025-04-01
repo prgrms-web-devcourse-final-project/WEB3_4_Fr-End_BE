@@ -1,9 +1,9 @@
 package com.frend.planit.domain.booking.service;
 
-import com.frend.planit.booking.dto.request.BookingRequestDto;
-import com.frend.planit.booking.dto.response.BookingResponseDto;
+import com.frend.planit.domain.booking.dto.request.BookingRequestDto;
+import com.frend.planit.domain.booking.dto.response.BookingResponseDto;
 import com.frend.planit.domain.booking.entity.BookingEntity;
-import com.frend.planit.booking.repository.BookingRepository;
+import com.frend.planit.domain.booking.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

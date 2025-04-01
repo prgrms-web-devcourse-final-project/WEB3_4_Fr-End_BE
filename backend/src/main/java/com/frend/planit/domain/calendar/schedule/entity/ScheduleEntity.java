@@ -57,6 +57,7 @@ public class ScheduleEntity extends BaseTime {
     private String note;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Travel> travelList = new ArrayList<>();
 
     // Bussiness Logic

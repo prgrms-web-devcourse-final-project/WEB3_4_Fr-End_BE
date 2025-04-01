@@ -75,6 +75,7 @@ jobs:
         if: github.event_name == 'pull_request' # PR인 경우에만 실행
         id: store # 다음 단계에서 참조할 ID
         run: | # Markdown 코드 블록 제거 후 JSON 형식으로 변환
+          cat review_result.txt
           COMMENT=$(sed '/^```/d' review_result.txt | jq -c .)
           echo "comment=$COMMENT" >> $GITHUB_OUTPUT
 

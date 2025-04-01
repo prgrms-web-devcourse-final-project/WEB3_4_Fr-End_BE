@@ -77,6 +77,7 @@ public class UserService {
         }
 
         user.updateFirstInfo(
+                request.getEmail(),
                 request.getNickname(),
                 request.getPhone(),
                 request.getBirthDate(),

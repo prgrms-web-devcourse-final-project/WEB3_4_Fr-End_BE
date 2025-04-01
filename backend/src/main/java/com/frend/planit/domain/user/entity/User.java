@@ -82,11 +82,15 @@ public class User extends BaseTime {
     @Column(name = "login_type", nullable = false)
     private LoginType loginType;
 
-    public void updateFirstInfo(Gender gender, String nickname, String phone, LocalDate birthDate) {
-        this.gender = gender;
+    public void updateFirstInfo(String nickname, String phone, LocalDate birthDate, Gender gender) {
         this.nickname = nickname;
         this.phone = phone;
         this.birthDate = birthDate;
+        this.gender = gender;
         this.status = UserStatus.ACTIVE;
+    }
+
+    public void updateLastLoginAt(LocalDateTime now) {
+        this.lastLoginAt = now;
     }
 }

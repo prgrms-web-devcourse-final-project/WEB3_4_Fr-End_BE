@@ -1,5 +1,6 @@
 package com.frend.planit.domain.calendar.schedule.entity;
 
+import com.frend.planit.domain.calendar.entity.CalendarEntity;
 import com.frend.planit.domain.calendar.schedule.dto.request.ScheduleRequest;
 import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.CascadeType;
@@ -16,7 +17,6 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -39,7 +39,7 @@ public class ScheduleEntity extends BaseTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "calendar_id", nullable = false)
-    private Calendar calendar;
+    private CalendarEntity calendar;
 
     @Column(name = "schedule_title", nullable = false)
     private String title;
@@ -61,9 +61,9 @@ public class ScheduleEntity extends BaseTime {
     private List<Travel> travelList = new ArrayList<>();
 
     // Bussiness Logic
-    public void createSchedule(Calendar calendar, ScheduleRequest scheduleRequest) {
+    public void createSchedule(CalendarEntity calendar, ScheduleRequest scheduleRequest) {
         return ScheduleEntity.builder()
-                .calendar(calendarId)
+                .calendar(calendar)
                 .title(scheduleRequest.getTitle())
                 .startDate(scheduleRequest.getStartDate())
                 .endDate(scheduleRequest.getEndDate())
@@ -73,7 +73,7 @@ public class ScheduleEntity extends BaseTime {
     }
 
     public void updateSchedule(ScheduleRequest scheduleRequest) {
-        ScheduleEntity schedule = ScheduleEntity.builder()
+        return ScheduleEntity.builder()
                 .title(scheduleRequest.getTitle())
                 .startDate(scheduleRequest.getStartDate())
                 .endDate(scheduleRequest.getEndDate())

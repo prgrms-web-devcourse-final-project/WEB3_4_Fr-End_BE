@@ -1,12 +1,13 @@
 package com.frend.planit.domain.calendar.schedule.service;
 
+import com.frend.planit.domain.calendar.entity.CalendarEntity;
+import com.frend.planit.domain.calendar.repository.CalendarRepository;
 import com.frend.planit.domain.calendar.schedule.dto.request.ScheduleRequest;
 import com.frend.planit.domain.calendar.schedule.dto.response.ScheduleResponse;
 import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
-import java.util.Calendar;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ public class ScheduleService {
     // 여행 일정 생성
     @Transactional
     public ScheduleResponse createSchedule(Long calendarId, ScheduleRequest scheduleRequest) {
-        Calendar calendar = calendarRepository.findById(calendarId)
+        CalendarEntity calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
 
         if (scheduleRequest.getTravelList() != null && !scheduleRequest.getTravelList().isEmpty()) {

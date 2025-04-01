@@ -3,6 +3,7 @@ package com.frend.planit.domain.calendar.controller;
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
 import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.service.CalendarService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +20,11 @@ public class CalendarController {
     }
 
     @PostMapping
-    public ResponseEntity<CalendarResponseDto> createCalendar(@RequestBody CalendarRequestDto requestDto) {
+    public ResponseEntity<CalendarResponseDto> createCalendar(@Valid @RequestBody CalendarRequestDto requestDto) {
         CalendarResponseDto responseDto = calendarService.createCalendar(requestDto);
 
         URI location = URI.create("/api/calendar/" + responseDto.getId());
-        // Create를 201로 반환
+        // 생성시 201 반환
         return ResponseEntity.created(location).body(responseDto);
     }
 
@@ -38,7 +39,7 @@ public class CalendarController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CalendarResponseDto> updateCalendar(@PathVariable Long id, @RequestBody CalendarRequestDto requestDto) {
+    public ResponseEntity<CalendarResponseDto> updateCalendar(@PathVariable Long id, @Valid @RequestBody CalendarRequestDto requestDto) {
         return ResponseEntity.ok(calendarService.updateCalendar(id, requestDto));
     }
 

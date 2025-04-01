@@ -1,7 +1,6 @@
 package com.frend.planit.domain.mateboard.post.entity;
 
 import com.frend.planit.global.base.BaseTime;
-import com.nimbusds.openid.connect.sdk.claims.Gender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,7 +44,7 @@ public class Mate extends BaseTime {
      */
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private AuthorGender authorGender;
 
     /**
      * 게시글 제목

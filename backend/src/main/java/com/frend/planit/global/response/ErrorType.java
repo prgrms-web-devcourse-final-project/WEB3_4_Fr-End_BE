@@ -20,6 +20,8 @@ public enum ErrorType {
     EXAMPLE_CUSTOM_ERROR(444, "오류가 발생했습니다."),
 
     /*********************************************************************************/
+    // User
+    DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
 
     // Global
     ARGUMENT_BINDING_ERROR(HttpStatus.BAD_REQUEST, "요청 본문의 값이 잘못되었습니다."),

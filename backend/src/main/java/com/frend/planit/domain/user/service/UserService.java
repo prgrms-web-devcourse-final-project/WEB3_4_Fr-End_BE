@@ -11,6 +11,8 @@ import com.frend.planit.domain.user.enums.Role;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.repository.UserRepository;
+import com.frend.planit.global.exception.ServiceException;
+import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.global.security.JwtTokenProvider;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -70,14 +72,14 @@ public class UserService {
      */
     public void updateFirstInfo(Long userId, UserFirstInfoRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new ServiceException(ErrorType.COMMON_SERVER_ERROR));
 
         if (user.getStatus() != UserStatus.UNREGISTERED) {
-            throw new IllegalStateException("이미 최초 정보를 입력한 사용자입니다.");
+            throw new ServiceException(ErrorType.COMMON_SERVER_ERROR);
         }
 
         if (userRepository.existsByNickname(request.getNickname())) {
-            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+            throw new ServiceException(ErrorType.DUPLICATE_NICKNAME);
         }
 
         user.updateFirstInfo(

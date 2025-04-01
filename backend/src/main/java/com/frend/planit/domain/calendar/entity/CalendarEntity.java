@@ -3,9 +3,7 @@ package com.frend.planit.domain.calendar.entity;
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
 import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +11,8 @@ import java.time.LocalDateTime;
 @Table(name = "calendar")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class CalendarEntity extends BaseTime {
 
     @Id
@@ -39,14 +39,14 @@ public class CalendarEntity extends BaseTime {
 
     // DTO에서 Entity 변환 메서드
     public static CalendarEntity fromDto(CalendarRequestDto requestDto) {
-        return new CalendarEntity(
-                requestDto.calendarTitle(),
-                requestDto.startDate(),
-                requestDto.endDate(),
-                requestDto.time(),
-                requestDto.alertTime(),
-                requestDto.note()
-        );
+        return CalendarEntity.builder()
+                .calendarTitle(requestDto.calendarTitle())
+                .startDate(requestDto.startDate())
+                .endDate(requestDto.endDate())
+                .time(requestDto.time())
+                .alertTime(requestDto.alertTime())
+                .note(requestDto.note())
+                .build();
     }
 
     // 업데이트 메서드
@@ -57,15 +57,5 @@ public class CalendarEntity extends BaseTime {
         this.time = requestDto.time();
         this.alertTime = requestDto.alertTime();
         this.note = requestDto.note();
-    }
-
-    private CalendarEntity(String calendarTitle, LocalDateTime startDate, LocalDateTime endDate,
-                           LocalDateTime time, LocalDateTime alertTime, String note) {
-        this.calendarTitle = calendarTitle;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.time = time;
-        this.alertTime = alertTime;
-        this.note = note;
     }
 }

@@ -41,7 +41,7 @@ public class User extends BaseTime {
     @Column(length = 20)
     private String phone;
 
-    @Column(length = 50)
+    @Column(length = 50, unique = true)
     private String nickname;
 
     @Column(name = "profile_image")

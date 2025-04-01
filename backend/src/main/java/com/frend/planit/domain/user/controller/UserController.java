@@ -9,10 +9,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -43,6 +45,13 @@ public class UserController {
 
         userService.updateFirstInfo(userId, firstInfoRequest);
         return ResponseEntity.noContent().build();
+    }
+
+    // 닉네임 중복 여부 확인
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        boolean available = userService.isNicknameAvailable(nickname);
+        return ResponseEntity.ok(available);
     }
 
     // 헤더에서 JWT 토큰 추출

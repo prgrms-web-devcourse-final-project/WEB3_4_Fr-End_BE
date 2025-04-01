@@ -76,6 +76,10 @@ public class UserService {
             throw new IllegalStateException("이미 최초 정보를 입력한 사용자입니다.");
         }
 
+        if (userRepository.existsByNickname(request.getNickname())) {
+            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+        }
+
         user.updateFirstInfo(
                 request.getEmail(),
                 request.getNickname(),
@@ -83,5 +87,13 @@ public class UserService {
                 request.getBirthDate(),
                 request.getGender()
         );
+    }
+
+    /**
+     * 닉네임 중복 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isNicknameAvailable(String nickname) {
+        return !userRepository.existsByNickname(nickname);
     }
 }

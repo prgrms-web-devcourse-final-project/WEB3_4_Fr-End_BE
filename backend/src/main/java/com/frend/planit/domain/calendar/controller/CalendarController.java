@@ -24,7 +24,6 @@ public class CalendarController {
         CalendarResponseDto responseDto = calendarService.createCalendar(requestDto);
 
         URI location = URI.create("/api/calendar/" + responseDto.getId());
-        // 생성시 201 반환
         return ResponseEntity.created(location).body(responseDto);
     }
 

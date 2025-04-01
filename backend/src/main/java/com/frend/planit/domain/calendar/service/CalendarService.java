@@ -6,10 +6,11 @@ import com.frend.planit.domain.calendar.entity.CalendarEntity;
 import com.frend.planit.domain.calendar.exception.CalendarNotFoundException;
 import com.frend.planit.domain.calendar.repository.CalendarRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -30,9 +31,10 @@ public class CalendarService {
         return new CalendarResponseDto(calendar);
     }
 
-    public Page<CalendarResponseDto> getAllCalendars(Pageable pageable) {
-        return calendarRepository.findAll(pageable)
-                .map(CalendarResponseDto::new);
+    public List<CalendarResponseDto> getAllCalendars() {
+        return calendarRepository.findAll().stream()
+                .map(CalendarResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional

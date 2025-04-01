@@ -114,12 +114,33 @@ jobs:
 
       - name: Add Pull Request Review Comment # PR에 코드 리뷰 코멘트 추가 단계
         if: github.event_name == 'pull_request' # PR인 경우에만 실행
-        uses: nbaztec/add-pr-review-comment@v1.0.7 # 코드 리뷰 코멘트 추가 액션
+        uses: actions/github-script@v7 # 코드 리뷰 코멘트 추가 액션
         with:
-          comments: ${{ steps.store.outputs.comment }} # 이전 단계의 출력 사용
-          repo-token: ${{ secrets.GITHUB_TOKEN }} # GitHub 토큰 사용
-          repo-token-user-login: 'github-actions[bot]' # 코멘트 작성자 설정
-          allow-repeats: false # 중복 코멘트 방지
+          script: |
+            const comments = JSON.parse(process.env.REVIEW_COMMENTS || "[]");
+            const pull_number = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            for (const comment of comments) {
+              try {
+                await github.rest.pulls.createReviewComment({
+                  owner,
+                  repo,
+                  pull_number,
+                  body: comment.body,
+                  commit_id: comment.commit_id,
+                  path: comment.path,
+                  line: comment.line,
+                  side: "RIGHT"
+                });
+              } catch (error) {
+                console.error(`❌ Failed to comment on ${comment.path}:${comment.line}`);
+                console.error(error.message);
+              }
+            }
+            env:
+            REVIEW_COMMENTS: ${{ steps.store.outputs.comment }}
 
       - name: Debug show diff
         run: |

@@ -115,6 +115,8 @@ jobs:
       - name: Add Pull Request Review Comment # PR에 코드 리뷰 코멘트 추가 단계
         if: github.event_name == 'pull_request' # PR인 경우에만 실행
         uses: actions/github-script@v7 # 코드 리뷰 코멘트 추가 액션
+        env:
+          REVIEW_COMMENTS: ${{ steps.store.outputs.comment }}
         with:
           script: |
             const comments = JSON.parse(process.env.REVIEW_COMMENTS || "[]");

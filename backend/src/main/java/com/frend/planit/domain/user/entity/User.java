@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user")
+@Table(
+        name = "user",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"social_id", "social_type"})
+        }
+)
 public class User extends BaseTime {
 
     @Column(name = "social_id", nullable = false, length = 255)
@@ -75,4 +81,12 @@ public class User extends BaseTime {
     @Enumerated(EnumType.STRING)
     @Column(name = "login_type", nullable = false)
     private LoginType loginType;
+
+    public void updateFirstInfo(Gender gender, String nickname, String phone, LocalDate birthDate) {
+        this.gender = gender;
+        this.nickname = nickname;
+        this.phone = phone;
+        this.birthDate = birthDate;
+        this.status = UserStatus.ACTIVE;
+    }
 }

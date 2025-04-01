@@ -2,6 +2,7 @@ package com.frend.planit.domain.user.client;
 
 import com.frend.planit.domain.user.dto.response.GoogleTokenResponse;
 import com.frend.planit.domain.user.dto.response.GoogleUserInfoResponse;
+import com.frend.planit.domain.user.enums.SocialType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GoogleOauthClient {
+public class GoogleOauthClient implements OAuthClient {
 
     @Value("${oauth2.google.client-id}")
     private String clientId;
@@ -37,7 +38,7 @@ public class GoogleOauthClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 🔹 인가 코드로 access_token 요청
+    @Override
     public GoogleTokenResponse getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -60,7 +61,7 @@ public class GoogleOauthClient {
         return response.getBody();
     }
 
-    // 🔹 access_token으로 사용자 정보 조회
+    @Override
     public GoogleUserInfoResponse getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -75,5 +76,10 @@ public class GoogleOauthClient {
         );
 
         return response.getBody();
+    }
+
+    @Override
+    public SocialType getSocialType() {
+        return SocialType.GOOGLE;
     }
 }

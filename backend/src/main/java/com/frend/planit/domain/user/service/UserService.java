@@ -1,6 +1,7 @@
 package com.frend.planit.domain.user.service;
 
-import com.frend.planit.domain.user.client.GoogleOauthClient;
+import com.frend.planit.domain.user.client.OAuthClient;
+import com.frend.planit.domain.user.client.OAuthClientFactory;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.GoogleTokenResponse;
 import com.frend.planit.domain.user.dto.response.GoogleUserInfoResponse;
@@ -24,28 +25,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
 
-    private final GoogleOauthClient googleOauthClient;
+    private final OAuthClientFactory oauthClientFactory;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 구글 인가 코드를 받아 로그인 또는 회원가입 처리
      */
-    public LoginResponse loginOrRegister(String code) {
-        // 1. access token 요청
-        GoogleTokenResponse tokenResponse = googleOauthClient.getAccessToken(code);
+    public LoginResponse loginOrRegister(SocialType socialType, String code) {
+        OAuthClient client = oauthClientFactory.getClient(socialType);
 
-        // 2. 사용자 정보 요청
-        GoogleUserInfoResponse userInfo = googleOauthClient.getUserInfo(
-                tokenResponse.getAccessToken());
+        GoogleTokenResponse tokenResponse = client.getAccessToken(code);
+        GoogleUserInfoResponse userInfo = client.getUserInfo(tokenResponse.getAccessToken());
 
-        // 3. 소셜 식별자 기반 유저 찾기
-        User user = userRepository.findBySocialIdAndSocialType(userInfo.getSub(), SocialType.GOOGLE)
+        User user = userRepository.findBySocialIdAndSocialType(userInfo.getSub(),
+                        client.getSocialType())
                 .orElseGet(() -> {
                     // 신규 유저: UNREGISTERED 상태로 생성
                     User newUser = User.builder()
                             .socialId(userInfo.getSub())
-                            .socialType(SocialType.GOOGLE)
+                            .socialType(client.getSocialType())
                             .email(userInfo.getEmail())
                             .profileImage(userInfo.getPicture())
                             .nickname(userInfo.getName())
@@ -56,14 +55,14 @@ public class UserService {
                     return userRepository.save(newUser);
                 });
 
-        // 4. 마지막 로그인 시간 업데이트
+        // 마지막 로그인 시간 업데이트
         user.updateLastLoginAt(LocalDateTime.now());
 
-        // 5. JWT 토큰 발급
+        // JWT 토큰 발급
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
 
-        // 6. 응답 반환
+        // 응답 반환
         return new LoginResponse(accessToken, refreshToken, user.getStatus());
     }
 

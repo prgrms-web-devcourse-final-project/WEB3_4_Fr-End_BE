@@ -1,6 +1,8 @@
 package com.frend.planit.domain.user.client;
 
 import com.frend.planit.domain.user.enums.SocialType;
+import com.frend.planit.global.exception.ServiceException;
+import com.frend.planit.global.response.ErrorType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,6 @@ public class OAuthClientFactory {
         return oauthClients.stream()
                 .filter(client -> client.getSocialType() == socialType)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 소셜 타입입니다: " + socialType));
+                .orElseThrow(() -> new ServiceException(ErrorType.UNSUPPORTED_SOCIAL_TYPE));
     }
 }

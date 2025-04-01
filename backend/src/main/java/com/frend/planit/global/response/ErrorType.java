@@ -22,6 +22,7 @@ public enum ErrorType {
     /*********************************************************************************/
     // User
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
+    UNSUPPORTED_SOCIAL_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 로그인 타입입니다."),
 
     // Global
     ARGUMENT_BINDING_ERROR(HttpStatus.BAD_REQUEST, "요청 본문의 값이 잘못되었습니다."),

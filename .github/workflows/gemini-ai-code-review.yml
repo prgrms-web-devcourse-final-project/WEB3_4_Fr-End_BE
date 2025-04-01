@@ -45,6 +45,39 @@ jobs:
             const genAI = new GoogleGenerativeAI("${{ secrets.GEMINI_API_KEY }}");
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             
+            // JSON 스키마 정의
+            const schema = `
+            {
+              "type": "array",
+              "items": {
+                "type":"object",
+                "properties": {
+                  "path": {
+                    "type":"string",
+                    "description": "파일 경로"
+                  },
+                  "line": {
+                    "type":"integer",
+                    "description": "코드 라인 번호"
+                  },
+                  "diff_hunk": {
+                    "type":"string",
+                    "description": "변경된 코드 컨텍스트"
+                  },
+                  "body": {
+                    "type":"string",
+                    "description": "리뷰 코멘트"
+                  },
+                  "commit_id": {
+                    "type":"string",
+                    "description": "커밋 ID"
+                  }
+                },
+                "required": ["path", "line", "diff_hunk", "body", "commit_id"]
+              }
+            }
+            `;
+            
             // 한국어로 코드 리뷰 요청 및 특정 JSON 형식으로 응답 요청
             const prompt = `Explain in korean. You are a senior software engineer and need to perform a code review based on the results of a given git diff.
             Review the changed code from different perspectives and let us know if there are any changes that need to be made.

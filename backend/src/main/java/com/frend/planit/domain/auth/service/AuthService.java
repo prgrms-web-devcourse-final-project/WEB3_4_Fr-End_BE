@@ -59,7 +59,9 @@ public class AuthService {
         return new SocialLoginResponse(accessToken, refreshToken, user.getStatus());
     }
 
-    //Refresh Token을 검증하여 새로운 Access Token을 발급.
+    /**
+     * Refresh Token을 검증하여 새로운 Access Token을 발급.
+     */
     public TokenRefreshResponse refreshAccessToken(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new ServiceException(ErrorType.UNAUTHORIZED);
@@ -79,4 +81,18 @@ public class AuthService {
         String newAccessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole());
         return new TokenRefreshResponse(newAccessToken);
     }
+
+    /**
+     * 로그아웃,, JWT에서 userId 추출, Redis에서 해당 user refreshToken 삭제
+     */
+    public void logout(String accessToken) {
+        if (!jwtTokenProvider.validateToken(accessToken)) {
+            throw new ServiceException(ErrorType.UNAUTHORIZED);
+        }
+
+        Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        refreshTokenRedisService.delete(userId);
+    }
+
+
 }

@@ -15,6 +15,8 @@ import com.frend.planit.domain.user.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
+import com.frend.planit.domain.user.enums.LoginType;
+import com.frend.planit.domain.user.enums.Role;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.service.UserService;
@@ -100,7 +102,11 @@ class UserControllerTest {
                 "https://example.com/profile.png",
                 "자기소개",
                 UserStatus.ACTIVE,
-                LocalDateTime.of(2025, 4, 2, 12, 0)
+                LocalDateTime.of(2025, 4, 2, 12, 0),
+                SocialType.GOOGLE,
+                LoginType.SOCIAL,
+                true,
+                Role.USER
         );
 
         Mockito.when(jwtTokenProvider.getUserIdFromToken("test-token")).thenReturn(userId);

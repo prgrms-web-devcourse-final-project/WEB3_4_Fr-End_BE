@@ -2,6 +2,9 @@ package com.frend.planit.domain.user.dto.response;
 
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.enums.Gender;
+import com.frend.planit.domain.user.enums.LoginType;
+import com.frend.planit.domain.user.enums.Role;
+import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +27,10 @@ public class UserMeResponse {
     private String bio;
     private UserStatus status;
     private LocalDateTime createdAt;
+    private SocialType socialType;
+    private LoginType loginType;
+    private boolean mailingType;
+    private Role role;
 
     public static UserMeResponse from(User user) {
         return UserMeResponse.builder()
@@ -37,6 +44,10 @@ public class UserMeResponse {
                 .bio(user.getBio())
                 .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
+                .socialType(user.getSocialType())
+                .loginType(user.getLoginType())
+                .mailingType(user.isMailingType())
+                .role(user.getRole())
                 .build();
     }
 }

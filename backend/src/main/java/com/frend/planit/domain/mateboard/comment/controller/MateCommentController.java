@@ -3,7 +3,6 @@ package com.frend.planit.domain.mateboard.comment.controller;
 import com.frend.planit.domain.mateboard.comment.dto.request.MateCommentRequestDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.service.MateCommentService;
-import com.frend.planit.global.response.ApiResponseHelper;
 import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -45,13 +44,13 @@ public class MateCommentController {
      * @return 생성된 댓글 ID
      */
     @PostMapping
-    public ResponseEntity<Long> createComment(
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long createComment(
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
             @PathVariable Long mateId) {
         // TODO: 로그인 기능 연동 필요
         Long userId = 1L;
-        Long commentId = mateCommentService.createComment(userId, mateId, mateCommentRequestDto);
-        return ApiResponseHelper.success(HttpStatus.CREATED, commentId);
+        return mateCommentService.createComment(userId, mateId, mateCommentRequestDto);
     }
 
     /**
@@ -61,9 +60,9 @@ public class MateCommentController {
      * @return 조회된 댓글 ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<MateCommentResponseDto> getComment(@PathVariable Long id) {
-        MateCommentResponseDto comment = mateCommentService.getComment(id);
-        return ApiResponseHelper.success(HttpStatus.OK, comment);
+    @ResponseStatus(HttpStatus.OK)
+    public MateCommentResponseDto getComment(@PathVariable Long id) {
+        return mateCommentService.getComment(id);
     }
 
     /**
@@ -74,12 +73,11 @@ public class MateCommentController {
      * @return 페이징 된 댓글 목록
      */
     @GetMapping
-    public ResponseEntity<PageResponse<MateCommentResponseDto>> getAllComments(
+    @ResponseStatus(HttpStatus.OK)
+    public PageResponse<MateCommentResponseDto> getAllComments(
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
             @PathVariable Long mateId, Pageable pageable) {
-        PageResponse<MateCommentResponseDto> comments = mateCommentService.
-                findAllByMateIdWithPaging(mateId, pageable);
-        return ApiResponseHelper.success(HttpStatus.OK, comments);
+        return mateCommentService.findAllByMateIdWithPaging(mateId, pageable);
     }
 
     /**
@@ -90,11 +88,10 @@ public class MateCommentController {
      * @return 수정된 댓글 ID
      */
     @PutMapping("/{id}")
-    public ResponseEntity<MateCommentResponseDto> updateComment(@PathVariable Long id,
+    @ResponseStatus(HttpStatus.OK)
+    public MateCommentResponseDto updateComment(@PathVariable Long id,
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto) {
-        MateCommentResponseDto updateComment = mateCommentService.updateComment(id,
-                mateCommentRequestDto);
-        return ApiResponseHelper.success(HttpStatus.OK, updateComment);
+        return mateCommentService.updateComment(id, mateCommentRequestDto);
     }
 
     /**
@@ -104,9 +101,8 @@ public class MateCommentController {
      * @return 삭제된 댓글 ID
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<MateCommentResponseDto> deleteComment(@PathVariable Long id) {
-        MateCommentResponseDto deleteComment = mateCommentService.deleteComment(id);
-        return ResponseEntity.noContent().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public MateCommentResponseDto deleteComment(@PathVariable Long id) {
+        return mateCommentService.deleteComment(id);
     }
-
 }

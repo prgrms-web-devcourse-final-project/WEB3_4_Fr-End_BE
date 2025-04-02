@@ -9,9 +9,8 @@ import com.frend.planit.domain.user.dto.response.GoogleUserInfoResponse;
 import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.entity.User;
-import com.frend.planit.domain.user.enums.LoginType;
-import com.frend.planit.domain.user.enums.Role;
 import com.frend.planit.domain.user.enums.UserStatus;
+import com.frend.planit.domain.user.mapper.UserMapper;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
@@ -41,20 +40,11 @@ public class UserService {
 
         User user = userRepository.findBySocialIdAndSocialType(userInfo.getSub(),
                         client.getSocialType())
-                .orElseGet(() -> {
-                    // 신규 유저: UNREGISTERED 상태로 저장
-                    User newUser = User.builder()
-                            .socialId(userInfo.getSub())
-                            .socialType(client.getSocialType())
-                            .email(userInfo.getEmail())
-                            .profileImage(userInfo.getPicture())
-                            .nickname(userInfo.getName())
-                            .role(Role.USER)
-                            .status(UserStatus.UNREGISTERED)
-                            .loginType(LoginType.SOCIAL)
-                            .build();
-                    return userRepository.save(newUser);
-                });
+                .orElseGet(() ->
+                        // 신규 유저: UNREGISTERED 상태로 저장
+                        userRepository.save(
+                                UserMapper.toEntity(userInfo, client.getSocialType())
+                        ));
 
         // 마지막 로그인 시간 갱신
         user.updateLastLoginAt(LocalDateTime.now());

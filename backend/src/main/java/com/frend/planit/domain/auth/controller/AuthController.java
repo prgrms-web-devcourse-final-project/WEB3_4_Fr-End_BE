@@ -1,7 +1,9 @@
 package com.frend.planit.domain.auth.controller;
 
 import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
+import com.frend.planit.domain.auth.dto.request.TokenRefreshRequest;
 import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
+import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,16 @@ public class AuthController {
             @RequestBody @Valid SocialLoginRequest request
     ) {
         SocialLoginResponse response = authService.loginOrRegister(request);
+        return ResponseEntity.ok(response);
+    }
+
+    // Access Token 재발급 API, 클라이언트로부터 전달받은 Refresh Token이 유효할 경우,
+    // 새로운 Access Token을 발급하여 반환
+    @PostMapping("/token/refresh")
+    public ResponseEntity<TokenRefreshResponse> refreshAccessToken(
+            @RequestBody @Valid TokenRefreshRequest request
+    ) {
+        TokenRefreshResponse response = authService.refreshAccessToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 }

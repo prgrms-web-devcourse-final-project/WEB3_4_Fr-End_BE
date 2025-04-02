@@ -1,6 +1,6 @@
 package com.frend.planit.domain.calendar.schedule.travel.entity;
 
-import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
+import com.frend.planit.domain.calendar.schedule.day.entity.ScheduleDayEntity;
 import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,8 +31,14 @@ public class TravelEntity extends BaseTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "schedule_id", nullable = false)
-    private ScheduleEntity schedule;
+    @JoinColumn(name = "schedule_day_id", nullable = false)
+    private ScheduleDayEntity scheduleDay;
+
+    @Column(name = "location", nullable = false)
+    private String location;
+
+    @Column(name = "category", nullable = false)
+    private String category;
 
     @Column(name = "lat", nullable = false)
     private Double lat;
@@ -41,13 +46,10 @@ public class TravelEntity extends BaseTime {
     @Column(name = "lng", nullable = false)
     private Double lng;
 
-    @Column(name = "plan", nullable = false)
-    private LocalDateTime plan;
+    @Column(name = "hour", nullable = false)
+    private int hour;
 
-    @Column(name = "title", nullable = false)
-    private String title;
-
-    @Column(name = "content", nullable = false)
-    private String content;
+    @Column(name = "minute", nullable = false)
+    private int minute;
 
 }

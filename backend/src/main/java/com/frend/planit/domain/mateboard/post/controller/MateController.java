@@ -74,6 +74,7 @@ public class MateController {
     @ResponseStatus(HttpStatus.OK)
     public MateResponseDto getMate(@PathVariable Long id) {
         return mateService.getMate(id);
+
     }
 
     /**
@@ -83,10 +84,11 @@ public class MateController {
      * @param mateRequestDto 수정할 게시글의 요청 본문(제목, 내용, 날짜, 지역, 성별 등)
      * @return 수정된 게시글 id
      */
-    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public MateResponseDto updateMate(@PathVariable Long id,
             @RequestBody @Valid MateRequestDto mateRequestDto) {
-        return mateService.updateMate(id, mateRequestDto);
+        MateResponseDto updatedMate = mateService.updateMate(id, mateRequestDto);
+        return updatedMate;
     }
 
     /**
@@ -99,6 +101,5 @@ public class MateController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMate(@PathVariable Long id) {
         mateService.deleteMate(id);
-
     }
 }

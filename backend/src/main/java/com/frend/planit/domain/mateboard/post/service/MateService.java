@@ -64,7 +64,7 @@ public class MateService {
      *
      * @param id 조회할 게시글 ID
      * @return 조회된 게시글의 응답 DTO
-     * @throws RuntimeException 헤당 Id의 게시글이 존재하지 않을 경우 예외 발생
+     * @throws RuntimeException 헤당 ID의 게시글이 존재하지 않을 경우 예외 발생
      */
     public MateResponseDto getMate(Long id) {
         Mate mate = findMateOrThrow(id);
@@ -91,22 +91,22 @@ public class MateService {
      * @param id             수정할 게시글 ID
      * @param mateRequestDto 클라이언트로부터 전달 받은 수정 요청 데이터
      * @return 수정된 게시글의 응답 DTO
-     * @throws RuntimeException 해당 id의 게시글이 존재하지 않을 경우 예외 발생
+     * @throws RuntimeException 해당 ID의 게시글이 존재하지 않을 경우 예외 발생
      */
     public MateResponseDto updateMate(Long id, MateRequestDto mateRequestDto) {
         // 1. 수정할 게시글 찾기
-        Mate updatemate = findMateOrThrow(id);
+        Mate updateMate = findMateOrThrow(id);
         // 2. 수정할 게시글 내용 입력
-        updatemate.setTitle(mateRequestDto.getTitle());
-        updatemate.setContent(mateRequestDto.getContent());
-        updatemate.setTravelRegion(mateRequestDto.getTravelRegion());
-        updatemate.setTravelStartDate(mateRequestDto.getTravelStartDate());
-        updatemate.setTravelEndDate(mateRequestDto.getTravelEndDate());
-        updatemate.setMateGender(mateRequestDto.getMateGender());
+        updateMate.setTitle(mateRequestDto.getTitle());
+        updateMate.setContent(mateRequestDto.getContent());
+        updateMate.setTravelRegion(mateRequestDto.getTravelRegion());
+        updateMate.setTravelStartDate(mateRequestDto.getTravelStartDate());
+        updateMate.setTravelEndDate(mateRequestDto.getTravelEndDate());
+        updateMate.setMateGender(mateRequestDto.getMateGender());
         // 3. 수정한 게시글 저장
-        mateRepository.save(updatemate);
+        mateRepository.save(updateMate);
         // 4. 수정한 게시글 id 전달
-        return MateMapper.toResponseDto(updatemate);
+        return MateMapper.toResponseDto(updateMate);
     }
 
     /**

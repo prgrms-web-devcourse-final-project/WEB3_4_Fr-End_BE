@@ -24,7 +24,7 @@ public class MateRequestDto {
     private String title;
 
     @NotBlank(message = "내용을 입력해 주세요.")
-    @Size(min = 20, message = "내용은 20자 이상 입력해 주세요.")
+    @Size(min = 20, max = 2000, message = "내용은 20자 이상 2000자 이하로 입력해 주세요.")
     private String content;
 
     @NotNull(message = "여행 지역을 선택해 주세요.")

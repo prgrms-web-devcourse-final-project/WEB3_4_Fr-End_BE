@@ -5,6 +5,7 @@ import com.frend.planit.domain.mateboard.post.entity.RecruitmentStatus;
 import com.frend.planit.domain.mateboard.post.entity.TravelRegion;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,23 +18,24 @@ import lombok.Getter;
  */
 @Getter
 @Builder
+@AllArgsConstructor
 public class MateResponseDto {
 
-    private Long id;
+    private final Long id;
 
-    private String title;
+    private final String title;
 
-    private String content;
+    private final String content;
 
-    private TravelRegion travelRegion;
+    private final TravelRegion travelRegion;
 
-    private LocalDate travelStartDate;
+    private final LocalDate travelStartDate;
 
-    private LocalDate travelEndDate;
+    private final LocalDate travelEndDate;
 
-    private RecruitmentStatus recruitmentStatus;
+    private final RecruitmentStatus recruitmentStatus;
 
-    private MateGender mateGender;
+    private final MateGender mateGender;
 
     private LocalDateTime createdAt;
 

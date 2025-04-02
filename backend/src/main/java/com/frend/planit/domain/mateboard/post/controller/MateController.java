@@ -48,7 +48,7 @@ public class MateController {
         // TODO: 로그인 기능 연동 필요
         Long userId = 1L; // 로그인 기능 연동 전까지 임시 값
         Long mateId = mateService.createMate(userId, mateRequestDto);
-        return ApiResponseHelper.success(HttpStatus.OK, mateId);
+        return ApiResponseHelper.success(HttpStatus.CREATED, mateId);
     }
 
     /**
@@ -61,7 +61,7 @@ public class MateController {
     public ResponseEntity<PageResponse<MateResponseDto>> getAllMates(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        PageResponse<MateResponseDto> mates = mateService.getAllMates(pageable);
+        PageResponse<MateResponseDto> mates = mateService.findAllWithPaging(pageable);
         return ApiResponseHelper.success(HttpStatus.OK, mates);
     }
 
@@ -100,6 +100,6 @@ public class MateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<MateResponseDto> deleteMate(@PathVariable Long id) {
         MateResponseDto deleteMate = mateService.deleteMate(id);
-        return ApiResponseHelper.success(HttpStatus.OK, deleteMate);
+        return ResponseEntity.noContent().build();
     }
 }

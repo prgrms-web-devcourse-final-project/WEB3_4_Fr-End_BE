@@ -35,6 +35,25 @@ public class Mate extends BaseTime {
     private Long userId;
 
     /**
+     * 사용자 프로필 이미지 (TODO: User 엔티티와 연관 관계 매핑 예정)
+     */
+    private String profile_image;
+
+    /**
+     * 작성자 성별 (TODO: User 엔티티와 연관 관계 매핑 예정)
+     */
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AuthorGender authorGender;
+
+    /**
+     * 게시글에 등록된 이미지 (최대 5장)
+     * TODO: Picture 테이블과 연동 예정
+     private List<Picture> pictures;
+     *
+     */
+
+    /**
      * 게시글 제목
      */
     @Column(nullable = false)

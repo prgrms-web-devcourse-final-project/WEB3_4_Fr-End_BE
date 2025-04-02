@@ -1,4 +1,4 @@
-package com.frend.planit.domain.user.controller;
+package com.frend.planit.domain.auth.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -47,7 +47,6 @@ class AuthControllerTest {
     @Test
     @DisplayName("소셜 로그인 성공")
     void socialLoginSuccess() throws Exception {
-        // given
         SocialLoginRequest request = new SocialLoginRequest(SocialType.GOOGLE, "test-code");
         SocialLoginResponse response = new SocialLoginResponse("access-token", "refresh-token",
                 UserStatus.ACTIVE);
@@ -55,7 +54,6 @@ class AuthControllerTest {
         Mockito.when(authService.loginOrRegister(any(SocialLoginRequest.class)))
                 .thenReturn(response);
 
-        // when & then
         mockMvc.perform(post("/api/v1/auth/social-login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -66,33 +64,31 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("accessToken 재발급 성공")
+    @DisplayName("accessToken + refreshToken 재발급 성공")
     void refreshAccessToken() throws Exception {
-        // given
         TokenRefreshRequest request = new TokenRefreshRequest("valid-refresh-token");
-        TokenRefreshResponse response = new TokenRefreshResponse("accessToken", "new-access-token");
+        TokenRefreshResponse response = new TokenRefreshResponse("new-access-token",
+                "new-refresh-token");
 
         Mockito.when(authService.refreshAccessToken("valid-refresh-token"))
                 .thenReturn(response);
 
-        // when & then
         mockMvc.perform(post("/api/v1/auth/token/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value("new-access-token"));
+                .andExpect(jsonPath("$.accessToken").value("new-access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("new-refresh-token")); // ✅ 추가됨
     }
 
     @Test
     @DisplayName("accessToken 재발급 실패 - 유효하지 않은 refreshToken")
     void refreshAccessToken_invalidToken() throws Exception {
-        // given
         TokenRefreshRequest request = new TokenRefreshRequest("invalid-refresh-token");
 
         Mockito.when(authService.refreshAccessToken("invalid-refresh-token"))
                 .thenThrow(new ServiceException(ErrorType.UNAUTHORIZED));
 
-        // when & then
         mockMvc.perform(post("/api/v1/auth/token/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -102,12 +98,10 @@ class AuthControllerTest {
     @Test
     @DisplayName("로그아웃 성공")
     void logout() throws Exception {
-        // given
         String token = "Bearer test-access-token";
 
         Mockito.doNothing().when(authService).logout("test-access-token");
 
-        // when & then
         mockMvc.perform(post("/api/v1/auth/logout")
                         .header("Authorization", token))
                 .andExpect(status().isNoContent());

@@ -68,4 +68,9 @@ public class JwtTokenProvider {
 
         return Long.valueOf(claims.getSubject());
     }
+
+    // refresh token 만료 시간 getter (Redis TTL 설정용)
+    public long getRefreshTokenExpirationMs() {
+        return refreshTokenExpiration;
+    }
 }

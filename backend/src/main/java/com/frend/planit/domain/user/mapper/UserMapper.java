@@ -1,6 +1,6 @@
 package com.frend.planit.domain.user.mapper;
 
-import com.frend.planit.domain.user.dto.response.GoogleUserInfoResponse;
+import com.frend.planit.domain.auth.dto.response.GoogleUserInfoResponse;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.Role;

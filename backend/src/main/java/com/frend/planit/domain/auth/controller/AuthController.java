@@ -1,8 +1,8 @@
-package com.frend.planit.domain.user.controller;
+package com.frend.planit.domain.auth.controller;
 
-import com.frend.planit.domain.user.dto.request.SocialLoginRequest;
-import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
-import com.frend.planit.domain.user.service.UserService;
+import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
+import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
+import com.frend.planit.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
     /**
      * 소셜 로그인 (Google, Kakao, Naver)
@@ -25,7 +25,7 @@ public class AuthController {
     public ResponseEntity<SocialLoginResponse> socialLogin(
             @RequestBody @Valid SocialLoginRequest request
     ) {
-        SocialLoginResponse response = userService.loginOrRegister(request);
+        SocialLoginResponse response = authService.loginOrRegister(request);
         return ResponseEntity.ok(response);
     }
 }

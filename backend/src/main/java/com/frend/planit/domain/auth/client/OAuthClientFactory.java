@@ -1,4 +1,4 @@
-package com.frend.planit.domain.user.client;
+package com.frend.planit.domain.auth.client;
 
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.global.exception.ServiceException;

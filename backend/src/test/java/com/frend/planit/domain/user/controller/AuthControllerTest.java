@@ -6,12 +6,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.frend.planit.domain.user.client.GoogleOauthClient;
-import com.frend.planit.domain.user.dto.request.SocialLoginRequest;
-import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
+import com.frend.planit.domain.auth.client.GoogleOauthClient;
+import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
+import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
+import com.frend.planit.domain.auth.service.AuthService;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
-import com.frend.planit.domain.user.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,7 +35,7 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private UserService userService;
+    private AuthService authService;
 
     @MockBean
     private GoogleOauthClient googleOauthClient;
@@ -48,7 +48,7 @@ class AuthControllerTest {
         SocialLoginResponse response = new SocialLoginResponse("access-token", "refresh-token",
                 UserStatus.ACTIVE);
 
-        Mockito.when(userService.loginOrRegister(any(SocialLoginRequest.class)))
+        Mockito.when(authService.loginOrRegister(any(SocialLoginRequest.class)))
                 .thenReturn(response);
 
         // when & then

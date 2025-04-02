@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 메이트 모집 게시판 댓글을 나타내는 엔티티입니다.
@@ -18,6 +20,8 @@ import jakarta.persistence.ManyToOne;
  * @version 1.0
  * @since 2025-03-31
  */
+@Getter
+@Setter
 @Entity
 public class MateComment extends BaseTime {
 
@@ -57,13 +61,4 @@ public class MateComment extends BaseTime {
     @Column(nullable = false)
     private String content;
 
-    /**
-     * 댓글 생성 날짜(createdAt) BaseTime 상속
-     */
-    //
-
-    /**
-     * 댓글 수정 날짜(modified_at) BaseTime 상속
-     */
-    //
 }

@@ -89,7 +89,7 @@ class ExceptionHandlerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value(data.getName()))
                 .andExpect(jsonPath("$.age").value(data.getAge()))
                 .andExpect(jsonPath("$.email").value(data.getEmail()));
@@ -147,7 +147,7 @@ class ExceptionHandlerTest {
                         .param("age", String.valueOf(data.getAge()))
                         .param("email", data.getEmail()))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value(data.getName()))
                 .andExpect(jsonPath("$.age").value(data.getAge()))
                 .andExpect(jsonPath("$.email").value(data.getEmail()));
@@ -186,7 +186,7 @@ class ExceptionHandlerTest {
                         .param("age", String.valueOf(data.getAge()))
                         .param("email", data.getEmail()))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value(data.getName()))
                 .andExpect(jsonPath("$.age").value(data.getAge()))
                 .andExpect(jsonPath("$.email").value(data.getEmail()));
@@ -272,7 +272,7 @@ class ExceptionHandlerTest {
         mockMvc.perform(get("/test/global/path-variable/{name}/{age}/{email}",
                         data.getName(), data.getAge(), data.getEmail()))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value(data.getName()))
                 .andExpect(jsonPath("$.age").value(data.getAge()))
                 .andExpect(jsonPath("$.email").value(data.getEmail()));

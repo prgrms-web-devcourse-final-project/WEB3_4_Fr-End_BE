@@ -1,10 +1,9 @@
-package com.frend.planit.domain.booking;
+package com.frend.planit.domain.booking.service;
 
 import com.frend.planit.domain.booking.dto.request.BookingRequestDto;
 import com.frend.planit.domain.booking.dto.response.BookingResponseDto;
 import com.frend.planit.domain.booking.entity.BookingEntity;
 import com.frend.planit.domain.booking.repository.BookingRepository;
-import com.frend.planit.domain.booking.service.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

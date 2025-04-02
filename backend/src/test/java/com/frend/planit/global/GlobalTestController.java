@@ -1,7 +1,6 @@
 package com.frend.planit.global;
 
 import com.frend.planit.global.exception.ServiceException;
-import com.frend.planit.global.response.ApiResponseHelper;
 import com.frend.planit.global.response.ErrorType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +8,6 @@ import jakarta.validation.constraints.Positive;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Profile("test")
@@ -31,48 +30,50 @@ public class GlobalTestController {
     public final static String EMAIL_NOT_BLANK = "이메일은 필수입니다.";
 
     @GetMapping("/ok")
-    public ResponseEntity<GlobalTestResponse> ok() {
-        return ApiResponseHelper.success(HttpStatus.OK,
-                new GlobalTestResponse("name", 1, "email@email.com"));
+    @ResponseStatus(HttpStatus.OK)
+    public GlobalTestResponse ok() {
+        return new GlobalTestResponse("name", 1, "email@email.com");
     }
 
     @GetMapping("/no-content")
-    public ResponseEntity<GlobalTestResponse> noContent() {
-        return ApiResponseHelper.success(HttpStatus.NO_CONTENT);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void noContent() {
     }
 
     @GetMapping("/custom-code")
-    public ResponseEntity<GlobalTestResponse> customCode() {
-        return ApiResponseHelper.success(299,
-                new GlobalTestResponse("name", 1, "email@email.com"));
+    public GlobalTestResponse customCode() {
+        return new GlobalTestResponse("name", 1, "email@email.com");
     }
 
     @GetMapping("/service-exception")
-    public ResponseEntity<GlobalTestResponse> serviceException() {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public GlobalTestResponse serviceException() {
         throw new ServiceException(ErrorType.GLOBAL_TEST_CODE);
     }
 
     @GetMapping("/runtime-exception")
-    public ResponseEntity<Void> runtimeException() {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void runtimeException() {
         throw new RuntimeException(ErrorType.GLOBAL_TEST_CODE.getMessage());
     }
 
     @GetMapping("/request-body")
-    public ResponseEntity<GlobalTestResponse> requestBody(
+    @ResponseStatus(HttpStatus.CREATED)
+    public GlobalTestResponse requestBody(
             @RequestBody @Valid GlobalTestRequest request) {
-        return ApiResponseHelper.success(HttpStatus.OK,
-                new GlobalTestResponse(request.name, request.age, request.email));
+        return new GlobalTestResponse(request.name, request.age, request.email);
     }
 
     @GetMapping("/model-attribute")
-    public ResponseEntity<GlobalTestResponse> modelAttribute(
+    @ResponseStatus(HttpStatus.CREATED)
+    public GlobalTestResponse modelAttribute(
             @ModelAttribute @Valid GlobalTestRequest request) {
-        return ApiResponseHelper.success(HttpStatus.OK,
-                new GlobalTestResponse(request.name, request.age, request.email));
+        return new GlobalTestResponse(request.name, request.age, request.email);
     }
 
     @GetMapping("/request-param")
-    public ResponseEntity<GlobalTestResponse> requestParam(
+    @ResponseStatus(HttpStatus.CREATED)
+    public GlobalTestResponse requestParam(
             @RequestParam @NotBlank(message = NAME_NOT_BLANK) @Length(min = 1, max = 5, message = NAME_LENGTH)
             String name,
             @RequestParam @Positive(message = AGE_POSITIVE)
@@ -80,12 +81,12 @@ public class GlobalTestController {
             @RequestParam @NotBlank(message = EMAIL_NOT_BLANK)
             String email
     ) {
-        return ApiResponseHelper.success(HttpStatus.OK,
-                new GlobalTestResponse(name, age, email));
+        return new GlobalTestResponse(name, age, email);
     }
 
     @GetMapping("/path-variable/{name}/{age}/{email}")
-    public ResponseEntity<GlobalTestResponse> pathVariable(
+    @ResponseStatus(HttpStatus.CREATED)
+    public GlobalTestResponse pathVariable(
             @PathVariable @NotBlank(message = NAME_NOT_BLANK) @Length(min = 1, max = 5, message = NAME_LENGTH)
             String name,
             @PathVariable @Positive(message = AGE_POSITIVE)
@@ -93,12 +94,12 @@ public class GlobalTestController {
             @PathVariable @NotBlank(message = EMAIL_NOT_BLANK)
             String email
     ) {
-        return ApiResponseHelper.success(HttpStatus.OK,
-                new GlobalTestResponse(name, age, email));
+        return new GlobalTestResponse(name, age, email);
     }
 
     @GetMapping("/missing-path-variable")
-    public ResponseEntity<GlobalTestResponse> missingPathVariable(
+    @ResponseStatus(HttpStatus.CREATED)
+    public GlobalTestResponse missingPathVariable(
             @PathVariable @NotBlank(message = NAME_NOT_BLANK) @Length(min = 1, max = 5, message = NAME_LENGTH)
             String name,
             @PathVariable @Positive(message = AGE_POSITIVE)
@@ -106,8 +107,7 @@ public class GlobalTestController {
             @PathVariable @NotBlank(message = EMAIL_NOT_BLANK)
             String email
     ) {
-        return ApiResponseHelper.success(HttpStatus.OK,
-                new GlobalTestResponse(name, age, email));
+        return new GlobalTestResponse(name, age, email);
     }
 
     public static class GlobalTestResponse {

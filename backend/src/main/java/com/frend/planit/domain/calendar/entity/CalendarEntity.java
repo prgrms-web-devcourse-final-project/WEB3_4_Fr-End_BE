@@ -1,24 +1,25 @@
 package com.frend.planit.domain.calendar.entity;
 
+import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
+import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "calendar")
 @Getter
-@Setter
-@NoArgsConstructor
-public class CalendarEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+public class CalendarEntity extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "calendar_title", nullable = false)
+    @Column(name = "calendar_title", nullable = false, length = 20)
     private String calendarTitle;
 
     @Column(name = "start_date", nullable = false)
@@ -33,33 +34,28 @@ public class CalendarEntity {
     @Column(name = "alert_time")
     private LocalDateTime alertTime;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
-    @Column(name = "note")
+    @Column(name = "note", length = 200)
     private String note;
 
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.modifiedAt = this.createdAt;
+    // DTO에서 Entity 변환 메서드
+    public static CalendarEntity fromDto(CalendarRequestDto requestDto) {
+        return CalendarEntity.builder()
+                .calendarTitle(requestDto.calendarTitle())
+                .startDate(requestDto.startDate())
+                .endDate(requestDto.endDate())
+                .time(requestDto.time())
+                .alertTime(requestDto.alertTime())
+                .note(requestDto.note())
+                .build();
     }
 
-    @PreUpdate
-    public void onUpdate() {
-        this.modifiedAt = LocalDateTime.now();
-    }
-
-    public CalendarEntity(String calendarTitle, LocalDateTime startDate, LocalDateTime endDate,
-                          LocalDateTime time, LocalDateTime alertTime, String note) {
-        this.calendarTitle = calendarTitle;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.time = time;
-        this.alertTime = alertTime;
-        this.note = note;
+    // 업데이트 메서드
+    public void updateCalendar(CalendarRequestDto requestDto) {
+        this.calendarTitle = requestDto.calendarTitle();
+        this.startDate = requestDto.startDate();
+        this.endDate = requestDto.endDate();
+        this.time = requestDto.time();
+        this.alertTime = requestDto.alertTime();
+        this.note = requestDto.note();
     }
 }

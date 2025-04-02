@@ -26,7 +26,7 @@ public class TravelService {
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // 행선지 조회
-        List<TravelEntity> travels = travelRepository.findBySheduleId(scheduleId);
+        List<TravelEntity> travels = travelRepository.findByScheduleId(scheduleId);
 
         // TravelEntity를 TravelResponse로 변환
         return travels.stream()

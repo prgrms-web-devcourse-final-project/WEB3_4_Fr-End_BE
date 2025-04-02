@@ -1,3 +1,20 @@
 spring:
+  application:
+    name: planit
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
   profiles:
-    active: test
+    active: local  # 로컬에서 실행 시 local 설정을 기본으로 활성화
+    include: secret

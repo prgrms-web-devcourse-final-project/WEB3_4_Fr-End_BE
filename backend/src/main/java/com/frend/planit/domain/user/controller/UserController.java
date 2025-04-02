@@ -1,8 +1,6 @@
 package com.frend.planit.domain.user.controller;
 
-import com.frend.planit.domain.user.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
-import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.service.UserService;
 import com.frend.planit.global.exception.ServiceException;
@@ -14,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,16 +24,6 @@ public class UserController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
-
-    /**
-     * 소셜 로그인 (Google, Kakao, Naver)
-     */
-    @PostMapping("/login")
-    public ResponseEntity<SocialLoginResponse> login(
-            @RequestBody @Valid SocialLoginRequest request) {
-        SocialLoginResponse response = userService.loginOrRegister(request);
-        return ResponseEntity.ok(response);
-    }
 
     /**
      * 최초 로그인 시 사용자 추가 정보 입력

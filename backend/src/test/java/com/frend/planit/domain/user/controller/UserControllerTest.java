@@ -5,15 +5,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.frend.planit.domain.user.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
-import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.Role;
@@ -51,26 +48,6 @@ class UserControllerTest {
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
 
-    @Test
-    @DisplayName("소셜 로그인 성공")
-    void loginSuccess() throws Exception {
-        // given
-        SocialLoginRequest request = new SocialLoginRequest(SocialType.GOOGLE, "test-code");
-        SocialLoginResponse response = new SocialLoginResponse("access-token", "refresh-token",
-                UserStatus.ACTIVE);
-
-        Mockito.when(userService.loginOrRegister(any(SocialLoginRequest.class)))
-                .thenReturn(response);
-
-        // when & then
-        mockMvc.perform(post("/api/v1/user/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value("access-token"))
-                .andExpect(jsonPath("$.refreshToken").value("refresh-token"))
-                .andExpect(jsonPath("$.status").value("ACTIVE"));
-    }
 
     @Test
     @DisplayName("닉네임 중복 확인 성공")

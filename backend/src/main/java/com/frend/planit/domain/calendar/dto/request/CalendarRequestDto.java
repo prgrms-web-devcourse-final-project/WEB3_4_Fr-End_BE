@@ -1,19 +1,19 @@
 package com.frend.planit.domain.calendar.dto.request;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class CalendarRequestDto {
-    private String calendarTitle;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private LocalDateTime time;
-    private LocalDateTime alertTime;
-    private String note;
+public record CalendarRequestDto(
+        @NotBlank @Size(max = 20) String calendarTitle,
+        @NotNull @FutureOrPresent LocalDateTime startDate,
+        @NotNull @FutureOrPresent LocalDateTime endDate,
+        LocalDateTime time,
+        LocalDateTime alertTime,
+        @Size(max = 200) String note
+) {
+
 }

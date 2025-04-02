@@ -46,4 +46,3 @@ out/
 
 ## secret.yml ##
 application-secret.yml
-application-local.yml

@@ -1,7 +1,6 @@
 package com.frend.planit.global.exception.handler;
 
 import com.frend.planit.global.exception.ServiceException;
-import com.frend.planit.global.response.ApiResponseHelper;
 import com.frend.planit.global.response.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,8 @@ public class ServiceExceptionHandler {
 
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<ErrorResponse> handleServiceException(ServiceException exception) {
-        return ApiResponseHelper.error(exception.getCode(),
-                new ErrorResponse(exception.getMessage()));
+        return ResponseEntity
+                .status(exception.getCode())
+                .body(new ErrorResponse(exception.getMessage()));
     }
 }

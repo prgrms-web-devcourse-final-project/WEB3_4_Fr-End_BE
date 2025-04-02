@@ -73,4 +73,13 @@ public class JwtTokenProvider {
     public long getRefreshTokenExpirationMs() {
         return refreshTokenExpiration;
     }
+
+    // refresh token 만료 임박시 재발급
+    public Date getExpiration(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey.getBytes())
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+    }
 }

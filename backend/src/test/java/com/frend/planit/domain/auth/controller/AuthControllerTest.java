@@ -70,7 +70,7 @@ class AuthControllerTest {
     void refreshAccessToken() throws Exception {
         // given
         TokenRefreshRequest request = new TokenRefreshRequest("valid-refresh-token");
-        TokenRefreshResponse response = new TokenRefreshResponse("new-access-token");
+        TokenRefreshResponse response = new TokenRefreshResponse("accessToken", "new-access-token");
 
         Mockito.when(authService.refreshAccessToken("valid-refresh-token"))
                 .thenReturn(response);

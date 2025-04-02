@@ -13,7 +13,9 @@ import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.global.security.JwtTokenProvider;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,20 +68,35 @@ public class AuthService {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new ServiceException(ErrorType.UNAUTHORIZED);
         }
-        //refreshToken 값에서 userId 추출
+
         Long userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
         String savedToken = refreshTokenRedisService.get(userId);
 
-        //Redis에 저장된 Refresh Token과 일치하는지 확인
         if (!refreshToken.equals(savedToken)) {
             throw new ServiceException(ErrorType.UNAUTHORIZED);
         }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException(ErrorType.COMMON_SERVER_ERROR));
-        //유효할 경우, 새로운 Access Token을 발급하여 반환
+
         String newAccessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole());
-        return new TokenRefreshResponse(newAccessToken);
+
+        // refreshToken 만료 임박 시 새로 발급
+        String newRefreshToken = refreshToken;
+        if (isExpiringSoon(refreshToken)) {
+            newRefreshToken = jwtTokenProvider.createRefreshToken(user.getId());
+            refreshTokenRedisService.save(user.getId(), newRefreshToken,
+                    jwtTokenProvider.getRefreshTokenExpirationMs());
+        }
+
+        return new TokenRefreshResponse(newAccessToken, newRefreshToken);
+    }
+
+    // refreshToken 만료 값이 3일 이내 체크
+    private boolean isExpiringSoon(String refreshToken) {
+        Date expiration = jwtTokenProvider.getExpiration(refreshToken);
+        long remainingTime = expiration.getTime() - System.currentTimeMillis();
+        return remainingTime < Duration.ofDays(3).toMillis();
     }
 
     /**

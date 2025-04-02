@@ -34,7 +34,11 @@ public enum ErrorType {
     GLOBAL_TEST_CODE(444, "테스트 컨트롤러의 코드입니다."),
 
     // MateBoard
-    MATE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물이 존재하지 않습니다.");
+    MATE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물이 존재하지 않습니다."),
+
+    // MateComment
+    MATE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다.");
+
 
     /*********************************************************************************/
 

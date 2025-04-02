@@ -1,11 +1,13 @@
 package com.frend.planit.domain.user.dto.request;
 
 import com.frend.planit.domain.user.enums.SocialType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class SocialLoginRequest {
 
     private SocialType socialType;

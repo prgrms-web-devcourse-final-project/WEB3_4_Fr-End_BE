@@ -47,23 +47,21 @@ public class MateController {
     public Long createMate(@RequestBody @Valid MateRequestDto mateRequestDto) {
         // TODO: 로그인 기능 연동 필요
         Long userId = 1L; // 로그인 기능 연동 전까지 임시 값
-        Long mateId = mateService.createMate(userId, mateRequestDto);
-        return mateId;
+        return mateService.createMate(userId, mateRequestDto);
     }
 
     /**
      * 메이트 모집 게시글 전체 조회합니다.
      *
-     * @param pageable 페이징 정보 (페이지 번호, 한 페이지당 게시글 수: 10개, 정렬 기준: createdAt, 정렬 순서: 내림차순(DESC))
+     * @param pageable 페이징 정보 (페이지 번호, 한 페이지당 게시글 수: 8개, 정렬 기준: createdAt, 정렬 순서: 내림차순(DESC))
      * @return mates 페이징 된 게시글 목록
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<MateResponseDto> getAllMates(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        PageResponse<MateResponseDto> mates = mateService.findAllWithPaging(pageable);
-        return mates;
+        return mateService.findAllWithPaging(pageable);
     }
 
     /**
@@ -75,8 +73,8 @@ public class MateController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public MateResponseDto getMate(@PathVariable Long id) {
-        MateResponseDto mate = mateService.getMate(id);
-        return mate;
+        return mateService.getMate(id);
+
     }
 
     /**
@@ -86,7 +84,6 @@ public class MateController {
      * @param mateRequestDto 수정할 게시글의 요청 본문(제목, 내용, 날짜, 지역, 성별 등)
      * @return 수정된 게시글 id
      */
-    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public MateResponseDto updateMate(@PathVariable Long id,
             @RequestBody @Valid MateRequestDto mateRequestDto) {
@@ -103,6 +100,6 @@ public class MateController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMate(@PathVariable Long id) {
-        MateResponseDto deleteMate = mateService.deleteMate(id);
+        mateService.deleteMate(id);
     }
 }

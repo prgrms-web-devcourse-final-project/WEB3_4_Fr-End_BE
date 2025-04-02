@@ -2,15 +2,15 @@ package com.frend.planit.domain.user.service;
 
 import com.frend.planit.domain.user.client.OAuthClient;
 import com.frend.planit.domain.user.client.OAuthClientFactory;
+import com.frend.planit.domain.user.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.GoogleTokenResponse;
 import com.frend.planit.domain.user.dto.response.GoogleUserInfoResponse;
-import com.frend.planit.domain.user.dto.response.LoginResponse;
+import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.Role;
-import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
@@ -31,18 +31,18 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * 구글 인가 코드를 받아 로그인 또는 회원가입 처리
+     * 소셜 로그인 또는 회원가입
      */
-    public LoginResponse loginOrRegister(SocialType socialType, String code) {
-        OAuthClient client = oauthClientFactory.getClient(socialType);
+    public SocialLoginResponse loginOrRegister(SocialLoginRequest request) {
+        OAuthClient client = oauthClientFactory.getClient(request.getSocialType());
 
-        GoogleTokenResponse tokenResponse = client.getAccessToken(code);
+        GoogleTokenResponse tokenResponse = client.getAccessToken(request.getCode());
         GoogleUserInfoResponse userInfo = client.getUserInfo(tokenResponse.getAccessToken());
 
         User user = userRepository.findBySocialIdAndSocialType(userInfo.getSub(),
                         client.getSocialType())
                 .orElseGet(() -> {
-                    // 신규 유저: UNREGISTERED 상태로 생성
+                    // 신규 유저: UNREGISTERED 상태로 저장
                     User newUser = User.builder()
                             .socialId(userInfo.getSub())
                             .socialType(client.getSocialType())
@@ -56,19 +56,18 @@ public class UserService {
                     return userRepository.save(newUser);
                 });
 
-        // 마지막 로그인 시간 업데이트
+        // 마지막 로그인 시간 갱신
         user.updateLastLoginAt(LocalDateTime.now());
 
         // JWT 토큰 발급
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
 
-        // 응답 반환
-        return new LoginResponse(accessToken, refreshToken, user.getStatus());
+        return new SocialLoginResponse(accessToken, refreshToken, user.getStatus());
     }
 
     /**
-     * 최초 로그인 시 사용자 추가 정보 입력
+     * 최초 로그인 시 추가 정보 등록
      */
     public void updateFirstInfo(Long userId, UserFirstInfoRequest request) {
         User user = userRepository.findById(userId)
@@ -99,6 +98,9 @@ public class UserService {
         return !userRepository.existsByNickname(nickname);
     }
 
+    /**
+     * 내 정보 조회
+     */
     @Transactional(readOnly = true)
     public UserMeResponse getMyInfo(Long userId) {
         User user = userRepository.findById(userId)

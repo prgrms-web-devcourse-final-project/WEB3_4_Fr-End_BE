@@ -1,9 +1,9 @@
 package com.frend.planit.domain.user.controller;
 
+import com.frend.planit.domain.user.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
-import com.frend.planit.domain.user.dto.response.LoginResponse;
+import com.frend.planit.domain.user.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
-import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.service.UserService;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
@@ -30,16 +30,11 @@ public class UserController {
 
     /**
      * 소셜 로그인 (Google, Kakao, Naver)
-     *
-     * @param socialType GOOGLE, KAKAO, NAVER
-     * @param code       인가 코드
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @RequestParam("socialType") SocialType socialType,
-            @RequestParam("code") String code
-    ) {
-        LoginResponse response = userService.loginOrRegister(socialType, code);
+    public ResponseEntity<SocialLoginResponse> login(
+            @RequestBody @Valid SocialLoginRequest request) {
+        SocialLoginResponse response = userService.loginOrRegister(request);
         return ResponseEntity.ok(response);
     }
 
@@ -53,7 +48,6 @@ public class UserController {
     ) {
         String token = resolveTokenFromHeader(request);
         Long userId = jwtTokenProvider.getUserIdFromToken(token);
-
         userService.updateFirstInfo(userId, firstInfoRequest);
         return ResponseEntity.noContent().build();
     }

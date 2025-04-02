@@ -11,7 +11,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,8 +36,8 @@ public class ValidationExceptionHandler {
                 .toList();
 
         return ResponseEntity
-                .status(ErrorType.ARGUMENT_BINDING_ERROR.getCode())
-                .body(new ErrorResponse(ErrorType.ARGUMENT_BINDING_ERROR.getMessage(), details));
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(), details));
     }
 
     // RequestParam, PathVariable 혹은 서비스 계층의 유효성 검사 예외를 처리합니다.
@@ -66,14 +65,14 @@ public class ValidationExceptionHandler {
         // 컨트롤러 계층일 경우 잘못된 요청으로 판단
         if (className.contains("controller") || className.contains("Controller")) {
             return ResponseEntity
-                    .status(ErrorType.CONSTRAINT_VIOLATION.getCode())
-                    .body(new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage(), details));
+                    .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                    .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(), details));
         }
 
         // 서비스 계층일 경우 내부 오류로 판단
         return ResponseEntity
-                .status(ErrorType.COMMON_SERVER_ERROR.getCode())
-                .body(new ErrorResponse(ErrorType.COMMON_SERVER_ERROR.getMessage(), details));
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(), details));
     }
 
     // ModelAttribute, RequestParam 의 유효성 검사 예외를 처리합니다.
@@ -81,8 +80,8 @@ public class ValidationExceptionHandler {
     public ResponseEntity<ErrorResponse> handleHandlerMethodValidationException(
             HandlerMethodValidationException exception) {
         return ResponseEntity
-                .status(ErrorType.CONSTRAINT_VIOLATION.getCode())
-                .body(new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage()));
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage()));
     }
 
     // RequestParam, PathVariable 의 타입 변환 예외를 처리합니다.
@@ -95,8 +94,8 @@ public class ValidationExceptionHandler {
                 exception.getRequiredType().getSimpleName() + " 타입으로 변환할 수 없습니다.");
 
         return ResponseEntity
-                .status(ErrorType.ARGUMENT_TYPE_MISMATCH.getCode())
-                .body(new ErrorResponse(ErrorType.ARGUMENT_TYPE_MISMATCH.getMessage(),
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(),
                         List.of(detail)));
     }
 
@@ -109,8 +108,8 @@ public class ValidationExceptionHandler {
                 exception.getParameterType() + " 타입의 요청 파라미터가 누락되었습니다.");
 
         return ResponseEntity
-                .status(ErrorType.MISSING_REQUEST_PARAMETER.getCode())
-                .body(new ErrorResponse(ErrorType.MISSING_REQUEST_PARAMETER.getMessage(),
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(),
                         List.of(detail)));
     }
 
@@ -133,16 +132,7 @@ public class ValidationExceptionHandler {
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException exception) {
         return ResponseEntity
-                .status(ErrorType.JSON_NOT_READABLE.getCode())
-                .body(new ErrorResponse(ErrorType.JSON_NOT_READABLE.getMessage()));
-    }
-
-    // HTTP 메소드의 지원 예외를 처리합니다.
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-            HttpRequestMethodNotSupportedException exception) {
-        return ResponseEntity
-                .status(ErrorType.METHOD_NOT_ALLOWED.getCode())
-                .body(new ErrorResponse(ErrorType.METHOD_NOT_ALLOWED.getMessage()));
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage()));
     }
 }

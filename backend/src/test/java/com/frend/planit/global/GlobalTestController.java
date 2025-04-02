@@ -39,22 +39,17 @@ public class GlobalTestController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void noContent() {
     }
-
-    @GetMapping("/custom-code")
-    public GlobalTestResponse customCode() {
-        return new GlobalTestResponse("name", 1, "email@email.com");
-    }
-
+    
     @GetMapping("/service-exception")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public GlobalTestResponse serviceException() {
-        throw new ServiceException(ErrorType.GLOBAL_TEST_CODE);
+        throw new ServiceException(ErrorType.COMMON_SERVER_ERROR);
     }
 
     @GetMapping("/runtime-exception")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void runtimeException() {
-        throw new RuntimeException(ErrorType.GLOBAL_TEST_CODE.getMessage());
+        throw new RuntimeException(ErrorType.COMMON_SERVER_ERROR.getMessage());
     }
 
     @GetMapping("/request-body")

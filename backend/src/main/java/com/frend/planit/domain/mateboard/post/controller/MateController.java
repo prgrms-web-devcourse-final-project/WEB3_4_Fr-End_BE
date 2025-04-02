@@ -54,12 +54,12 @@ public class MateController {
     /**
      * 메이트 모집 게시글 전체 조회합니다.
      *
-     * @param pageable 페이징 정보 (페이지 번호, 한 페이지당 게시글 수: 10개, 정렬 기준: createdAt, 정렬 순서: 내림차순(DESC))
+     * @param pageable 페이징 정보 (페이지 번호, 한 페이지당 게시글 수: 8개, 정렬 기준: createdAt, 정렬 순서: 내림차순(DESC))
      * @return mates 페이징 된 게시글 목록
      */
     @GetMapping
     public ResponseEntity<PageResponse<MateResponseDto>> getAllMates(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
         PageResponse<MateResponseDto> mates = mateService.findAllWithPaging(pageable);
         return ApiResponseHelper.success(HttpStatus.OK, mates);

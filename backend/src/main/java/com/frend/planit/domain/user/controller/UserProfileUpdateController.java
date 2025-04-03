@@ -63,7 +63,7 @@ public class UserProfileUpdateController {
         return ResponseEntity.noContent().build();
     }
 
-    // 휴대폰 번호 수정
+    // 휴대폰 번호 수정 (→ 추후 인증 기능 연동 예정)
     @PatchMapping("/phone")
     public ResponseEntity<Void> updatePhone(
             @AuthenticationPrincipal Long userId,

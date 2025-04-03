@@ -5,8 +5,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
@@ -61,11 +64,7 @@ public class JwtTokenProvider {
 
     // 유저 ID 추출
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey.getBytes())
-                .parseClaimsJws(token)
-                .getBody();
-
+        Claims claims = parseClaims(token);
         return Long.valueOf(claims.getSubject());
     }
 
@@ -76,10 +75,21 @@ public class JwtTokenProvider {
 
     // refresh token 만료 임박시 재발급
     public Date getExpiration(String token) {
+        return parseClaims(token).getExpiration();
+    }
+
+    // 토큰 내 권한(Role) 정보를 Security 권한 객체로 변환
+    public List<GrantedAuthority> getAuthorities(String token) {
+        Claims claims = parseClaims(token);
+        String role = claims.get("role", String.class);
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
+    }
+
+    // Claims 파싱 메서드 (공통화)
+    private Claims parseClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey.getBytes())
                 .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
+                .getBody();
     }
 }

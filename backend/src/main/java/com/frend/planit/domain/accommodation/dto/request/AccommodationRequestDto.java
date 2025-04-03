@@ -11,5 +11,8 @@ public record AccommodationRequestDto(
         @NotBlank @Size(max = 255) String pricePerNight,
         @NotNull @Min(0) Integer availableRooms,
         String amenities,
-        @NotBlank @Size(max = 2083) String mainImage
+        @NotBlank @Size(max = 2083) String mainImage,
+        @Size(max = 5000) String description
 ) {}
+
+

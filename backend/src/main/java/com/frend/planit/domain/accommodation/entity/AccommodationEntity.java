@@ -19,7 +19,7 @@ public class AccommodationEntity extends BaseTime {
     private Long id;
 
     @Column(length = 50, nullable = false)
-    private String name; l
+    private String name;
 
     @Column(length = 255, nullable = false)
     private String location;

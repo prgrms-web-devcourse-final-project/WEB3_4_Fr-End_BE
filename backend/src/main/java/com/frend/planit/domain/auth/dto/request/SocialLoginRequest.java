@@ -1,4 +1,4 @@
-package com.frend.planit.domain.user.dto.request;
+package com.frend.planit.domain.auth.dto.request;
 
 import com.frend.planit.domain.user.enums.SocialType;
 import lombok.AllArgsConstructor;

@@ -16,3 +16,16 @@ spring:
   sql:
     init:
       mode: never
+
+jwt:
+  secret: test-jwt-secret
+  access-token-expiration-ms: 3600000
+  refresh-token-expiration-ms: 604800000
+
+oauth2:
+  google:
+    client-id: test-client-id
+    client-secret: test-secret
+    redirect-uri: http://localhost:3000/oauth/callback/google
+    token-uri: https://oauth2.googleapis.com/token
+    user-info-uri: https://www.googleapis.com/oauth2/v1/userinfo

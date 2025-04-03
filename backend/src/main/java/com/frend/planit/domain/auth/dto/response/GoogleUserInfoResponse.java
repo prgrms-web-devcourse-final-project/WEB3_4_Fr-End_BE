@@ -1,4 +1,4 @@
-package com.frend.planit.domain.user.dto.response;
+package com.frend.planit.domain.auth.dto.response;
 
 import lombok.Data;
 

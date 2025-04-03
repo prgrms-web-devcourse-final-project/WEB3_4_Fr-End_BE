@@ -1,4 +1,4 @@
-package com.frend.planit.domain.user.dto.response;
+package com.frend.planit.domain.auth.dto.response;
 
 import com.frend.planit.domain.user.enums.UserStatus;
 import lombok.AllArgsConstructor;

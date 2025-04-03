@@ -22,11 +22,7 @@ public class AccommodationService {
         for (AccommodationRequestDto dto : externalData) {
             repository.findByNameAndLocation(dto.name(), dto.location())
                     .ifPresentOrElse(
-                            existing -> {
-                                existing.setPricePerNight(dto.pricePerNight());
-                                existing.setAvailableRooms(dto.availableRooms());
-                                existing.setAmenities(dto.amenities());
-                            },
+                            existing -> existing.updateFrom(dto),
                             () -> repository.save(AccommodationEntity.builder()
                                     .name(dto.name())
                                     .location(dto.location())
@@ -61,17 +57,13 @@ public class AccommodationService {
     @Transactional
     public AccommodationResponseDto update(Long id, AccommodationRequestDto dto) {
         AccommodationEntity entity = repository.findById(id).orElseThrow();
-        entity.setName(dto.name());
-        entity.setLocation(dto.location());
-        entity.setPricePerNight(dto.pricePerNight());
-        entity.setAvailableRooms(dto.availableRooms());
-        entity.setAmenities(dto.amenities());
+        entity.updateFrom(dto);
         return toDto(entity);
     }
 
     @Transactional
     public void delete(Long id, boolean isAdmin) {
-        if (!isAdmin) throw new RuntimeException("관리자만 삭제할 수 있습니다");
+        if (!isAdmin) throw new RuntimeException("관리자만 삭제할 수 있습니다.");
         repository.deleteById(id);
     }
 

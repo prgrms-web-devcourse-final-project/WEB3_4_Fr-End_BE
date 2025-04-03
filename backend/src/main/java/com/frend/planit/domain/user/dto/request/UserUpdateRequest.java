@@ -1,7 +1,5 @@
 package com.frend.planit.domain.user.dto.request;
 
-import com.frend.planit.domain.user.enums.Gender;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
@@ -10,11 +8,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserFirstInfoRequest {
-
-    @NotBlank(message = "이메일은 필수입니다.")
-    @Email(message = "이메일 형식이 올바르지 않습니다.")
-    private String email;
+public class UserUpdateRequest {
 
     @NotBlank(message = "공백은 허용하지 않습니다.")
     private String nickname;
@@ -24,5 +18,7 @@ public class UserFirstInfoRequest {
 
     private LocalDate birthDate;
 
-    private Gender gender;
+    private String bio;
+
+    private boolean mailingType;
 }

@@ -10,4 +10,5 @@ public class SocialLoginResponse {
     private String accessToken;
     private String refreshToken;
     private boolean needAdditionalInfo;
+    private String email;
 }

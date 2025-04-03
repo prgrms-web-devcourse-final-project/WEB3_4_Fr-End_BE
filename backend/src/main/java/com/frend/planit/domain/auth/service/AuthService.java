@@ -8,6 +8,7 @@ import com.frend.planit.domain.auth.dto.response.GoogleUserInfoResponse;
 import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.mapper.UserMapper;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
@@ -33,7 +34,7 @@ public class AuthService {
     /**
      * 소셜 로그인 또는 회원가입
      */
-    public SocialLoginResponse loginOrRegister(SocialLoginRequest request) {
+    public SocialLoginResponse authentiate(SocialLoginRequest request) {
         OAuthClient client = oauthClientFactory.getClient(request.getSocialType());
 
         GoogleTokenResponse tokenResponse = client.getAccessToken(request.getCode());
@@ -58,7 +59,9 @@ public class AuthService {
                 jwtTokenProvider.getRefreshTokenExpirationMs()
         );
 
-        return new SocialLoginResponse(accessToken, refreshToken, user.getStatus());
+        boolean needAdditionalInfo = (user.getStatus() == UserStatus.UNREGISTERED);
+
+        return new SocialLoginResponse(accessToken, refreshToken, needAdditionalInfo);
     }
 
     /**

@@ -51,7 +51,7 @@ class AuthControllerTest {
         SocialLoginResponse response = new SocialLoginResponse("access-token", "refresh-token",
                 UserStatus.ACTIVE);
 
-        Mockito.when(authService.loginOrRegister(any(SocialLoginRequest.class)))
+        Mockito.when(authService.authentiate(any(SocialLoginRequest.class)))
                 .thenReturn(response);
 
         mockMvc.perform(post("/api/v1/auth/social-login")

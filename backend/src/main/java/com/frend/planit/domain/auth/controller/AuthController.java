@@ -30,7 +30,7 @@ public class AuthController {
     public ResponseEntity<SocialLoginResponse> socialLogin(
             @RequestBody @Valid SocialLoginRequest request
     ) {
-        SocialLoginResponse response = authService.loginOrRegister(request);
+        SocialLoginResponse response = authService.authentiate(request);
         return ResponseEntity.ok(response);
     }
 

@@ -1,6 +1,5 @@
 package com.frend.planit.domain.user.service;
 
-import com.frend.planit.domain.auth.client.OAuthClientFactory;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.entity.User;
@@ -8,7 +7,6 @@ import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
-import com.frend.planit.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
 
-    private final OAuthClientFactory oauthClientFactory;
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
-
 
     /**
      * 최초 로그인 시 추가 정보 등록

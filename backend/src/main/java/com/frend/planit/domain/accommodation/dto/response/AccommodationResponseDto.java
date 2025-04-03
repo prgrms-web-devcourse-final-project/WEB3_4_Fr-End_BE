@@ -6,9 +6,10 @@ public record AccommodationResponseDto(
         Long id,
         String name,
         String location,
-        Integer pricePerNight,
+        String pricePerNight,
         Integer availableRooms,
         String amenities,
+        String mainImage,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

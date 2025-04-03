@@ -47,9 +47,11 @@ public class AccommodationService {
         AccommodationEntity entity = AccommodationEntity.builder()
                 .name(dto.name())
                 .location(dto.location())
-                .pricePerNight(dto.pricePerNight())
+                .pricePerNight(dto.pricePerNight()) // 변경됨
                 .availableRooms(dto.availableRooms())
                 .amenities(dto.amenities())
+                .mainImage(dto.mainImage())
+                .updatedAt(java.time.LocalDateTime.now())
                 .build();
         return toDto(repository.save(entity));
     }
@@ -72,9 +74,10 @@ public class AccommodationService {
                 entity.getId(),
                 entity.getName(),
                 entity.getLocation(),
-                entity.getPricePerNight(),
+                entity.getPricePerNight(), // 변경됨
                 entity.getAvailableRooms(),
                 entity.getAmenities(),
+                entity.getMainImage(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );

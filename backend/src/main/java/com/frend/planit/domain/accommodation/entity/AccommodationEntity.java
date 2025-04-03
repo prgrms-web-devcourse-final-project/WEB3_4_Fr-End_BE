@@ -18,10 +18,21 @@ public class AccommodationEntity extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(length = 50, nullable = false)
+    private String name; l
+
+    @Column(length = 255, nullable = false)
     private String location;
-    private Integer pricePerNight;
+
+    @Column(length = 255, nullable = false)
+    private String pricePerNight;
+
+    @Column(nullable = false)
     private Integer availableRooms;
+
+    @Column(length = 2083, nullable = false)
+    private String mainImage;
+
     private String amenities;
 
     private LocalDateTime updatedAt;
@@ -32,6 +43,7 @@ public class AccommodationEntity extends BaseTime {
         this.pricePerNight = dto.pricePerNight();
         this.availableRooms = dto.availableRooms();
         this.amenities = dto.amenities();
+        this.mainImage = dto.mainImage();
         this.updatedAt = LocalDateTime.now();
     }
 }

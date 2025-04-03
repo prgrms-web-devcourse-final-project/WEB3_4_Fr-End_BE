@@ -1,6 +1,6 @@
 package com.frend.planit.domain.calendar.schedule.travel.controller;
 
-import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
+import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.service.TravelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,13 +24,12 @@ public class TravelController {
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "전체 행선지 조회")
+    @Operation(summary = "행선지 조회")
     @ResponseStatus(HttpStatus.OK)
-    public List<TravelResponse> getAllTravels(@PathVariable Long scheduleId) {
+    public List<DailyTravelResponse> getAllTravels(@PathVariable Long scheduleId) {
 
-        List<TravelResponse> travelResponses = travelService.getAllTravels(scheduleId);
+        List<DailyTravelResponse> travelResponses = travelService.getAllTravels(scheduleId);
 
         return travelResponses;
     }
-
 }

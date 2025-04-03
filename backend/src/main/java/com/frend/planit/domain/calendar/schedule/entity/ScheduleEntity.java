@@ -1,7 +1,8 @@
 package com.frend.planit.domain.calendar.schedule.entity;
 
-import com.frend.planit.domain.calendar.schedule.travel.entity.TravelEntity;
+import com.frend.planit.domain.calendar.schedule.day.entity.ScheduleDayEntity;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,10 +27,10 @@ public class ScheduleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "schedule_id", nullable = false)
     private Long id;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<TravelEntity> travelList = new ArrayList<>();
-
+    private List<ScheduleDayEntity> scheduleDayList = new ArrayList<>();
 }

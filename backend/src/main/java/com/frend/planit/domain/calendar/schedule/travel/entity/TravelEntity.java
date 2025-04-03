@@ -46,10 +46,10 @@ public class TravelEntity extends BaseTime {
     @Column(name = "lng", nullable = false)
     private Double lng;
 
-    @Column(name = "hour", nullable = false)
-    private int hour;
+    @Column(name = "visit_hour", nullable = false)
+    private int visitHour;
 
-    @Column(name = "minute", nullable = false)
-    private int minute;
+    @Column(name = "visit_minute", nullable = false)
+    private int visitMinute;
 
 }

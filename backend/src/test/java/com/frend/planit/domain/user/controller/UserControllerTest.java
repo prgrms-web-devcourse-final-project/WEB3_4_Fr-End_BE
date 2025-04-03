@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
-import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.Role;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
@@ -83,7 +82,6 @@ class UserControllerTest {
                 UserStatus.ACTIVE,
                 LocalDateTime.of(2025, 4, 2, 12, 0),
                 SocialType.GOOGLE,
-                LoginType.SOCIAL,
                 true,
                 Role.USER
         );

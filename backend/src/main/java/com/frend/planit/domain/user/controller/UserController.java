@@ -1,6 +1,7 @@
 package com.frend.planit.domain.user.controller;
 
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
+import com.frend.planit.domain.user.dto.request.UserProfileUpdateRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -50,5 +51,17 @@ public class UserController {
     public ResponseEntity<UserMeResponse> getMyInfo(@AuthenticationPrincipal Long userId) {
         UserMeResponse response = userService.getMyInfo(userId);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 마이페이지 프로필 수정
+     */
+    @PatchMapping("/me/profile")
+    public ResponseEntity<Void> updateProfile(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid UserProfileUpdateRequest request
+    ) {
+        userService.updateProfile(userId, request);
+        return ResponseEntity.noContent().build();
     }
 }

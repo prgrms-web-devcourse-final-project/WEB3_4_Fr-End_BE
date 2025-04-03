@@ -1,6 +1,7 @@
 package com.frend.planit.domain.user.service;
 
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
+import com.frend.planit.domain.user.dto.request.UserProfileUpdateRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.enums.UserStatus;
@@ -60,4 +61,28 @@ public class UserService {
 
         return UserMeResponse.from(user);
     }
+
+    /**
+     * 내 프로필 수정
+     */
+    @Transactional
+    public void updateProfile(Long userId, UserProfileUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.COMMON_SERVER_ERROR));
+
+        // 닉네임 중복 체크 (변경된 경우만)
+        if (!user.getNickname().equals(request.getNickname()) &&
+                userRepository.existsByNickname(request.getNickname())) {
+            throw new ServiceException(ErrorType.DUPLICATE_NICKNAME);
+        }
+
+        user.updateProfile(
+                request.getNickname(),
+                request.getPhone(),
+                request.getBirthDate(),
+                request.getBio(),
+                request.isMailingType()
+        );
+    }
+
 }

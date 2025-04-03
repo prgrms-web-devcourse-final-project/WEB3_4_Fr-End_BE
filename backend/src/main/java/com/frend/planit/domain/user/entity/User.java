@@ -92,6 +92,15 @@ public class User extends BaseTime {
         this.status = UserStatus.ACTIVE;
     }
 
+    public void updateProfile(String nickname, String phone, LocalDate birthDate, String bio,
+            boolean mailingType) {
+        this.nickname = nickname;
+        this.phone = phone;
+        this.birthDate = birthDate;
+        this.bio = bio;
+        this.mailingType = mailingType;
+    }
+
     public void updateLastLoginAt(LocalDateTime now) {
         this.lastLoginAt = now;
     }

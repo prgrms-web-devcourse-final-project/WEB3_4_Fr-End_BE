@@ -1,31 +1,24 @@
 package com.frend.planit.domain.accommodation.entity;
 
+import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Entity
+@Table(name = "accommodations")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class AccommodationEntity {
+public class AccommodationEntity extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 숙소 ID (PK, AUTO_INCREMENT)
+    private Long id;
 
-    @Column(nullable = false, length = 255)
-    private String name; // 숙소명
-
-    @Column(nullable = false, length = 255)
-    private String location; // 주소
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal pricePerNight; // 1박 가격
-
-    @Column(nullable = false)
-    private int availableRooms; // 남은 객실 수
-
+    private String name;
+    private String location;
+    private Integer pricePerNight;
+    private Integer availableRooms;
+    private String amenities;
 }

@@ -1,13 +1,13 @@
 package com.frend.planit.domain.accommodation.dto.request;
 
-import lombok.Data;
-import java.math.BigDecimal;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-@Data
-public class AccommodationRequestDto {
-    private String name;
-    private String location;
-    private BigDecimal pricePerNight;
-    private int availableRooms;
-    private String amenities;
-}
+public record AccommodationRequestDto(
+        @NotBlank String name,
+        @NotBlank String location,
+        @NotNull @Min(0) Integer pricePerNight,
+        @NotNull @Min(0) Integer availableRooms,
+        String amenities
+) {}

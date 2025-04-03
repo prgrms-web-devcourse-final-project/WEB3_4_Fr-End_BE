@@ -1,14 +1,14 @@
 package com.frend.planit.domain.accommodation.dto.response;
 
-import lombok.Data;
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-@Data
-public class AccommodationResponseDto {
-    private Long id;
-    private String name;
-    private String location;
-    private BigDecimal pricePerNight;
-    private int availableRooms;
-    private String amenities;
-}
+public record AccommodationResponseDto(
+        Long id,
+        String name,
+        String location,
+        Integer pricePerNight,
+        Integer availableRooms,
+        String amenities,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {}

@@ -8,11 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.service.TravelService;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,12 +26,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false) // MockMvc 시큐리티 필터 비활성화
 @ActiveProfiles("test")
-@Transactional
+@AutoConfigureMockMvc(addFilters = false) // MockMvc 시큐리티 필터 비활성화
 public class TravelControllerTest {
 
     @Autowired
@@ -43,7 +42,7 @@ public class TravelControllerTest {
     @MockitoBean
     private TravelService travelService;
 
-    private List<TravelResponse> travelResponse;
+    private List<DailyTravelResponse> dailyTravelResponses;
 
     private Long scheduleId;
 
@@ -53,55 +52,72 @@ public class TravelControllerTest {
         scheduleId = 1L;
 
         TravelResponse travel1 = TravelResponse.builder()
+                .location("서울 타워")
+                .category("랜드마크")
                 .lat(37.5665)
                 .lng(126.9780)
-                .plan(LocalDateTime.of(2025, 4, 2, 10, 0))
-                .title("서울 타워")
-                .content("서울의 랜드마크")
+                .hour(10)
+                .minute(0)
                 .build();
 
         TravelResponse travel2 = TravelResponse.builder()
+                .location("해운대")
+                .category("명소")
                 .lat(35.1796)
                 .lng(129.0756)
-                .plan(LocalDateTime.of(2025, 4, 3, 15, 0))
-                .title("해운대")
-                .content("부산의 명소")
+                .hour(15)
+                .minute(30)
                 .build();
 
-        travelResponse = Arrays.asList(travel1, travel2);
+        DailyTravelResponse day1 = new DailyTravelResponse(
+                LocalDate.of(2025, 4, 2),
+                List.of(travel1)
+        );
+
+        DailyTravelResponse day2 = new DailyTravelResponse(
+                LocalDate.of(2025, 4, 3),
+                List.of(travel2)
+        );
+
+        dailyTravelResponses = Arrays.asList(day1, day2);
+
     }
 
     @Test
-    @DisplayName("전체 행선지 조회 - 성공")
+    @DisplayName("행선지 조회 - 성공")
     void getAllTravelsSuccess() throws Exception {
         // given
         given(travelService.getAllTravels(scheduleId)).willReturn(
-                travelResponse); // 서비스 메소드가 호출될 때 반환할 값 설정
+                dailyTravelResponses); // 서비스 메소드가 호출될 때 반환할 값 설정
 
         // when & then
         mockMvc.perform(get("/api/v1/schedules/{scheduleId}/travels", scheduleId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                // 첫 번째 TravelResponse 검증
-                .andExpect(jsonPath("$[0].title").value("서울 타워"))
-                .andExpect(jsonPath("$[0].lat").value(37.5665))
-                .andExpect(jsonPath("$[0].lng").value(126.9780))
-                .andExpect(jsonPath("$[0].plan").value("2025-04-02T10:00:00"))
-                .andExpect(jsonPath("$[0].content").value("서울의 랜드마크"))
+                // 첫 번째 응답 검증
+                .andExpect(jsonPath("$[0].date").value("2025-04-02"))
+                .andExpect(jsonPath("$[0].travels[0].location").value("서울 타워"))
+                .andExpect(jsonPath("$[0].travels[0].category").value("랜드마크"))
+                .andExpect(jsonPath("$[0].travels[0].lat").value(37.5665))
+                .andExpect(jsonPath("$[0].travels[0].lng").value(126.9780))
+                .andExpect(jsonPath("$[0].travels[0].hour").value(10))
+                .andExpect(jsonPath("$[0].travels[0].minute").value(0))
 
-                // 두 번째 TravelResponse 검증
-                .andExpect(jsonPath("$[1].title").value("해운대"))
-                .andExpect(jsonPath("$[1].lat").value(35.1796))
-                .andExpect(jsonPath("$[1].lng").value(129.0756))
-                .andExpect(jsonPath("$[1].plan").value("2025-04-03T15:00:00"))
-                .andExpect(jsonPath("$[1].content").value("부산의 명소"));
+                // 두 번째 응답 검증
+                .andExpect(jsonPath("$[1].date").value("2025-04-03"))
+                .andExpect(jsonPath("$[1].travels[0].location").value("해운대"))
+                .andExpect(jsonPath("$[1].travels[0].category").value("명소"))
+                .andExpect(jsonPath("$[1].travels[0].lat").value(35.1796))
+                .andExpect(jsonPath("$[1].travels[0].lng").value(129.0756))
+                .andExpect(jsonPath("$[1].travels[0].hour").value(15))
+                .andExpect(jsonPath("$[1].travels[0].minute").value(30));
 
         // 서비스 메소드가 정확히 한 번 호출되었는지 검증
         verify(travelService, times(1)).getAllTravels(scheduleId);
     }
 
     @Test
-    @DisplayName("전체 행선지 조회 - 실패 (존재하지 않는 일정 ID)")
+    @DisplayName("행선지 조회 - 실패 (존재하지 않는 일정 ID)")
     void getAllTravelsFail() throws Exception {
         // given
         Long scheduleId = 999L; // 존재하지 않는 일정 ID

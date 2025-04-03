@@ -1,7 +1,9 @@
 package com.frend.planit.domain.calendar.schedule.travel.service;
 
+import com.frend.planit.domain.calendar.schedule.day.repository.ScheduleDayRepository;
 import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
-import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
+import com.frend.planit.domain.calendar.schedule.travel.TravelUtils.TravelGroupingUtils;
+import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.entity.TravelEntity;
 import com.frend.planit.domain.calendar.schedule.travel.repository.TravelRepository;
 import com.frend.planit.global.exception.ServiceException;
@@ -17,20 +19,22 @@ public class TravelService {
 
     private final TravelRepository travelRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ScheduleDayRepository scheduleDayRepository;
 
-    // 전체 행선지 조회
+    // 행선지 조회
     @Transactional(readOnly = true)
-    public List<TravelResponse> getAllTravels(Long scheduleId) {
+    public List<DailyTravelResponse> getAllTravels(Long scheduleId) {
         // 스케줄 존재 여부 확인
         scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // 행선지 조회
-        List<TravelEntity> travels = travelRepository.findByScheduleId(scheduleId);
+        List<TravelEntity> travels = travelRepository.findAllByScheduleId(scheduleId);
+        // 스케줄에 속한 행선지가 없는 경우 예외 처리
+        if (travels.isEmpty()) {
+            throw new ServiceException(ErrorType.TRAVEL_NOT_FOUND);
+        }
 
-        // TravelEntity를 TravelResponse로 변환
-        return travels.stream()
-                .map(TravelResponse::from)
-                .toList();
+        return TravelGroupingUtils.groupTravelsByDate(travels);
     }
 }

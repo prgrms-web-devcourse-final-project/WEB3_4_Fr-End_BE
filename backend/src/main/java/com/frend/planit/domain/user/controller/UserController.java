@@ -1,7 +1,6 @@
 package com.frend.planit.domain.user.controller;
 
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
-import com.frend.planit.domain.user.dto.request.UserProfileUpdateRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -36,11 +35,29 @@ public class UserController {
     }
 
     /**
-     * 닉네임 중복 여부 확인
+     * 추가 정보 입력 시 닉네임 중복 여부 확인
      */
     @GetMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         boolean available = userService.isNicknameAvailable(nickname);
+        return ResponseEntity.ok(available);
+    }
+
+    /**
+     * 추가 정보 입력 시 이메일 중복 여부 확인
+     */
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean available = userService.isEmailAvailable(email);
+        return ResponseEntity.ok(available);
+    }
+
+    /**
+     * 추가 정보 입력 시 휴대폰 번호 중복 여부 확인
+     */
+    @GetMapping("/check-phone")
+    public ResponseEntity<Boolean> checkPhone(@RequestParam String phone) {
+        boolean available = userService.isPhoneAvailable(phone);
         return ResponseEntity.ok(available);
     }
 
@@ -51,17 +68,5 @@ public class UserController {
     public ResponseEntity<UserMeResponse> getMyInfo(@AuthenticationPrincipal Long userId) {
         UserMeResponse response = userService.getMyInfo(userId);
         return ResponseEntity.ok(response);
-    }
-
-    /**
-     * 마이페이지 프로필 수정
-     */
-    @PatchMapping("/me/profile")
-    public ResponseEntity<Void> updateProfile(
-            @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid UserProfileUpdateRequest request
-    ) {
-        userService.updateProfile(userId, request);
-        return ResponseEntity.noContent().build();
     }
 }

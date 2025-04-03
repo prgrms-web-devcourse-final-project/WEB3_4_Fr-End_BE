@@ -70,14 +70,14 @@ public class AuthService {
      */
     public TokenRefreshResponse refreshAccessToken(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new ServiceException(ErrorType.UNAUTHORIZED);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         Long userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
         String savedToken = refreshTokenRedisService.get(userId);
 
         if (!refreshToken.equals(savedToken)) {
-            throw new ServiceException(ErrorType.UNAUTHORIZED);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         User user = userRepository.findById(userId)
@@ -108,7 +108,7 @@ public class AuthService {
      */
     public void logout(String accessToken) {
         if (!jwtTokenProvider.validateToken(accessToken)) {
-            throw new ServiceException(ErrorType.UNAUTHORIZED);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);

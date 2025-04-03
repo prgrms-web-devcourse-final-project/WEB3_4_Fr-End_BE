@@ -1,7 +1,6 @@
 package com.frend.planit.domain.user.service;
 
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
-import com.frend.planit.domain.user.dto.request.UserProfileUpdateRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.enums.UserStatus;
@@ -31,7 +30,7 @@ public class UserService {
         }
 
         if (userRepository.existsByNickname(request.getNickname())) {
-            throw new ServiceException(ErrorType.DUPLICATE_NICKNAME);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         user.updateFirstInfo(
@@ -44,11 +43,27 @@ public class UserService {
     }
 
     /**
-     * 닉네임 중복 여부 확인
+     * 추가 정보 입력 시 닉네임 중복 여부 확인
      */
     @Transactional(readOnly = true)
     public boolean isNicknameAvailable(String nickname) {
         return !userRepository.existsByNickname(nickname);
+    }
+
+    /**
+     * 추가 정보 입력 시 이메일 중복 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
+
+    /**
+     * 추가 정보 입력 시 이메일 중복 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isPhoneAvailable(String phone) {
+        return !userRepository.existsByPhone(phone);
     }
 
     /**
@@ -61,28 +76,4 @@ public class UserService {
 
         return UserMeResponse.from(user);
     }
-
-    /**
-     * 내 프로필 수정
-     */
-    @Transactional
-    public void updateProfile(Long userId, UserProfileUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ServiceException(ErrorType.COMMON_SERVER_ERROR));
-
-        // 닉네임 중복 체크 (변경된 경우만)
-        if (!user.getNickname().equals(request.getNickname()) &&
-                userRepository.existsByNickname(request.getNickname())) {
-            throw new ServiceException(ErrorType.DUPLICATE_NICKNAME);
-        }
-
-        user.updateProfile(
-                request.getNickname(),
-                request.getPhone(),
-                request.getBirthDate(),
-                request.getBio(),
-                request.isMailingType()
-        );
-    }
-
 }

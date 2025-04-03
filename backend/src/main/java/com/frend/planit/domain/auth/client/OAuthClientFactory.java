@@ -20,6 +20,6 @@ public class OAuthClientFactory {
         return oauthClients.stream()
                 .filter(client -> client.getSocialType() == socialType)
                 .findFirst()
-                .orElseThrow(() -> new ServiceException(ErrorType.UNSUPPORTED_SOCIAL_TYPE));
+                .orElseThrow(() -> new ServiceException(ErrorType.REQUEST_NOT_VALID));
     }
 }

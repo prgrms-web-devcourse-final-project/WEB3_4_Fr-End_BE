@@ -87,7 +87,7 @@ class AuthControllerTest {
         TokenRefreshRequest request = new TokenRefreshRequest("invalid-refresh-token");
 
         Mockito.when(authService.refreshAccessToken("invalid-refresh-token"))
-                .thenThrow(new ServiceException(ErrorType.UNAUTHORIZED));
+                .thenThrow(new ServiceException(ErrorType.REQUEST_NOT_VALID));
 
         mockMvc.perform(post("/api/v1/auth/token/refresh")
                         .contentType(MediaType.APPLICATION_JSON)

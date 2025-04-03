@@ -38,7 +38,7 @@ public class UserMeResponse {
                 .phone(user.getPhone())
                 .gender(user.getGender())
                 .birthDate(user.getBirthDate())
-                .profileImage(user.getProfileImage())
+                .profileImage(user.getProfileImageUrl())
                 .bio(user.getBio())
                 .status(user.getStatus())
                 .createdAt(user.getCreatedAt())

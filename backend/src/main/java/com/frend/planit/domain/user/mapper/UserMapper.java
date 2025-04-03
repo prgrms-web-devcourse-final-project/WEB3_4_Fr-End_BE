@@ -14,7 +14,7 @@ public class UserMapper {
                 .socialId(userInfo.getSub())
                 .socialType(socialType)
                 .email(userInfo.getEmail())
-                .profileImage(userInfo.getPicture())
+                .profileImageUrl(userInfo.getPicture())
                 .nickname(userInfo.getName())
                 .role(Role.USER)
                 .status(UserStatus.UNREGISTERED)

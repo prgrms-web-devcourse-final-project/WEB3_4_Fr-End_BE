@@ -59,29 +59,18 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("3) 비표준 상태 코드를 설정한 경우")
+    @DisplayName("3) ServiceException 이 발생한 경우")
     void t3_1() throws Exception {
-        mockMvc.perform(get("/test/global/custom-code"))
-                .andDo(print())
-                .andExpect(status().is(299))
-                .andExpect(jsonPath("$.name").value("name"))
-                .andExpect(jsonPath("$.age").value(1))
-                .andExpect(jsonPath("$.email").value("email@email.com"));
-    }
-
-    @Test
-    @DisplayName("4) ServiceException 이 발생한 경우")
-    void t4_1() throws Exception {
         mockMvc.perform(get("/test/global/service-exception"))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.GLOBAL_TEST_CODE.getCode()))
+                .andExpect(status().is(ErrorType.COMMON_SERVER_ERROR.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.GLOBAL_TEST_CODE.getMessage()));
+                        .value(ErrorType.COMMON_SERVER_ERROR.getMessage()));
     }
 
     @Test
-    @DisplayName("5-1) RequestBody 검증에 성공한 경우")
-    void t5_1() throws Exception {
+    @DisplayName("4-1) RequestBody 검증에 성공한 경우")
+    void t4_1() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("test", 123, "test@email.com");
         String requestBody = objectMapper.writeValueAsString(data);
 
@@ -96,8 +85,8 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("5-2) RequestBody 검증에 실패한 경우")
-    void t5_2() throws Exception {
+    @DisplayName("4-2) RequestBody 검증에 실패한 경우")
+    void t4_2() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("testing", 0, " ");
         String requestBody = objectMapper.writeValueAsString(data);
 
@@ -105,9 +94,9 @@ class ExceptionHandlerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.ARGUMENT_BINDING_ERROR.getCode()))
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.ARGUMENT_BINDING_ERROR.getMessage()))
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()))
                 .andExpect(jsonPath("$.details", containsInAnyOrder(
                         Map.of("field", "name", "value", data.getName(),
                                 "message", GlobalTestController.NAME_LENGTH),
@@ -119,8 +108,8 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("5-3) RequestBody 파싱에 실패한 경우")
-    void t5_3() throws Exception {
+    @DisplayName("4-3) RequestBody 파싱에 실패한 경우")
+    void t4_3() throws Exception {
         Map<String, String> data = Map.of(
                 "name", "test",
                 "age", "age",
@@ -132,17 +121,56 @@ class ExceptionHandlerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.JSON_NOT_READABLE.getCode()))
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.JSON_NOT_READABLE.getMessage()));
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()));
     }
 
     @Test
-    @DisplayName("6-1) ModelAttribute 검증에 성공한 경우")
+    @DisplayName("5-1) ModelAttribute 검증에 성공한 경우")
+    void t5_1() throws Exception {
+        GlobalTestRequest data = new GlobalTestRequest("test", 123, "test@email.com");
+
+        mockMvc.perform(get("/test/global/model-attribute")
+                        .param("name", data.getName())
+                        .param("age", String.valueOf(data.getAge()))
+                        .param("email", data.getEmail()))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value(data.getName()))
+                .andExpect(jsonPath("$.age").value(data.getAge()))
+                .andExpect(jsonPath("$.email").value(data.getEmail()));
+    }
+
+    @Test
+    @DisplayName("5-2) ModelAttribute 검증에 실패한 경우")
+    void t5_2() throws Exception {
+        GlobalTestRequest data = new GlobalTestRequest("testing", 0, " ");
+
+        mockMvc.perform(get("/test/global/model-attribute")
+                        .param("name", data.getName())
+                        .param("age", String.valueOf(data.getAge()))
+                        .param("email", data.getEmail()))
+                .andDo(print())
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
+                .andExpect(jsonPath("$.message")
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()))
+                .andExpect(jsonPath("$.details", containsInAnyOrder(
+                        Map.of("field", "name", "value", data.getName(),
+                                "message", GlobalTestController.NAME_LENGTH),
+                        Map.of("field", "age", "value", data.getAge(),
+                                "message", GlobalTestController.AGE_POSITIVE),
+                        Map.of("field", "email", "value", data.getEmail(),
+                                "message", GlobalTestController.EMAIL_NOT_BLANK)))
+                );
+    }
+
+    @Test
+    @DisplayName("6-1) RequestParam 검증에 성공한 경우")
     void t6_1() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("test", 123, "test@email.com");
 
-        mockMvc.perform(get("/test/global/model-attribute")
+        mockMvc.perform(get("/test/global/request-param")
                         .param("name", data.getName())
                         .param("age", String.valueOf(data.getAge()))
                         .param("email", data.getEmail()))
@@ -154,18 +182,18 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("6-2) ModelAttribute 검증에 실패한 경우")
+    @DisplayName("6-2) RequestParam 검증에 실패한 경우")
     void t6_2() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("testing", 0, " ");
 
-        mockMvc.perform(get("/test/global/model-attribute")
+        mockMvc.perform(get("/test/global/request-param")
                         .param("name", data.getName())
                         .param("age", String.valueOf(data.getAge()))
                         .param("email", data.getEmail()))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.ARGUMENT_BINDING_ERROR.getCode()))
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.ARGUMENT_BINDING_ERROR.getMessage()))
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()))
                 .andExpect(jsonPath("$.details", containsInAnyOrder(
                         Map.of("field", "name", "value", data.getName(),
                                 "message", GlobalTestController.NAME_LENGTH),
@@ -177,47 +205,8 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("7-1) RequestParam 검증에 성공한 경우")
-    void t7_1() throws Exception {
-        GlobalTestRequest data = new GlobalTestRequest("test", 123, "test@email.com");
-
-        mockMvc.perform(get("/test/global/request-param")
-                        .param("name", data.getName())
-                        .param("age", String.valueOf(data.getAge()))
-                        .param("email", data.getEmail()))
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(data.getName()))
-                .andExpect(jsonPath("$.age").value(data.getAge()))
-                .andExpect(jsonPath("$.email").value(data.getEmail()));
-    }
-
-    @Test
-    @DisplayName("7-2) RequestParam 검증에 실패한 경우")
-    void t7_2() throws Exception {
-        GlobalTestRequest data = new GlobalTestRequest("testing", 0, " ");
-
-        mockMvc.perform(get("/test/global/request-param")
-                        .param("name", data.getName())
-                        .param("age", String.valueOf(data.getAge()))
-                        .param("email", data.getEmail()))
-                .andDo(print())
-                .andExpect(status().is(ErrorType.CONSTRAINT_VIOLATION.getCode()))
-                .andExpect(jsonPath("$.message")
-                        .value(ErrorType.CONSTRAINT_VIOLATION.getMessage()))
-                .andExpect(jsonPath("$.details", containsInAnyOrder(
-                        Map.of("field", "name", "value", data.getName(),
-                                "message", GlobalTestController.NAME_LENGTH),
-                        Map.of("field", "age", "value", data.getAge(),
-                                "message", GlobalTestController.AGE_POSITIVE),
-                        Map.of("field", "email", "value", data.getEmail(),
-                                "message", GlobalTestController.EMAIL_NOT_BLANK)))
-                );
-    }
-
-    @Test
-    @DisplayName("7-3) RequestParam 타입이 일치하지 않는 경우")
-    void t7_3() throws Exception {
+    @DisplayName("6-3) RequestParam 타입이 일치하지 않는 경우")
+    void t6_3() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("test", 123, "test@email.com");
         String notInt = "age";
 
@@ -226,9 +215,9 @@ class ExceptionHandlerTest {
                         .param("age", notInt)
                         .param("email", data.getEmail()))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.ARGUMENT_TYPE_MISMATCH.getCode()))
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.ARGUMENT_TYPE_MISMATCH.getMessage()))
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()))
                 .andExpect(jsonPath("$.details", hasSize(1)))
                 .andExpect(jsonPath("$.details[0].field").value("age"))
                 .andExpect(jsonPath("$.details[0].value").value(notInt))
@@ -237,13 +226,13 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("7-4) RequestParam 이 누락되었을 경우")
-    void t7_4() throws Exception {
+    @DisplayName("6-4) RequestParam 이 누락되었을 경우")
+    void t6_4() throws Exception {
         mockMvc.perform(get("/test/global/request-param"))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.MISSING_REQUEST_PARAMETER.getCode()))
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.MISSING_REQUEST_PARAMETER.getMessage()))
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()))
                 .andExpect(jsonPath("$.details", hasItem(anyOf(
                         allOf(
                                 hasEntry("field", "name"),
@@ -265,8 +254,8 @@ class ExceptionHandlerTest {
 
 
     @Test
-    @DisplayName("8-1) PathVariable 검증에 성공한 경우")
-    void t8_1() throws Exception {
+    @DisplayName("7-1) PathVariable 검증에 성공한 경우")
+    void t7_1() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("test", 123, "test@email.com");
 
         mockMvc.perform(get("/test/global/path-variable/{name}/{age}/{email}",
@@ -279,16 +268,16 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("8-2) PathVariable 검증에 실패한 경우")
-    void t8_2() throws Exception {
+    @DisplayName("7-2) PathVariable 검증에 실패한 경우")
+    void t7_2() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("testing", 0, " ");
 
         mockMvc.perform(get("/test/global/path-variable/{name}/{age}/{email}",
                         data.getName(), data.getAge(), data.getEmail()))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.CONSTRAINT_VIOLATION.getCode()))
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.CONSTRAINT_VIOLATION.getMessage()))
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()))
                 .andExpect(jsonPath("$.details", containsInAnyOrder(
                         Map.of("field", "name", "value", data.getName(),
                                 "message", GlobalTestController.NAME_LENGTH),
@@ -300,17 +289,17 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("8-3) PathVariable 타입이 일치하지 않는 경우")
-    void t8_3() throws Exception {
+    @DisplayName("7-3) PathVariable 타입이 일치하지 않는 경우")
+    void t7_3() throws Exception {
         GlobalTestRequest data = new GlobalTestRequest("test", 123, "test@email.com");
         String notInt = "age";
 
         mockMvc.perform(get("/test/global/path-variable/{name}/{age}/{email}",
                         data.getName(), notInt, data.getEmail()))
                 .andDo(print())
-                .andExpect(status().is(ErrorType.ARGUMENT_TYPE_MISMATCH.getCode()))
+                .andExpect(status().is(ErrorType.REQUEST_NOT_VALID.getCode()))
                 .andExpect(jsonPath("$.message")
-                        .value(ErrorType.ARGUMENT_TYPE_MISMATCH.getMessage()))
+                        .value(ErrorType.REQUEST_NOT_VALID.getMessage()))
                 .andExpect(jsonPath("$.details", hasSize(1)))
                 .andExpect(jsonPath("$.details[0].field").value("age"))
                 .andExpect(jsonPath("$.details[0].value").value(notInt))
@@ -319,8 +308,8 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("8-4) PathVariable 이 누락되었을 경우")
-    void t8_4() throws Exception {
+    @DisplayName("7-4) PathVariable 이 누락되었을 경우")
+    void t7_4() throws Exception {
         mockMvc.perform(get("/test/global/missing-path-variable"))
                 .andDo(print())
                 .andExpect(status().is(ErrorType.MISSING_PATH_VARIABLE.getCode()))
@@ -346,8 +335,8 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("9) HTTP 메서드가 일치하지 않을 경우")
-    void t9_1() throws Exception {
+    @DisplayName("8) HTTP 메서드가 일치하지 않을 경우")
+    void t8_1() throws Exception {
         mockMvc.perform(post("/test/global/ok"))
                 .andDo(print())
                 .andExpect(status().is(ErrorType.METHOD_NOT_ALLOWED.getCode()))
@@ -356,8 +345,8 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("10) 경로가 존재하지 않을 경우")
-    void t10_1() throws Exception {
+    @DisplayName("9) 경로가 존재하지 않을 경우")
+    void t9_1() throws Exception {
         String wrongPath = "/test/global/wrong-path";
 
         mockMvc.perform(get(wrongPath))
@@ -373,8 +362,8 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("11) 기타 예외가 발생한 경우")
-    void t11_1() throws Exception {
+    @DisplayName("10) 기타 예외가 발생한 경우")
+    void t10_1() throws Exception {
         mockMvc.perform(get("/test/global/runtime-exception"))
                 .andDo(print())
                 .andExpect(status().is(ErrorType.COMMON_SERVER_ERROR.getCode()))
@@ -384,6 +373,6 @@ class ExceptionHandlerTest {
                 .andExpect(jsonPath("$.details[0].field").value("cause"))
                 .andExpect(jsonPath("$.details[0].value").value(RuntimeException.class.getName()))
                 .andExpect(jsonPath("$.details[0].message")
-                        .value(ErrorType.GLOBAL_TEST_CODE.getMessage()));
+                        .value(ErrorType.COMMON_SERVER_ERROR.getMessage()));
     }
 }

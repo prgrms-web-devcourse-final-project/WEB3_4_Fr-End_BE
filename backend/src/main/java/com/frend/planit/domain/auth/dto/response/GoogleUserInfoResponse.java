@@ -1,11 +1,13 @@
 package com.frend.planit.domain.auth.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class GoogleUserInfoResponse {
 
-    private String sub;        // 구글 고유 사용자 ID
+    @JsonProperty("id")
+    private String socialId;        // 구글 고유 사용자 ID
     private String email;
     private String name;
     private String picture;

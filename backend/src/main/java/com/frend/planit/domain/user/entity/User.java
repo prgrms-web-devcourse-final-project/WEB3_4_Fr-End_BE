@@ -99,7 +99,7 @@ public class User extends BaseTime {
     }
 
     public void updatePhone(String phone) {
-        this.nickname = phone;
+        this.phone = phone;
     }
 
     public void updateBio(String bio) {

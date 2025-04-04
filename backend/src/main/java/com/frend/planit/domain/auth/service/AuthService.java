@@ -40,7 +40,7 @@ public class AuthService {
         GoogleTokenResponse tokenResponse = client.getAccessToken(request.getCode());
         GoogleUserInfoResponse userInfo = client.getUserInfo(tokenResponse.getAccessToken());
 
-        User user = userRepository.findBySocialIdAndSocialType(userInfo.getSub(),
+        User user = userRepository.findBySocialIdAndSocialType(userInfo.getSocialId(),
                         client.getSocialType())
                 .orElseGet(() ->
                         userRepository.save(

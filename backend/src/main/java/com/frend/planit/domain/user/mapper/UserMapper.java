@@ -11,7 +11,7 @@ public class UserMapper {
 
     public static User toEntity(GoogleUserInfoResponse userInfo, SocialType socialType) {
         return User.builder()
-                .socialId(userInfo.getSub())
+                .socialId(userInfo.getSocialId())
                 .socialType(socialType)
                 .email(userInfo.getEmail())
                 .profileImageUrl(userInfo.getPicture())

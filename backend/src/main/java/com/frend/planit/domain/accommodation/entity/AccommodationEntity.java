@@ -1,10 +1,12 @@
 package com.frend.planit.domain.accommodation.entity;
 
+import com.frend.planit.domain.accommodation.dto.request.AccommodationRequestDto;
 import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "accommodations")
@@ -14,18 +16,16 @@ import java.time.LocalDateTime;
 @Builder
 public class AccommodationEntity extends BaseTime {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    // ID는 BaseEntity 상속
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 100, nullable = false)
     private String name;
 
     @Column(length = 255, nullable = false)
     private String location;
 
-    @Column(length = 255, nullable = false)
-    private String pricePerNight;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal pricePerNight;
 
     @Column(nullable = false)
     private Integer availableRooms;
@@ -33,17 +33,17 @@ public class AccommodationEntity extends BaseTime {
     @Column(length = 2083, nullable = false)
     private String mainImage;
 
-    private String amenities;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "accommodation_amenities", joinColumns = @JoinColumn(name = "accommodation_id"))
+    @Column(name = "amenity")
+    private List<String> amenities;
 
-    private LocalDateTime updatedAt;
-
-    public void updateFrom(com.frend.planit.domain.accommodation.dto.request.AccommodationRequestDto dto) {
+    public void updateFrom(AccommodationRequestDto dto) {
         this.name = dto.name();
         this.location = dto.location();
         this.pricePerNight = dto.pricePerNight();
         this.availableRooms = dto.availableRooms();
-        this.amenities = dto.amenities();
         this.mainImage = dto.mainImage();
-        this.updatedAt = LocalDateTime.now();
+        this.amenities = dto.amenities();
     }
 }

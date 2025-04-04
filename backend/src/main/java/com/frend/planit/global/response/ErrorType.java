@@ -33,8 +33,13 @@ public enum ErrorType {
     COMMON_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     GLOBAL_TEST_CODE(444, "테스트 컨트롤러의 코드입니다."),
 
+    // Accommodation
+    ACCOMMODATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 숙소를 찾을 수 없습니다."),
+    ACCOMMODATION_DELETE_UNAUTHORIZED(HttpStatus.FORBIDDEN, "관리자만 숙소를 삭제할 수 있습니다."),
+
     // MateBoard
     MATE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물이 존재하지 않습니다.");
+
 
     /*********************************************************************************/
 

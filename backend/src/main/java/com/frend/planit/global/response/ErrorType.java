@@ -21,12 +21,17 @@ public enum ErrorType {
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
     UNSUPPORTED_SOCIAL_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 로그인 타입입니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
-    
+
+    // Image
+    MIME_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "지원하지 않는 확장자입니다."),
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
+
     // Global
     REQUEST_NOT_VALID(HttpStatus.BAD_REQUEST, "요청 형식이 잘못되었습니다."),
     MISSING_PATH_VARIABLE(HttpStatus.INTERNAL_SERVER_ERROR, "경로 파라미터가 누락되었습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메소드입니다."),
     NO_RESOURCE_FOUND(HttpStatus.NOT_FOUND, "요청한 경로를 찾을 수 없습니다."),
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
     COMMON_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 
     // MateBoard

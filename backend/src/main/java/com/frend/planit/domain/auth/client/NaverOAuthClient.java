@@ -1,6 +1,6 @@
 package com.frend.planit.domain.auth.client;
 
-import com.frend.planit.domain.auth.dto.response.KakaoUserInfoResponse;
+import com.frend.planit.domain.auth.dto.response.NaverUserInfoResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthTokenResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.user.enums.SocialType;
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -17,28 +18,27 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 @RequiredArgsConstructor
-public class KakaoOAuthClient implements OAuthClient {
+public class NaverOAuthClient implements OAuthClient {
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
     private String clientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
     private String redirectUri;
 
-    @Value("${spring.security.oauth2.client.provider.kakao.token-uri}")
+    @Value("${spring.security.oauth2.client.provider.naver.token-uri}")
     private String tokenUri;
 
-    @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
+    @Value("${spring.security.oauth2.client.provider.naver.user-info-uri}")
     private String userInfoUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public OAuthTokenResponse getAccessToken(String code) {
-
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", clientId);
@@ -46,24 +46,31 @@ public class KakaoOAuthClient implements OAuthClient {
         body.add("redirect_uri", redirectUri);
         body.add("code", code);
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
         return restTemplate.postForEntity(
-                tokenUri,  // 🔥 하드코딩 대신 설정된 값 사용
-                body,
+                tokenUri,
+                request,
                 OAuthTokenResponse.class
         ).getBody();
+
+
     }
 
     @Override
     public OAuthUserInfoResponse getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+        headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<KakaoUserInfoResponse> response = restTemplate.exchange(
+        ResponseEntity<NaverUserInfoResponse> response = restTemplate.exchange(
                 userInfoUri,
                 HttpMethod.GET,
                 entity,
-                KakaoUserInfoResponse.class
+                NaverUserInfoResponse.class
         );
 
         return response.getBody().toOAuthUserInfo();
@@ -71,8 +78,6 @@ public class KakaoOAuthClient implements OAuthClient {
 
     @Override
     public SocialType getSocialType() {
-        return SocialType.KAKAO;
+        return SocialType.NAVER;
     }
 }
-
-

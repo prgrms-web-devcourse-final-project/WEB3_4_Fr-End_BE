@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * 소셜 타입에 맞는 OAuthClient 구현체를 주입해주는 팩토리 - 추후 KakaoOauthClient, NaverOauthClient 추가 예정
+ * 소셜 타입에 맞는 OAuthClient 구현체를 주입해주는 팩토리 - 추후 KakaoOAuthClient, NaverOAuthClient 추가 예정
  */
 @Component
 @RequiredArgsConstructor

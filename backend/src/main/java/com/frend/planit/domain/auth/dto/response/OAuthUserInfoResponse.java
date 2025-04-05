@@ -11,6 +11,6 @@ public class OAuthUserInfoResponse {
     @JsonProperty("id")
     private String socialId;        // 구글 고유 사용자 ID
     private String email;
-    private String name;
+    private String nickname;
     private String profileImage;
 }

@@ -113,7 +113,7 @@ class UserControllerTest {
                 .birthDate(LocalDate.of(2000, 1, 1))
                 .profileImage("https://img.com/profile.jpg")
                 .bio("소개글입니다")
-                .status(UserStatus.ACTIVE)
+                .status(UserStatus.REGISTERED)
                 .createdAt(LocalDateTime.now())
                 .socialType(SocialType.GOOGLE)
                 .mailingType(true)

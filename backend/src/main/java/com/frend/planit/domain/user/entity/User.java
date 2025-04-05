@@ -91,7 +91,7 @@ public class User extends BaseTime {
         this.phone = phone;
         this.birthDate = birthDate;
         this.gender = gender;
-        this.status = UserStatus.ACTIVE;
+        this.status = UserStatus.REGISTERED;
     }
 
     public void updateNickname(String nickname) {

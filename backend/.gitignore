@@ -49,3 +49,4 @@ application-secret.yml
 
 ### db_local ###
 db_local.mv.db
+db_local.trace.db

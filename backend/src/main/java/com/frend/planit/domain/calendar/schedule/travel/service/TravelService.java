@@ -79,4 +79,33 @@ public class TravelService {
         // 행선지 삭제
         travelRepository.delete(travel);
     }
+
+    // 행선지 수정
+    public TravelResponse modifyTravel(Long scheduleId, Long travelId,
+            TravelRequest travelRequest) {
+        // 스케줄 존재 여부 확인
+        scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
+
+        // 행선지 존재 여부 확인
+        TravelEntity travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new ServiceException(ErrorType.TRAVEL_NOT_FOUND));
+
+        // 특정 스케줄의 날짜 존재 여부 확인
+        ScheduleDayEntity scheduleDay = scheduleDayRepository.findById(
+                        travelRequest.getScheduleDayId())
+                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_DAY_NOT_FOUND));
+
+        // travel에 연결된 scheduleDay가 해당 schedule 소속인지 검증
+        if (!travel.getScheduleDay().getSchedule().getId().equals(scheduleId)) {
+            throw new ServiceException(ErrorType.SCHEDULE_DAY_NOT_FOUND);
+        }
+
+        // TravelEntity 수정
+        travel.updateTravel(travelRequest, scheduleDay);
+
+        TravelEntity updatedTravel = travelRepository.save(travel);
+
+        return TravelResponse.from(updatedTravel);
+    }
 }

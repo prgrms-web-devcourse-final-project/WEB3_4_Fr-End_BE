@@ -56,6 +56,7 @@ public class TravelEntity extends BaseTime {
     @Column(name = "visit_minute", nullable = false)
     private int visitMinute;
 
+    // 객체 생성 메서드
     public static TravelEntity of(TravelRequest request, ScheduleDayEntity scheduleDay) {
         return TravelEntity.builder()
                 .scheduleDay(scheduleDay)
@@ -69,5 +70,12 @@ public class TravelEntity extends BaseTime {
                 .build();
     }
 
-
+    public void updateTravel(TravelRequest travelRequest, ScheduleDayEntity scheduleDay) {
+        this.location = travelRequest.getLocation();
+        this.category = travelRequest.getCategory();
+        this.lat = travelRequest.getLat();
+        this.lng = travelRequest.getLng();
+        this.visitHour = travelRequest.getHour();
+        this.visitMinute = travelRequest.getMinute();
+    }
 }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -195,7 +196,6 @@ public class TravelControllerTest {
     @Test
     @DisplayName("행선지 삭제 - 성공")
     void deleteTravelSuccess() throws Exception {
-
         // when & then
         mockMvc.perform(
                         delete("/api/v1/schedules/{scheduleId}/travels/{travelId}", scheduleId, travelId)
@@ -207,4 +207,63 @@ public class TravelControllerTest {
                 .deleteTravel(eq(scheduleId), eq(travelId));
 
     }
+
+    @Test
+    @DisplayName("행선지 수정 - 성공")
+    void modifyTravelSuccess() throws Exception {
+        // given
+        TravelRequest modifiedRequest = TravelRequest.builder()
+                .scheduleDayId(10L)
+                .kakaomapId("kakao_123")
+                .location("남산타워") // 변경됨
+                .category("랜드마크") // 변경됨
+                .lat(37.5512)
+                .lng(126.9882)
+                .hour(16)
+                .minute(45)
+                .build();
+
+        TravelResponse modifiedResponse = TravelResponse.builder()
+                .kakaomapId("kakao_123")
+                .location("남산타워")
+                .category("랜드마크")
+                .lat(37.5512)
+                .lng(126.9882)
+                .hour(16)
+                .minute(45)
+                .build();
+
+        given(travelService.modifyTravel(scheduleId, travelId, modifiedRequest))
+                .willReturn(modifiedResponse);
+
+        // when & then
+        mockMvc.perform(
+                        patch("/api/v1/schedules/{scheduleId}/travels/{travelId}", scheduleId, travelId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(modifiedRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.place_name").value("남산타워"))
+                .andExpect(jsonPath("$.category_group_name").value("랜드마크"))
+                .andExpect(jsonPath("$.x").value(37.5512))
+                .andExpect(jsonPath("$.y").value(126.9882))
+                .andExpect(jsonPath("$.hour").value(16))
+                .andExpect(jsonPath("$.minute").value(45));
+
+        verify(travelService, times(1)).modifyTravel(scheduleId, travelId, modifiedRequest);
+    }
+
+    @Test
+    @DisplayName("행선지 수정 - 실패 (존재하지 않는 행선지)")
+    void modifyTravelFail() throws Exception {
+        given(travelService.modifyTravel(scheduleId, travelId, travelRequest))
+                .willThrow(new ServiceException(ErrorType.TRAVEL_NOT_FOUND));
+
+        mockMvc.perform(
+                        patch("/api/v1/schedules/{scheduleId}/travels/{travelId}", scheduleId, travelId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(travelRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("해당 행선지가 존재하지 않습니다."));
+    }
+
 }

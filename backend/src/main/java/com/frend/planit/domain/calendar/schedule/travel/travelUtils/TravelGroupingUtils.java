@@ -1,4 +1,4 @@
-package com.frend.planit.domain.calendar.schedule.travel.TravelUtils;
+package com.frend.planit.domain.calendar.schedule.travel.travelUtils;
 
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;

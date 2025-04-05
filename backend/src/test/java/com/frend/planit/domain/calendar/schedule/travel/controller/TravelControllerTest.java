@@ -1,13 +1,17 @@
-package com.frend.planit.domain.travel.controller;
+package com.frend.planit.domain.calendar.schedule.travel.controller;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.frend.planit.domain.calendar.schedule.travel.dto.request.TravelRequest;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.service.TravelService;
@@ -46,13 +50,42 @@ public class TravelControllerTest {
 
     private Long scheduleId;
 
+    private Long travelId;
+
+    private TravelResponse travelResponse;
+
+    private TravelRequest travelRequest;
+
     @BeforeEach
     void setUp() {
         // 테스트에 필요한 TravelResponse 객체를 생성
         scheduleId = 1L;
+        travelId = 100L;
+
+        travelRequest = TravelRequest.builder()
+                .scheduleDayId(10L)
+                .kakaomapId("kakao_123")
+                .location("서울타워")
+                .category("명소")
+                .lat(37.5665)
+                .lng(126.9780)
+                .hour(14)
+                .minute(30)
+                .build();
+
+        travelResponse = TravelResponse.builder()
+                .kakaomapId("kakao_123")
+                .location("서울타워")
+                .category("명소")
+                .lat(37.5665)
+                .lng(126.9780)
+                .hour(14)
+                .minute(30)
+                .build();
 
         TravelResponse travel1 = TravelResponse.builder()
-                .location("서울 타워")
+                .kakaomapId("kakao_123")
+                .location("서울타워")
                 .category("랜드마크")
                 .lat(37.5665)
                 .lng(126.9780)
@@ -61,6 +94,7 @@ public class TravelControllerTest {
                 .build();
 
         TravelResponse travel2 = TravelResponse.builder()
+                .kakaomapId("kakao_456")
                 .location("해운대")
                 .category("명소")
                 .lat(35.1796)
@@ -80,7 +114,6 @@ public class TravelControllerTest {
         );
 
         dailyTravelResponses = Arrays.asList(day1, day2);
-
     }
 
     @Test
@@ -96,19 +129,21 @@ public class TravelControllerTest {
                 .andExpect(status().isOk())
                 // 첫 번째 응답 검증
                 .andExpect(jsonPath("$[0].date").value("2025-04-02"))
-                .andExpect(jsonPath("$[0].travels[0].location").value("서울 타워"))
-                .andExpect(jsonPath("$[0].travels[0].category").value("랜드마크"))
-                .andExpect(jsonPath("$[0].travels[0].lat").value(37.5665))
-                .andExpect(jsonPath("$[0].travels[0].lng").value(126.9780))
+                .andExpect(jsonPath("$[0].travels[0].id").value("kakao_123"))
+                .andExpect(jsonPath("$[0].travels[0].place_name").value("서울타워"))
+                .andExpect(jsonPath("$[0].travels[0].category_group_name").value("랜드마크"))
+                .andExpect(jsonPath("$[0].travels[0].x").value(37.5665))
+                .andExpect(jsonPath("$[0].travels[0].y").value(126.9780))
                 .andExpect(jsonPath("$[0].travels[0].hour").value(10))
                 .andExpect(jsonPath("$[0].travels[0].minute").value(0))
 
                 // 두 번째 응답 검증
                 .andExpect(jsonPath("$[1].date").value("2025-04-03"))
-                .andExpect(jsonPath("$[1].travels[0].location").value("해운대"))
-                .andExpect(jsonPath("$[1].travels[0].category").value("명소"))
-                .andExpect(jsonPath("$[1].travels[0].lat").value(35.1796))
-                .andExpect(jsonPath("$[1].travels[0].lng").value(129.0756))
+                .andExpect(jsonPath("$[1].travels[0].id").value("kakao_456"))
+                .andExpect(jsonPath("$[1].travels[0].place_name").value("해운대"))
+                .andExpect(jsonPath("$[1].travels[0].category_group_name").value("명소"))
+                .andExpect(jsonPath("$[1].travels[0].x").value(35.1796))
+                .andExpect(jsonPath("$[1].travels[0].y").value(129.0756))
                 .andExpect(jsonPath("$[1].travels[0].hour").value(15))
                 .andExpect(jsonPath("$[1].travels[0].minute").value(30));
 
@@ -120,18 +155,56 @@ public class TravelControllerTest {
     @DisplayName("행선지 조회 - 실패 (존재하지 않는 일정 ID)")
     void getAllTravelsFail() throws Exception {
         // given
-        Long scheduleId = 999L; // 존재하지 않는 일정 ID
+        Long wrongScheduleId = 999L; // 존재하지 않는 일정 ID
 
-        given(travelService.getAllTravels(scheduleId))
+        given(travelService.getAllTravels(wrongScheduleId))
                 .willThrow(new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // when & then
-        mockMvc.perform(get("/api/v1/schedules/{scheduleId}/travels", scheduleId)
+        mockMvc.perform(get("/api/v1/schedules/{scheduleId}/travels", wrongScheduleId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("해당 스케줄이 존재하지 않습니다."));
 
         // 서비스 메소드가 정확히 한 번 호출되었는지 검증
-        verify(travelService, times(1)).getAllTravels(scheduleId);
+        verify(travelService, times(1)).getAllTravels(wrongScheduleId);
+    }
+
+    @Test
+    @DisplayName("행선지 생성 - 성공")
+    void createTravelSuccess() throws Exception {
+        // given
+        given(travelService.createTravel(scheduleId, travelRequest)).willReturn(travelResponse);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/schedules/{scheduleId}/travels", scheduleId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(travelRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value("kakao_123"))
+                .andExpect(jsonPath("$.place_name").value("서울타워"))
+                .andExpect(jsonPath("$.category_group_name").value("명소"))
+                .andExpect(jsonPath("$.x").value(37.5665))
+                .andExpect(jsonPath("$.y").value(126.9780))
+                .andExpect(jsonPath("$.hour").value(14))
+                .andExpect(jsonPath("$.minute").value(30));
+
+        verify(travelService, times(1)).createTravel(scheduleId, travelRequest);
+    }
+
+    @Test
+    @DisplayName("행선지 삭제 - 성공")
+    void deleteTravelSuccess() throws Exception {
+
+        // when & then
+        mockMvc.perform(
+                        delete("/api/v1/schedules/{scheduleId}/travels/{travelId}", scheduleId, travelId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").doesNotExist());
+
+        verify(travelService, times(1))
+                .deleteTravel(eq(scheduleId), eq(travelId));
+
     }
 }

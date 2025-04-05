@@ -3,8 +3,8 @@ package com.frend.planit.domain.auth.service;
 import com.frend.planit.domain.auth.client.OAuthClient;
 import com.frend.planit.domain.auth.client.OAuthClientFactory;
 import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
-import com.frend.planit.domain.auth.dto.response.GoogleTokenResponse;
-import com.frend.planit.domain.auth.dto.response.GoogleUserInfoResponse;
+import com.frend.planit.domain.auth.dto.response.OAuthTokenResponse;
+import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.user.entity.User;
@@ -37,8 +37,8 @@ public class AuthService {
     public SocialLoginResponse authentiate(SocialLoginRequest request) {
         OAuthClient client = oauthClientFactory.getClient(request.getSocialType());
 
-        GoogleTokenResponse tokenResponse = client.getAccessToken(request.getCode());
-        GoogleUserInfoResponse userInfo = client.getUserInfo(tokenResponse.getAccessToken());
+        OAuthTokenResponse tokenResponse = client.getAccessToken(request.getCode());
+        OAuthUserInfoResponse userInfo = client.getUserInfo(tokenResponse.getAccessToken());
 
         User user = userRepository.findBySocialIdAndSocialType(userInfo.getSocialId(),
                         client.getSocialType())

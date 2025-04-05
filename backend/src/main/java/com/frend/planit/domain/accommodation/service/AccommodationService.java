@@ -7,10 +7,12 @@ import com.frend.planit.domain.accommodation.repository.AccommodationRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class AccommodationService {
     private final AccommodationRepository repository;
 
     @Transactional
-    public void syncFromTourApi(List<AccommodationRequestDto> externalData) {
+    public void syncFromTourApi(java.util.List<AccommodationRequestDto> externalData) {
         for (AccommodationRequestDto dto : externalData) {
             repository.findByNameAndLocation(dto.name(), dto.location())
                     .ifPresentOrElse(
@@ -34,6 +36,13 @@ public class AccommodationService {
         return repository.findById(id)
                 .map(this::toDto)
                 .orElseThrow(() -> new ServiceException(ErrorType.ACCOMMODATION_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AccommodationResponseDto> findAllPaged(String sortBy, String direction, int page, int size) {
+        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return repository.findAll(pageable).map(this::toDto);
     }
 
     @Transactional
@@ -57,8 +66,6 @@ public class AccommodationService {
         }
         repository.deleteById(id);
     }
-
-    // ======================== private methods ========================
 
     private AccommodationEntity toEntity(AccommodationRequestDto dto) {
         return AccommodationEntity.builder()

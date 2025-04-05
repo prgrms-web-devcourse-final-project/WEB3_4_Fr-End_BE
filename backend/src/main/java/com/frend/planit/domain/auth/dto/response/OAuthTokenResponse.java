@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class GoogleTokenResponse {
+public class OAuthTokenResponse {
 
     @JsonProperty("access_token")
     private String accessToken;
@@ -22,5 +22,5 @@ public class GoogleTokenResponse {
     private String tokenType;
 
     @JsonProperty("id_token")
-    private String idToken;
+    private String idToken; // 구글 전용, 다른 소셜에서는 무시 가능
 }

@@ -17,10 +17,15 @@ public enum ErrorType {
      */
     /*********************************************************************************/
 
+    // Auth
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+
     // User
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
     UNSUPPORTED_SOCIAL_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 로그인 타입입니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 
     // Image
     MIME_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "지원하지 않는 확장자입니다."),

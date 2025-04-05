@@ -30,7 +30,7 @@ public class AuthController {
     public ResponseEntity<SocialLoginResponse> socialLogin(
             @RequestBody @Valid SocialLoginRequest request
     ) {
-        SocialLoginResponse response = authService.loginOrRegister(request);
+        SocialLoginResponse response = authService.authentiate(request);
         return ResponseEntity.ok(response);
     }
 
@@ -48,7 +48,7 @@ public class AuthController {
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (bearer == null || !bearer.startsWith("Bearer ")) {
-            throw new ServiceException(ErrorType.UNAUTHORIZED);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         String accessToken = bearer.substring(7);

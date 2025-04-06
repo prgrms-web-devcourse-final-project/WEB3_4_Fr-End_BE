@@ -1,5 +1,6 @@
 package com.frend.planit.domain.image.service;
 
+import com.frend.planit.domain.image.dto.response.ImageResponse;
 import com.frend.planit.domain.image.dto.response.UploadResponse;
 import com.frend.planit.domain.image.entity.Image;
 import com.frend.planit.domain.image.repository.ImageRepository;
@@ -44,15 +45,15 @@ public class ImageService {
         Image image = createImage(fileName);
 
         // Presigned POST URL 생성
-        S3PresignedPostResponse postResponse = s3Service.createPresignedPostUrl(fileName,
-                contentType);
+        S3PresignedPostResponse postResponse = s3Service.createPresignedPostUrl(
+                fileName, contentType);
 
         return UploadResponse.of(postResponse, image);
     }
 
     /*
-     * 게시글을 등록할 때 최종적으로 사용된 이미지를 커밋하여 게시글과 연결합니다.
-     * 커밋되지 않은 이미지는 주기적으로 삭제됩니다.
+     * 게시글을 등록할 때 최종적으로 사용된 이미지를 게시글과 연결합니다.
+     * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
     public void commitImage(long imageId, HolderType holderType, long holderId) {
@@ -73,18 +74,26 @@ public class ImageService {
     /*
      * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
      */
-    public Image getImage(HolderType holderType, long holderId) {
-        return imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
+    public ImageResponse getImage(HolderType holderType, long holderId) {
+        return ImageResponse.of(
+                imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
-    public List<Image> getImages(HolderType holderType, long holderId) {
-        return imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
+    public ImageResponse getImages(HolderType holderType, long holderId) {
+        return ImageResponse.of(
+                imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
-    public void updateImage(long imageId, HolderType holderType, long holderId) {
+    /*
+     * 이미지 변경은 아래의 과정으로 진행됩니다.
+     * 1. 변경 전 이미지와 변경 후 이미지 목록을 비교
+     * 2. 삭제된 이미지는 Holder를 null로 변경하여 삭제 예약
+     * 3. 추가된 이미지는 Holder를 설정하여 게시글과 연결
+     */
+    public void updateImage(long newImageId, HolderType holderType, long holderId) {
     }
 
-    public void updateImages(List<Long> imageIds, HolderType holderType, long holderId) {
+    public void updateImages(List<Long> newImageIds, HolderType holderType, long holderId) {
     }
 
     public void deleteImage() {

@@ -3,6 +3,7 @@ package com.frend.planit.domain.image.repository;
 import com.frend.planit.domain.image.entity.Image;
 import com.frend.planit.domain.image.type.HolderType;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,10 +17,10 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     @Query("UPDATE Image i SET i.holderType = :holderType, i.holderId = :holderId WHERE i.id = :imageId")
     int updateHolderForImage(
             @Param("holderType") HolderType holderType,
-            @Param("holderId") long holderId,
+            @Param("holderId") Long holderId,
             @Param("imageId") long imageId
     );
-    
+
     @Modifying
     @Query("UPDATE Image i SET i.holderType = :holderType, i.holderId = :holderId WHERE i.id IN :imageIds")
     int updateHolderForImages(
@@ -28,7 +29,8 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
             @Param("imageIds") List<Long> imageIds
     );
 
-    Image findFirstByHolderTypeAndHolderIdOrderByIdAsc(HolderType holderType, Long holderId);
+    Optional<Image> findFirstByHolderTypeAndHolderIdOrderByIdAsc(
+            HolderType holderType, Long holderId);
 
     List<Image> findAllByHolderTypeAndHolderIdOrderByIdAsc(HolderType holderType, Long holderId);
 }

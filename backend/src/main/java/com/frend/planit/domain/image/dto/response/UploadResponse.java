@@ -5,7 +5,7 @@ import com.frend.planit.global.aws.s3.S3PresignedPostResponse;
 
 public record UploadResponse(
         S3PresignedPostResponse presigned,
-        Long imageId,
+        long imageId,
         String getUrl
 ) {
 

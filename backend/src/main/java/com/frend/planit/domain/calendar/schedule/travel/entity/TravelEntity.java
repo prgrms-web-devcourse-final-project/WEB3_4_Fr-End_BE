@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "travel")
@@ -58,7 +58,7 @@ public class TravelEntity extends BaseTime {
 
     // 객체 생성 메서드
     public static TravelEntity of(TravelRequest request, ScheduleDayEntity scheduleDay) {
-        return TravelEntity.builder()
+        TravelEntity travel = TravelEntity.builder()
                 .scheduleDay(scheduleDay)
                 .kakaomapId(request.getKakaomapId())
                 .location(request.getLocation())
@@ -68,6 +68,16 @@ public class TravelEntity extends BaseTime {
                 .visitHour(request.getHour())
                 .visitMinute(request.getMinute())
                 .build();
+
+        // 편의 메서드로 연관관계 설정
+        scheduleDay.addTravel(travel);
+
+        return travel;
+    }
+
+    // 연관관계 설정용 setter
+    public void setScheduleDay(ScheduleDayEntity scheduleDay) {
+        this.scheduleDay = scheduleDay;
     }
 
     public void updateTravel(TravelRequest travelRequest, ScheduleDayEntity scheduleDay) {
@@ -77,5 +87,10 @@ public class TravelEntity extends BaseTime {
         this.lng = travelRequest.getLng();
         this.visitHour = travelRequest.getHour();
         this.visitMinute = travelRequest.getMinute();
+    }
+
+    // Test Code에서 사용하기 위한 setter
+    public void setId(Long id) {
+        this.id = id;
     }
 }

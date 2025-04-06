@@ -39,6 +39,9 @@ public class ScheduleDayEntity extends BaseTime {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
+    @Column(name = "day_order", nullable = false)
+    private int dayOrder;
+
     @OneToMany(mappedBy = "scheduleDay", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TravelEntity> travelList = new ArrayList<>();
@@ -46,4 +49,27 @@ public class ScheduleDayEntity extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id", nullable = false)
     private ScheduleEntity schedule;
+
+    public static ScheduleDayEntity of(LocalDate date, int dayOrder) {
+        return ScheduleDayEntity.builder()
+                .date(date)
+                .dayOrder(dayOrder)
+                .build();
+    }
+
+    // 연관관계 편의 메서드
+    public void addTravel(TravelEntity travel) {
+        this.travelList.add(travel);
+        travel.setScheduleDay(this);
+    }
+
+    // 연관관계 설정용 setter
+    public void setSchedule(ScheduleEntity schedule) {
+        this.schedule = schedule;
+    }
+
+    // Test Code에서 사용하기 위한 setter
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

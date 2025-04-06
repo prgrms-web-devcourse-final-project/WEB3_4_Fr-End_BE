@@ -14,6 +14,10 @@ public class DailyTravelResponse {
     public DailyTravelResponse(LocalDate date, List<TravelResponse> travels) {
         this.date = date;
         this.travels = travels;
-        this.travelCount = travels.size();
+        this.travelCount = travels != null ? travels.size() : 0;
+    }
+
+    public static DailyTravelResponse of(LocalDate date, List<TravelResponse> travelList) {
+        return new DailyTravelResponse(date, travelList);
     }
 }

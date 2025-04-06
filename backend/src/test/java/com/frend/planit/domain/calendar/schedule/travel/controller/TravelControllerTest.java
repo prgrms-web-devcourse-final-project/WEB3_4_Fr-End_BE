@@ -44,7 +44,7 @@ public class TravelControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockitoBean
+    @MockitoBean // TravelService Bean 대신 Mock 객체를 주입
     private TravelService travelService;
 
     private List<DailyTravelResponse> dailyTravelResponses;

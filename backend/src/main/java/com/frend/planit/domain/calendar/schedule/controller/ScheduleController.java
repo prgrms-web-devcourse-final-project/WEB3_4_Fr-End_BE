@@ -31,46 +31,45 @@ public class ScheduleController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 조회")
     @ResponseStatus(HttpStatus.OK)
-    public ScheduleResponse getScheduleDetails(
+    public ScheduleResponse getSchedules(
             @PathVariable Long calendarId,
             @PathVariable Long scheduleId
     ) {
-        return scheduleService.getScheduleDetails(calendarId, scheduleId);
+        return scheduleService.getSchedules(calendarId, scheduleId);
     }
 
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 생성")
     @ResponseStatus(HttpStatus.CREATED)
-    public ScheduleResponse createScheduleDetails(
+    public ScheduleResponse createSchedule(
             @PathVariable Long calendarId,
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleRequest scheduleRequest
     ) {
-        return scheduleService.createScheduleDetails(calendarId, scheduleId, scheduleRequest);
+        return scheduleService.createSchedule(calendarId, scheduleId, scheduleRequest);
     }
 
     @PatchMapping
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 수정")
     @ResponseStatus(HttpStatus.OK)
-    public ScheduleResponse modifyScheduleDetails(
+    public ScheduleResponse modifySchedule(
             @PathVariable Long calendarId,
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleRequest scheduleRequest
     ) {
-        return scheduleService.modifyScheduleDetails(calendarId, scheduleId, scheduleRequest);
+        return scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest);
     }
 
     @DeleteMapping
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 삭제")
     @ResponseStatus(HttpStatus.OK)
-    public ScheduleResponse deleteScheduleDetails(
+    public ScheduleResponse deleteSchedule(
             @PathVariable Long calendarId,
-            @PathVariable Long scheduleId,
-            @Valid @RequestBody ScheduleRequest scheduleRequest
+            @PathVariable Long scheduleId
     ) {
-        return scheduleService.deleteScheduleDetails(calendarId, scheduleId, scheduleRequest);
+        return scheduleService.deleteSchedule(calendarId, scheduleId);
     }
 }

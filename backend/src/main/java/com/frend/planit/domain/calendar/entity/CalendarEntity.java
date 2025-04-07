@@ -15,10 +15,6 @@ import java.time.LocalDateTime;
 @Builder
 public class CalendarEntity extends BaseTime {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "calendar_title", nullable = false, length = 20)
     private String calendarTitle;
 

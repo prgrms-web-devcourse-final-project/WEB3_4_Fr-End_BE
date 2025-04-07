@@ -32,6 +32,7 @@ public enum ErrorType {
     MIME_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "지원하지 않는 확장자입니다."),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다."),
+    IMAGE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제에 실패했습니다."),
 
     // Global
     REQUEST_NOT_VALID(HttpStatus.BAD_REQUEST, "요청 형식이 잘못되었습니다."),

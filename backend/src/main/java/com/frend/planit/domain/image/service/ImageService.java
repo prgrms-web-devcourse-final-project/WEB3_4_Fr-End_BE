@@ -92,34 +92,45 @@ public class ImageService {
      * 1. 변경 전 이미지의 Holder를 초기화
      * 2. 변경 후 이미지의 Holder를 설정
      */
-    @Transactional
     public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
+        deleteImage(holderType, holderId);
+        saveImage(holderType, holderId, newImageId);
+    }
+
+    public void updateImages(
+            @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
+        deleteImages(holderType, holderId);
+        saveImages(holderType, holderId, newImageIds);
+    }
+
+    /*
+     * 게시글과 이미지의 연결을 해제합니다.
+     * 삭제는 주기적으로 이루어집니다.
+     */
+    @Transactional
+    public void deleteImage(@NonNull HolderType holderType, long holderId) {
         Optional<Image> oldImage = imageRepository
                 .findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
 
-        if (oldImage.isPresent() && oldImage.get().getId() != newImageId) {
-            imageRepository.updateHolderForImage(null, null, oldImage.get().getId());
+        if (oldImage.isPresent()) {
+            int deletedCount = imageRepository.updateHolderForImage(
+                    null, null, oldImage.get().getId());
+            if (deletedCount != 1) {
+                throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
+            }
         }
-
-        imageRepository.updateHolderForImage(holderType, holderId, newImageId);
     }
 
     @Transactional
-    public void updateImages(
-            @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
+    public void deleteImages(@NonNull HolderType holderType, long holderId) {
         List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
                 holderType, holderId);
 
-        imageRepository.updateHolderForImages(null, null,
-                oldImages.stream().map(Image::getId).toList());
-
-        imageRepository.updateHolderForImages(holderType, holderId, newImageIds);
-    }
-
-    public void deleteImage(@NonNull HolderType holderType, long holderId) {
-    }
-
-    public void deleteImages(@NonNull HolderType holderType, long holderId) {
+        int deletedCount = imageRepository.updateHolderForImages(
+                null, null, oldImages.stream().map(Image::getId).toList());
+        if (deletedCount != oldImages.size()) {
+            throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
+        }
     }
 
     @Transactional

@@ -16,8 +16,10 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 @Service
 @RequiredArgsConstructor
@@ -130,6 +132,24 @@ public class ImageService {
                 null, null, oldImages.stream().map(Image::getId).toList());
         if (deletedCount != oldImages.size()) {
             throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void cleanImages() {
+        try {
+            List<Image> unusedImages = imageRepository.findAllByHolderTypeIsNullAndHolderIdIsNull();
+            List<ObjectIdentifier> imageNames = unusedImages.stream()
+                    .map(image -> ObjectIdentifier.builder().key(image.getFileName()).build())
+                    .toList();
+
+            imageRepository.deleteAllInBatch(unusedImages);
+            s3Service.deleteFiles(imageNames);
+        } catch (ServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServiceException(ErrorType.IMAGE_CLEAN_FAILED, e);
         }
     }
 

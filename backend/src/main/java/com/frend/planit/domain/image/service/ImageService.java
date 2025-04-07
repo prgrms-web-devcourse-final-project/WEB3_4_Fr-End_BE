@@ -12,6 +12,8 @@ import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.standard.util.RandomUtil;
 import java.util.List;
+import java.util.Optional;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,7 +58,7 @@ public class ImageService {
      * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
-    public void commitImage(long imageId, HolderType holderType, long holderId) {
+    public void saveImage(@NonNull HolderType holderType, @NonNull Long holderId, long imageId) {
         int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
         if (updatedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
@@ -64,7 +66,8 @@ public class ImageService {
     }
 
     @Transactional
-    public void commitImages(List<Long> imageIds, HolderType holderType, long holderId) {
+    public void saveImages(@NonNull HolderType holderType, @NonNull Long holderId,
+            List<Long> imageIds) {
         int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
         if (updatedCount != imageIds.size()) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
@@ -74,32 +77,49 @@ public class ImageService {
     /*
      * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
      */
-    public ImageResponse getImage(HolderType holderType, long holderId) {
+    public ImageResponse getFirstImage(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
-    public ImageResponse getImages(HolderType holderType, long holderId) {
+    public ImageResponse getAllImages(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
     /*
      * 이미지 변경은 아래의 과정으로 진행됩니다.
-     * 1. 변경 전 이미지와 변경 후 이미지 목록을 비교
-     * 2. 삭제된 이미지는 Holder를 null로 변경하여 삭제 예약
-     * 3. 추가된 이미지는 Holder를 설정하여 게시글과 연결
+     * 1. 변경 전 이미지의 Holder를 초기화
+     * 2. 변경 후 이미지의 Holder를 설정
      */
-    public void updateImage(long newImageId, HolderType holderType, long holderId) {
+    @Transactional
+    public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
+        Optional<Image> oldImage = imageRepository
+                .findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
+
+        if (oldImage.isPresent() && oldImage.get().getId() != newImageId) {
+            imageRepository.updateHolderForImage(null, null, oldImage.get().getId());
+        }
+
+        imageRepository.updateHolderForImage(holderType, holderId, newImageId);
     }
 
-    public void updateImages(List<Long> newImageIds, HolderType holderType, long holderId) {
+    @Transactional
+    public void updateImages(
+            @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
+        List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
+                holderType, holderId);
+
+        imageRepository.updateHolderForImages(null, null,
+                oldImages.stream().map(Image::getId).toList());
+
+        imageRepository.updateHolderForImages(holderType, holderId, newImageIds);
     }
 
-    public void deleteImage() {
+    public void deleteImage(@NonNull HolderType holderType, long holderId) {
     }
 
-    public void deleteImages() {
+    public void deleteImages(@NonNull HolderType holderType, long holderId) {
     }
 
     @Transactional

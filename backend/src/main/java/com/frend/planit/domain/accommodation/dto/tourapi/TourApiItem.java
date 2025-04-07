@@ -35,7 +35,7 @@ public record TourApiItem(
 ) {
     public AccommodationRequestDto toDto() {
         BigDecimal randomPrice = BigDecimal.valueOf(50000 + new Random().nextInt(150000));
-        List<String> amenities = List.of("WiFi", "주차장", "에어컨");
+        List<String> amenities = List.of("WiFi", "세미나실", "에어컨", "헬스장");
 
         return new AccommodationRequestDto(
                 title,

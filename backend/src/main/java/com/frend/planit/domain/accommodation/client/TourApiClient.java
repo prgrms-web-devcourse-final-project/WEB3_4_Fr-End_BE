@@ -70,7 +70,11 @@ public class TourApiClient {
                 }
 
                 TourApiResponse response = xmlMapper.readValue(xml, TourApiResponse.class);
-                List<TourApiItem> items = response.item();
+                List<TourApiItem> items = response.getBody().getItems();
+
+                List<AccommodationRequestDto> dtos = items.stream()
+                        .map(TourApiItem::toDto)
+                        .toList();
 
                 if (items == null || items.isEmpty()) {
                     hasMore = false;

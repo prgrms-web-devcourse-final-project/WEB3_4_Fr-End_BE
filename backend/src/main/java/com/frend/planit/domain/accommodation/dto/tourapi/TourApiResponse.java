@@ -1,21 +1,23 @@
 package com.frend.planit.domain.accommodation.dto.tourapi;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.frend.planit.domain.accommodation.dto.request.AccommodationRequestDto;
-
-import java.util.List;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record TourApiResponse(
+@JacksonXmlRootElement(localName = "response")
+public class TourApiResponse {
 
-        @JacksonXmlProperty(localName = "item")
-        @JacksonXmlElementWrapper(useWrapping = false)
-        List<TourApiItem> item
+        private final TourApiBody body;
 
-) {
-        public List<AccommodationRequestDto> toAccommodationDtoList() {
-                return item.stream().map(TourApiItem::toDto).toList();
+        @JsonCreator
+        public TourApiResponse(@JacksonXmlProperty(localName = "body") @JsonProperty("body") TourApiBody body) {
+                this.body = body;
+        }
+
+        public TourApiBody getBody() {
+                return body;
         }
 }

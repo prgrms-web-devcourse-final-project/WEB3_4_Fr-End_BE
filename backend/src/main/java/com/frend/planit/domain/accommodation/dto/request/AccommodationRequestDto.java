@@ -1,22 +1,55 @@
 package com.frend.planit.domain.accommodation.dto.request;
 
+import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 public record AccommodationRequestDto(
 
+        @NotBlank
         String name,
-        String location,
-        BigDecimal pricePerNight,
-        Integer availableRooms,
-        String mainImage,
-        List<String> amenities,
 
-        Integer areaCode,       // 지역 코드
-        String cat3,            // 콘텐츠 소분류 코드
-        Double mapX,            // 경도
-        Double mapY,            // 위도
-        String checkInTime,     // 체크인 시간
-        String checkOutTime     // 체크아웃 시간
+        @NotBlank
+        String location,
+
+        @NotNull
+        @DecimalMin(value = "0.0", inclusive = false)
+        BigDecimal pricePerNight,
+
+        @NotNull
+        @PositiveOrZero
+        Integer availableRooms,
+
+        @NotBlank
+        String mainImage,
+
+        @NotNull
+        List<@NotBlank String> amenities,
+
+        @NotNull
+        @PositiveOrZero
+        Integer areaCode,
+
+        @NotBlank
+        String cat3,
+
+        @NotNull
+        @DecimalMin(value = "-180.0")
+        @DecimalMax(value = "180.0")
+        Double mapX,
+
+        @NotNull
+        @DecimalMin(value = "-90.0")
+        @DecimalMax(value = "90.0")
+        Double mapY,
+
+        @NotBlank
+        @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d$")
+        String checkInTime,
+
+        @NotBlank
+        @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d$")
+        String checkOutTime
 
 ) {}

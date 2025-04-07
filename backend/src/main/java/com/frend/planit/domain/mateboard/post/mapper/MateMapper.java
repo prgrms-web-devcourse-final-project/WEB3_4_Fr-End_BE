@@ -20,7 +20,8 @@ public class MateMapper {
      * @param mate 변환할 Mate 엔티티
      * @return MateResponseDto 변환 결과
      */
-    public static MateResponseDto toResponseDto(Mate mate) {
+    public static MateResponseDto toResponseDto(Mate mate, String imageUrl) {
+
         return MateResponseDto.builder()
                 .id(mate.getId())
                 .nickname(mate.getWriter().getNickname())
@@ -34,6 +35,10 @@ public class MateMapper {
                 .travelEndDate(mate.getTravelEndDate())
                 .recruitmentStatus(mate.getRecruitmentStatus())
                 .mateGender(mate.getMateGender())
+                .appliedCount((int) mate.getApplications().stream()
+                        .filter(a -> a.getStatus().isAccepted())
+                        .count())
+                .imageUrl(imageUrl)
                 .createdAt(mate.getCreatedAt())
                 .build();
     }

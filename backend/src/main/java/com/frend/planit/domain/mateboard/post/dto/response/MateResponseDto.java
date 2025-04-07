@@ -42,16 +42,21 @@ public class MateResponseDto {
 
     private final int recruitCount;
 
+    private final int appliedCount;
+
     private final RecruitmentStatus recruitmentStatus;
 
     private final MateGender mateGender;
+
+    private final String imageUrl;
 
     private LocalDateTime createdAt;
 
     public MateResponseDto(Long id, String title, String content, TravelRegion travelRegion,
             LocalDate travelStartDate, LocalDate travelEndDate, RecruitmentStatus recruitmentStatus,
-            MateGender mateGender, Gender authorGender, int recruitCount, String nickname,
-            String profileImage,
+            MateGender mateGender, Gender authorGender, int recruitCount, int appliedCount,
+            String nickname,
+            String profileImage, String imageUrl,
             LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
@@ -66,6 +71,8 @@ public class MateResponseDto {
         this.createdAt = createdAt;
         this.authorGender = authorGender;
         this.recruitCount = recruitCount;
+        this.appliedCount = appliedCount;
+        this.imageUrl = imageUrl;
 
     }
 }

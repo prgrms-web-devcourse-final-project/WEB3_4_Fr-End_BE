@@ -18,7 +18,19 @@ public record TourApiItem(
         String addr1,
 
         @JacksonXmlProperty(localName = "firstimage")
-        String firstImage
+        String firstImage,
+
+        @JacksonXmlProperty(localName = "areacode")
+        Integer areaCode,
+
+        @JacksonXmlProperty(localName = "cat3")
+        String cat3,
+
+        @JacksonXmlProperty(localName = "mapx")
+        Double mapX,
+
+        @JacksonXmlProperty(localName = "mapy")
+        Double mapY
 
 ) {
     public AccommodationRequestDto toDto() {
@@ -31,7 +43,13 @@ public record TourApiItem(
                 randomPrice,
                 5,
                 firstImage != null ? firstImage : "https://placehold.co/600x400?text=No+Image",
-                amenities
+                amenities,
+                areaCode,
+                cat3,
+                mapX,
+                mapY,
+                "15:00",
+                "11:00"
         );
     }
 }

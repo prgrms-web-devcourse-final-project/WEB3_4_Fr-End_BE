@@ -16,8 +16,6 @@ import java.util.List;
 @Builder
 public class AccommodationEntity extends BaseTime {
 
-    // ID는 BaseEntity 상속
-
     @Column(length = 100, nullable = false)
     private String name;
 
@@ -38,6 +36,20 @@ public class AccommodationEntity extends BaseTime {
     @Column(name = "amenity")
     private List<String> amenities;
 
+    private Integer areaCode;
+
+    private String cat3;
+
+    private Double mapX;
+
+    private Double mapY;
+
+    @Column(length = 10)
+    private String checkInTime;
+
+    @Column(length = 10)
+    private String checkOutTime;
+
     public void updateFrom(AccommodationRequestDto dto) {
         this.name = dto.name();
         this.location = dto.location();
@@ -45,5 +57,11 @@ public class AccommodationEntity extends BaseTime {
         this.availableRooms = dto.availableRooms();
         this.mainImage = dto.mainImage();
         this.amenities = dto.amenities();
+        this.areaCode = dto.areaCode();
+        this.cat3 = dto.cat3();
+        this.mapX = dto.mapX();
+        this.mapY = dto.mapY();
+        this.checkInTime = dto.checkInTime();
+        this.checkOutTime = dto.checkOutTime();
     }
 }

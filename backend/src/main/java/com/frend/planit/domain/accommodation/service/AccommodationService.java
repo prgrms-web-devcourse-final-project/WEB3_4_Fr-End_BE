@@ -89,7 +89,17 @@ public class AccommodationService {
                 .availableRooms(dto.availableRooms())
                 .mainImage(dto.mainImage())
                 .amenities(dto.amenities())
+                .areaCode(dto.areaCode())
+                .cat3(dto.cat3())
+                .mapX(dto.mapX())
+                .mapY(dto.mapY())
+                .checkInTime(dto.checkInTime())
+                .checkOutTime(dto.checkOutTime())
                 .build();
+    }
+
+    private void updateEntity(AccommodationEntity entity, AccommodationRequestDto dto) {
+        entity.updateFrom(dto);
     }
 
     private AccommodationResponseDto toDto(AccommodationEntity entity) {
@@ -104,9 +114,5 @@ public class AccommodationService {
                 entity.getCreatedAt(),
                 entity.getModifiedAt()
         );
-    }
-
-    private void updateEntity(AccommodationEntity entity, AccommodationRequestDto dto) {
-        entity.updateFrom(dto);
     }
 }

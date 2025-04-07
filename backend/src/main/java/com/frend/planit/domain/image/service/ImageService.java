@@ -137,6 +137,7 @@ public class ImageService {
     private Image createImage(String fileName) {
         Image image = new Image();
         image.setUrl(imageDomain + fileName);
+        image.setFileName(fileName);
         return imageRepository.save(image);
     }
 

@@ -12,6 +12,8 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,8 @@ public class S3Service {
 
     @Value("${spring.cloud.aws.s3.max-upload-size}")
     private long maxUploadSize;
+
+    private final S3Client s3Client;
 
     public S3PresignedPostResponse createPresignedPostUrl(String fileName, String contentType) {
         // 기본값 설정
@@ -65,6 +69,18 @@ public class S3Service {
         );
 
         return postResponse;
+    }
+
+    public void deleteImage(String fileName) {
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .build();
+            s3Client.deleteObject(deleteRequest);
+        } catch (Exception e) {
+            throw new ServiceException(ErrorType.S3_DELETE_FAILED, e);
+        }
     }
 
     private String createPolicyDocument(String fileName, String contentType, String amzDate,

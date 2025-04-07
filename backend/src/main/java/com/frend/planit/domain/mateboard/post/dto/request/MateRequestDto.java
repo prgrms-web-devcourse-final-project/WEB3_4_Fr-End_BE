@@ -44,6 +44,8 @@ public class MateRequestDto {
 
     @NotNull(message = "메이트 성별을 선택해 주세요.")
     private MateGender mateGender;
+    
+    private Long imageId;
 
     /**
      * 여행 종료일이 시작일 이후이거나 같은 날짜인지 검증합니다. 유효성 검사 애너테이션(@AssertTrue)을 통해 자동으로 호출됩니다.

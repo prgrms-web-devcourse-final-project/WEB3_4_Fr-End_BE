@@ -20,6 +20,6 @@ public class ImageController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UploadResponse upload(@RequestHeader("Content-Type") String contentType) {
-        return imageService.upload(contentType);
+        return imageService.uploadImage(contentType);
     }
 }

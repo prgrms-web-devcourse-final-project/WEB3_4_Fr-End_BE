@@ -1,5 +1,6 @@
 package com.frend.planit.domain.image.service;
 
+import com.frend.planit.domain.image.dto.response.ImageResponse;
 import com.frend.planit.domain.image.dto.response.UploadResponse;
 import com.frend.planit.domain.image.entity.Image;
 import com.frend.planit.domain.image.repository.ImageRepository;
@@ -10,20 +11,12 @@ import com.frend.planit.global.aws.s3.S3Service;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.standard.util.RandomUtil;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/*
- * 이미지 업로드는 아래의 과정으로 진행됩니다.
- * 1. 클라이언트가 서버에게 업로드용 URL(Presigned URL)을 요청
- * 2. 서버는 업로드용 URL과 미리보기 URL을 전달
- * 3. 클라이언트는 업로드용 URL로 이미지를 s3에 업로드
- * 4. 업로드가 완료되면 미리보기 URL로 이미지를 표시
- * 5. 이후 게시글을 등록할 때 실제로 사용된 이미지만 커밋
- * 6. 사용되지 않은 이미지는 스케쥴러로 삭제
- */
 @Service
 @RequiredArgsConstructor
 public class ImageService {
@@ -34,7 +27,14 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final S3Service s3Service;
 
-    public UploadResponse upload(String contentType) {
+    /*
+     * 이미지 업로드는 아래의 과정으로 진행됩니다.
+     * 1. 클라이언트가 이미지 업로드 API를 호출
+     * 2. 서버는 GET URL, POST URL을 생성하여 클라이언트에게 전달
+     * 3. 클라이언트는 POST URL을 통해 S3에 이미지를 업로드
+     * 4. 업로드가 완료되면 클라이언트는 GET URL로 이미지에 접근
+     */
+    public UploadResponse uploadImage(String contentType) {
         // 이미지 확장자 검증
         if (!ImageMimeType.isSupported(contentType)) {
             throw new ServiceException(ErrorType.MIME_NOT_SUPPORTED);
@@ -45,30 +45,55 @@ public class ImageService {
         Image image = createImage(fileName);
 
         // Presigned POST URL 생성
-        S3PresignedPostResponse postResponse = s3Service.createPresignedPostUrl(fileName,
-                contentType);
+        S3PresignedPostResponse postResponse = s3Service.createPresignedPostUrl(
+                fileName, contentType);
 
         return UploadResponse.of(postResponse, image);
     }
 
-    @Transactional
-    public Image createImage(String fileName) {
-        Image image = new Image();
-        image.setUrl(imageDomain + fileName);
-        return imageRepository.save(image);
-    }
-
+    /*
+     * 게시글을 등록할 때 최종적으로 사용된 이미지를 게시글과 연결합니다.
+     * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
+     */
     @Transactional
     public void commitImage(long imageId, HolderType holderType, long holderId) {
-        Image image = findImageById(imageId);
-        image.setHolder(holderType, holderId);
-        imageRepository.save(image);
+        int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
+        if (updatedCount != 1) {
+            throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
+        }
     }
 
-    public void updateImage() {
+    @Transactional
+    public void commitImages(List<Long> imageIds, HolderType holderType, long holderId) {
+        int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
+        if (updatedCount != imageIds.size()) {
+            throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
+        }
     }
 
-    public void updateImages() {
+    /*
+     * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
+     */
+    public ImageResponse getImage(HolderType holderType, long holderId) {
+        return ImageResponse.of(
+                imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
+    }
+
+    public ImageResponse getImages(HolderType holderType, long holderId) {
+        return ImageResponse.of(
+                imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
+    }
+
+    /*
+     * 이미지 변경은 아래의 과정으로 진행됩니다.
+     * 1. 변경 전 이미지와 변경 후 이미지 목록을 비교
+     * 2. 삭제된 이미지는 Holder를 null로 변경하여 삭제 예약
+     * 3. 추가된 이미지는 Holder를 설정하여 게시글과 연결
+     */
+    public void updateImage(long newImageId, HolderType holderType, long holderId) {
+    }
+
+    public void updateImages(List<Long> newImageIds, HolderType holderType, long holderId) {
     }
 
     public void deleteImage() {
@@ -77,8 +102,23 @@ public class ImageService {
     public void deleteImages() {
     }
 
-    public Image findImageById(long imageId) {
+    @Transactional
+    private Image createImage(String fileName) {
+        Image image = new Image();
+        image.setUrl(imageDomain + fileName);
+        return imageRepository.save(image);
+    }
+
+    private Image findImageById(long imageId) {
         return imageRepository.findById(imageId)
                 .orElseThrow(() -> new ServiceException(ErrorType.IMAGE_NOT_FOUND));
+    }
+
+    private List<Image> findAllImagesByIds(List<Long> imageIds) {
+        List<Image> images = imageRepository.findAllById(imageIds);
+        if (images.size() != imageIds.size()) {
+            throw new ServiceException(ErrorType.IMAGE_NOT_FOUND);
+        }
+        return images;
     }
 }

@@ -116,7 +116,8 @@ public class TravelServiceTest {
 
         // 그룹핑 유틸리티는 실제 로직과 상관없이 mock 처리
         List<DailyTravelResponse> dummyResponse = List.of(
-                DailyTravelResponse.of(scheduleDay.getDate(), List.of(TravelResponse.from(travel)))
+                DailyTravelResponse.of(scheduleDay.getId(), scheduleDay.getDate(),
+                        List.of(TravelResponse.from(travel)))
         );
         mockStatic(TravelGroupingUtils.class).when(() ->
                 TravelGroupingUtils.groupTravelsByDate(anyList())

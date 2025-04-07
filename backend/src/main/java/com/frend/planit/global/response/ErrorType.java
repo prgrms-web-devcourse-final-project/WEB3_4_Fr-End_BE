@@ -54,8 +54,10 @@ public enum ErrorType {
     SCHEDULE_DAY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스케줄 날짜가 존재하지 않습니다."),
 
     // Travel
-    TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행선지가 존재하지 않습니다.");
+    TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행선지가 존재하지 않습니다."),
 
+    // Calendar
+    CALENDAR_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 캘린더가 존재하지 않습니다.");
 
     /*********************************************************************************/
 

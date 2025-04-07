@@ -35,25 +35,25 @@ public class TravelEntity extends BaseTime {
     @JoinColumn(name = "schedule_day_id", nullable = false)
     private ScheduleDayEntity scheduleDay;
 
-    @Column(name = "kakaomap_id", nullable = false)
+    @Column(name = "kakaomap_id")
     private String kakaomapId;
 
-    @Column(name = "location", nullable = false)
+    @Column(name = "location")
     private String location;
 
-    @Column(name = "category", nullable = false)
+    @Column(name = "category")
     private String category;
 
-    @Column(name = "lat", nullable = false)
+    @Column(name = "lat")
     private Double lat;
 
-    @Column(name = "lng", nullable = false)
+    @Column(name = "lng")
     private Double lng;
 
-    @Column(name = "visit_hour", nullable = false)
+    @Column(name = "visit_hour")
     private int visitHour;
 
-    @Column(name = "visit_minute", nullable = false)
+    @Column(name = "visit_minute")
     private int visitMinute;
 
     // 객체 생성 메서드
@@ -87,6 +87,7 @@ public class TravelEntity extends BaseTime {
         this.lng = travelRequest.getLng();
         this.visitHour = travelRequest.getHour();
         this.visitMinute = travelRequest.getMinute();
+        this.scheduleDay = scheduleDay;
     }
 
     // Test Code에서 사용하기 위한 setter

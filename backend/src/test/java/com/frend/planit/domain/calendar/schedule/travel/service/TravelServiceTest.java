@@ -9,8 +9,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.frend.planit.domain.calendar.entity.CalendarEntity;
 import com.frend.planit.domain.calendar.schedule.day.entity.ScheduleDayEntity;
 import com.frend.planit.domain.calendar.schedule.day.repository.ScheduleDayRepository;
+import com.frend.planit.domain.calendar.schedule.dto.request.ScheduleRequest;
 import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
 import com.frend.planit.domain.calendar.schedule.travel.dto.request.TravelRequest;
@@ -22,6 +24,7 @@ import com.frend.planit.domain.calendar.schedule.travel.travelUtils.TravelGroupi
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,12 +56,28 @@ public class TravelServiceTest {
 
     private TravelRequest request;
 
+    private CalendarEntity calendar;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        // Calendar 엔티티 생성
+        calendar = CalendarEntity.builder()
+                .id(1L)
+                .calendarTitle("내 캘린더")
+                .build();
+
+        ScheduleRequest scheduleRequest = ScheduleRequest.builder()
+                .scheduleTitle("오사카 여행")
+                .startDate(LocalDate.of(2025, 4, 6))
+                .endDate(LocalDate.of(2025, 4, 8))
+                .note("오사카의 모든 것")
+                .alertTime(LocalTime.of(9, 0))
+                .build();
+
         // 스케줄 생성 (3일짜리)
-        schedule = ScheduleEntity.of(LocalDate.of(2025, 4, 6), LocalDate.of(2025, 4, 8));
+        schedule = ScheduleEntity.of(calendar, scheduleRequest);
         schedule.setId(1L);
 
         // 4월 6일에 해당하는 ScheduleDay 찾기
@@ -189,10 +208,21 @@ public class TravelServiceTest {
     @DisplayName("행선지 삭제 - 실패 (날짜 소속이 다름)")
     void deleteTravelFail() {
         // given
-        ScheduleEntity wrongSchedule = ScheduleEntity.of(LocalDate.of(2025, 5, 1),
-                LocalDate.of(2025, 5, 2));
+        CalendarEntity wrongCalendar = CalendarEntity.builder()
+                .id(2L)
+                .calendarTitle("잘못된 캘린더")
+                .build();
+
+        ScheduleRequest wrongScheduleRequest = ScheduleRequest.builder()
+                .scheduleTitle("다른 일정")
+                .startDate(LocalDate.of(2025, 5, 1))
+                .endDate(LocalDate.of(2025, 5, 2))
+                .build();
+
+        ScheduleEntity wrongSchedule = ScheduleEntity.of(wrongCalendar, wrongScheduleRequest);
         wrongSchedule.setId(2L);
-        scheduleDay.setSchedule(wrongSchedule);  // 잘못된 연관
+
+        scheduleDay.setSchedule(wrongSchedule);
 
         when(scheduleRepository.findById(schedule.getId())).thenReturn(Optional.of(schedule));
         when(travelRepository.findById(travel.getId())).thenReturn(Optional.of(travel));
@@ -226,9 +256,21 @@ public class TravelServiceTest {
     @DisplayName("행선지 수정 - 실패 (스케줄이 존재하지 않음)")
     void modifyTravelFail() {
         // given
-        ScheduleEntity wrongSchedule = ScheduleEntity.of(LocalDate.of(2025, 5, 1),
-                LocalDate.of(2025, 5, 3));
+        CalendarEntity wrongCalendar = CalendarEntity.builder()
+                .id(2L)
+                .calendarTitle("잘못된 캘린더")
+                .build();
+
+        ScheduleRequest wrongScheduleRequest = ScheduleRequest.builder()
+                .scheduleTitle("다른 일정")
+                .startDate(LocalDate.of(2025, 5, 1))
+                .endDate(LocalDate.of(2025, 5, 2))
+                .build();
+
+        ScheduleEntity wrongSchedule = ScheduleEntity.of(wrongCalendar, wrongScheduleRequest);
         wrongSchedule.setId(2L);
+
+        // 기존 scheduleDay는 여전히 잘못된 스케줄에 연결됨
         scheduleDay.setSchedule(wrongSchedule);
 
         when(scheduleRepository.findById(schedule.getId())).thenReturn(Optional.of(schedule));
@@ -237,8 +279,8 @@ public class TravelServiceTest {
                 Optional.of(scheduleDay));
 
         // when & then
-        assertThatThrownBy(
-                () -> travelService.modifyTravel(schedule.getId(), travel.getId(), request))
+        assertThatThrownBy(() ->
+                travelService.modifyTravel(schedule.getId(), travel.getId(), request))
                 .isInstanceOf(ServiceException.class)
                 .hasMessage(ErrorType.SCHEDULE_DAY_NOT_FOUND.getMessage());
     }

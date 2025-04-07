@@ -16,12 +16,14 @@ public class MateCommentMapper {
 
     public static MateCommentResponseDto toResponseDto(MateComment comment) {
         return MateCommentResponseDto.builder()
-                .userId(comment.getId())
-                .nickname(comment.getNickname())
+                .matePostId(comment.getMate().getId())
+                .userId(comment.getUser().getId())
+                .nickname(comment.getUser().getNickname())
+                .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .modifiedAt(comment.getModifiedAt())
-                // TODO: 프로필 이미지, 좋아요 수 추가
+                // TODO: 좋아요 수 추가
                 .build();
     }
 }

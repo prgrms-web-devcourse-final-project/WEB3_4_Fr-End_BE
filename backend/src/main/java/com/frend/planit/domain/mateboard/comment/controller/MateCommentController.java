@@ -3,6 +3,7 @@ package com.frend.planit.domain.mateboard.comment.controller;
 import com.frend.planit.domain.mateboard.comment.dto.request.MateCommentRequestDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.service.MateCommentService;
+import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,10 +49,9 @@ public class MateCommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long createComment(
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
-            @PathVariable Long mateId) {
-        // TODO: 로그인 기능 연동 필요
-        Long userId = 1L;
-        return mateCommentService.createComment(userId, mateId, mateCommentRequestDto);
+            @PathVariable Long mateId,
+            @AuthenticationPrincipal User loginUser) {// TODO: 로그인 기능 연동 필요
+        return mateCommentService.createComment(loginUser.getId(), mateId, mateCommentRequestDto);
     }
 
     /**
@@ -90,8 +91,9 @@ public class MateCommentController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public MateCommentResponseDto updateComment(@PathVariable Long id,
-            @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto) {
-        return mateCommentService.updateComment(id, mateCommentRequestDto);
+            @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
+            @AuthenticationPrincipal User loginUser) {
+        return mateCommentService.updateComment(id, mateCommentRequestDto, loginUser.getId());
     }
 
     /**
@@ -102,7 +104,8 @@ public class MateCommentController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public MateCommentResponseDto deleteComment(@PathVariable Long id) {
-        return mateCommentService.deleteComment(id);
+    public MateCommentResponseDto deleteComment(@PathVariable Long id,
+            @AuthenticationPrincipal User loginUser) {
+        return mateCommentService.deleteComment(id, loginUser.getId());
     }
 }

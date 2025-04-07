@@ -15,10 +15,6 @@ import lombok.Getter;
 @Getter
 public class MateCommentRequestDto {
 
-    private Long userId; // TODO: 로그인 연동 후 제거 예정
-
-    private String nickname; // TODO: 로그인 연동 후 제거 예정
-
     @NotBlank(message = "댓글 내용을 입력해 주세요.")
     @Size(min = 5, max = 500)
     private String content;

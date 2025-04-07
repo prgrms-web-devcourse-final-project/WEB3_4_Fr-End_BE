@@ -1,5 +1,8 @@
 package com.frend.planit.domain.mateboard.post.entity;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * 여행 지역을 정의하는 Enum입니다. 19개의 항목이 존재합니다.
  *
@@ -7,6 +10,8 @@ package com.frend.planit.domain.mateboard.post.entity;
  * @version 1.0
  * @since 2025-03-28
  */
+@Getter
+@RequiredArgsConstructor
 public enum TravelRegion {
     ALL("전국"),
     SEOUL("서울"),
@@ -29,11 +34,4 @@ public enum TravelRegion {
 
     private final String displayName;
 
-    TravelRegion(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
 }

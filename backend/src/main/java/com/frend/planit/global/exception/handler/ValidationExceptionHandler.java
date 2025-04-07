@@ -1,6 +1,5 @@
 package com.frend.planit.global.exception.handler;
 
-import com.frend.planit.global.response.ApiResponseHelper;
 import com.frend.planit.global.response.ErrorResponse;
 import com.frend.planit.global.response.ErrorResponse.Detail;
 import com.frend.planit.global.response.ErrorType;
@@ -12,7 +11,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,8 +35,9 @@ public class ValidationExceptionHandler {
                         fieldError.getDefaultMessage()))
                 .toList();
 
-        return ApiResponseHelper.error(ErrorType.ARGUMENT_BINDING_ERROR.getCode(),
-                new ErrorResponse(ErrorType.ARGUMENT_BINDING_ERROR.getMessage(), details));
+        return ResponseEntity
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(), details));
     }
 
     // RequestParam, PathVariable 혹은 서비스 계층의 유효성 검사 예외를 처리합니다.
@@ -65,21 +64,24 @@ public class ValidationExceptionHandler {
 
         // 컨트롤러 계층일 경우 잘못된 요청으로 판단
         if (className.contains("controller") || className.contains("Controller")) {
-            return ApiResponseHelper.error(ErrorType.CONSTRAINT_VIOLATION.getCode(),
-                    new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage(), details));
+            return ResponseEntity
+                    .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                    .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(), details));
         }
 
         // 서비스 계층일 경우 내부 오류로 판단
-        return ApiResponseHelper.error(ErrorType.COMMON_SERVER_ERROR.getCode(),
-                new ErrorResponse(ErrorType.COMMON_SERVER_ERROR.getMessage(), details));
+        return ResponseEntity
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(), details));
     }
 
     // ModelAttribute, RequestParam 의 유효성 검사 예외를 처리합니다.
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ErrorResponse> handleHandlerMethodValidationException(
             HandlerMethodValidationException exception) {
-        return ApiResponseHelper.error(ErrorType.CONSTRAINT_VIOLATION.getCode(),
-                new ErrorResponse(ErrorType.CONSTRAINT_VIOLATION.getMessage()));
+        return ResponseEntity
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage()));
     }
 
     // RequestParam, PathVariable 의 타입 변환 예외를 처리합니다.
@@ -91,8 +93,10 @@ public class ValidationExceptionHandler {
                 exception.getValue(),
                 exception.getRequiredType().getSimpleName() + " 타입으로 변환할 수 없습니다.");
 
-        return ApiResponseHelper.error(ErrorType.ARGUMENT_TYPE_MISMATCH.getCode(),
-                new ErrorResponse(ErrorType.ARGUMENT_TYPE_MISMATCH.getMessage(), List.of(detail)));
+        return ResponseEntity
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(),
+                        List.of(detail)));
     }
 
     // RequestParam 의 누락 예외를 처리합니다.
@@ -103,8 +107,9 @@ public class ValidationExceptionHandler {
                 exception.getParameterName(),
                 exception.getParameterType() + " 타입의 요청 파라미터가 누락되었습니다.");
 
-        return ApiResponseHelper.error(ErrorType.MISSING_REQUEST_PARAMETER.getCode(),
-                new ErrorResponse(ErrorType.MISSING_REQUEST_PARAMETER.getMessage(),
+        return ResponseEntity
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage(),
                         List.of(detail)));
     }
 
@@ -116,23 +121,18 @@ public class ValidationExceptionHandler {
                 exception.getVariableName(),
                 "해당 경로 파라미터가 누락되었습니다.");
 
-        return ApiResponseHelper.error(ErrorType.MISSING_PATH_VARIABLE.getCode(),
-                new ErrorResponse(ErrorType.MISSING_PATH_VARIABLE.getMessage(), List.of(detail)));
+        return ResponseEntity
+                .status(ErrorType.MISSING_PATH_VARIABLE.getCode())
+                .body(new ErrorResponse(ErrorType.MISSING_PATH_VARIABLE.getMessage(),
+                        List.of(detail)));
     }
 
     // RequestBody 의 파싱 예외를 처리합니다.
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException exception) {
-        return ApiResponseHelper.error(ErrorType.JSON_NOT_READABLE.getCode(),
-                new ErrorResponse(ErrorType.JSON_NOT_READABLE.getMessage()));
-    }
-
-    // HTTP 메소드의 지원 예외를 처리합니다.
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-            HttpRequestMethodNotSupportedException exception) {
-        return ApiResponseHelper.error(ErrorType.METHOD_NOT_ALLOWED.getCode(),
-                new ErrorResponse(ErrorType.METHOD_NOT_ALLOWED.getMessage()));
+        return ResponseEntity
+                .status(ErrorType.REQUEST_NOT_VALID.getCode())
+                .body(new ErrorResponse(ErrorType.REQUEST_NOT_VALID.getMessage()));
     }
 }

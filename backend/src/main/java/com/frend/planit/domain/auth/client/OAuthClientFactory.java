@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * 소셜 타입에 맞는 OAuthClient 구현체를 주입해주는 팩토리 - 추후 KakaoOauthClient, NaverOauthClient 추가 예정
+ * 소셜 타입에 맞는 OAuthClient 구현체를 주입해주는 팩토리 - 추후 KakaoOAuthClient, NaverOAuthClient 추가 예정
  */
 @Component
 @RequiredArgsConstructor
@@ -20,6 +20,6 @@ public class OAuthClientFactory {
         return oauthClients.stream()
                 .filter(client -> client.getSocialType() == socialType)
                 .findFirst()
-                .orElseThrow(() -> new ServiceException(ErrorType.UNSUPPORTED_SOCIAL_TYPE));
+                .orElseThrow(() -> new ServiceException(ErrorType.REQUEST_NOT_VALID));
     }
 }

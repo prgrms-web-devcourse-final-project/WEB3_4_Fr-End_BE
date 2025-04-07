@@ -3,11 +3,12 @@ package com.frend.planit.domain.auth.service;
 import com.frend.planit.domain.auth.client.OAuthClient;
 import com.frend.planit.domain.auth.client.OAuthClientFactory;
 import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
-import com.frend.planit.domain.auth.dto.response.GoogleTokenResponse;
-import com.frend.planit.domain.auth.dto.response.GoogleUserInfoResponse;
+import com.frend.planit.domain.auth.dto.response.OAuthTokenResponse;
+import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.mapper.UserMapper;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
@@ -33,13 +34,13 @@ public class AuthService {
     /**
      * 소셜 로그인 또는 회원가입
      */
-    public SocialLoginResponse loginOrRegister(SocialLoginRequest request) {
+    public SocialLoginResponse authentiate(SocialLoginRequest request) {
         OAuthClient client = oauthClientFactory.getClient(request.getSocialType());
 
-        GoogleTokenResponse tokenResponse = client.getAccessToken(request.getCode());
-        GoogleUserInfoResponse userInfo = client.getUserInfo(tokenResponse.getAccessToken());
+        OAuthTokenResponse tokenResponse = client.getAccessToken(request.getCode());
+        OAuthUserInfoResponse userInfo = client.getUserInfo(tokenResponse.getAccessToken());
 
-        User user = userRepository.findBySocialIdAndSocialType(userInfo.getSub(),
+        User user = userRepository.findBySocialIdAndSocialType(userInfo.getSocialId(),
                         client.getSocialType())
                 .orElseGet(() ->
                         userRepository.save(
@@ -58,7 +59,10 @@ public class AuthService {
                 jwtTokenProvider.getRefreshTokenExpirationMs()
         );
 
-        return new SocialLoginResponse(accessToken, refreshToken, user.getStatus());
+        boolean needAdditionalInfo = (user.getStatus() == UserStatus.UNREGISTERED);
+
+        return new SocialLoginResponse(accessToken, refreshToken, needAdditionalInfo,
+                user.getEmail());
     }
 
     /**
@@ -66,14 +70,14 @@ public class AuthService {
      */
     public TokenRefreshResponse refreshAccessToken(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new ServiceException(ErrorType.UNAUTHORIZED);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         Long userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
         String savedToken = refreshTokenRedisService.get(userId);
 
         if (!refreshToken.equals(savedToken)) {
-            throw new ServiceException(ErrorType.UNAUTHORIZED);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         User user = userRepository.findById(userId)
@@ -104,7 +108,7 @@ public class AuthService {
      */
     public void logout(String accessToken) {
         if (!jwtTokenProvider.validateToken(accessToken)) {
-            throw new ServiceException(ErrorType.UNAUTHORIZED);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);

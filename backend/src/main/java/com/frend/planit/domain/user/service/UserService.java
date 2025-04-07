@@ -30,7 +30,7 @@ public class UserService {
         }
 
         if (userRepository.existsByNickname(request.getNickname())) {
-            throw new ServiceException(ErrorType.DUPLICATE_NICKNAME);
+            throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
 
         user.updateFirstInfo(
@@ -43,11 +43,27 @@ public class UserService {
     }
 
     /**
-     * 닉네임 중복 여부 확인
+     * 추가 정보 입력 시 닉네임 중복 여부 확인
      */
     @Transactional(readOnly = true)
     public boolean isNicknameAvailable(String nickname) {
         return !userRepository.existsByNickname(nickname);
+    }
+
+    /**
+     * 추가 정보 입력 시 이메일 중복 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
+
+    /**
+     * 추가 정보 입력 시 이메일 중복 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isPhoneAvailable(String phone) {
+        return !userRepository.existsByPhone(phone);
     }
 
     /**

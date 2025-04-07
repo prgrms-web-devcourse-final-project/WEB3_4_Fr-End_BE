@@ -1,7 +1,7 @@
 package com.frend.planit.domain.auth.client;
 
-import com.frend.planit.domain.auth.dto.response.GoogleTokenResponse;
-import com.frend.planit.domain.auth.dto.response.GoogleUserInfoResponse;
+import com.frend.planit.domain.auth.dto.response.OAuthTokenResponse;
+import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.user.enums.SocialType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,25 +21,25 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class GoogleOauthClient implements OAuthClient {
 
-    @Value("${oauth2.google.client-id}")
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 
-    @Value("${oauth2.google.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
 
-    @Value("${oauth2.google.redirect-uri}")
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
-    @Value("${oauth2.google.token-uri}")
+    @Value("${spring.security.oauth2.client.provider.google.token-uri}")
     private String tokenUri;
 
-    @Value("${oauth2.google.user-info-uri}")
+    @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
     private String userInfoUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public GoogleTokenResponse getAccessToken(String code) {
+    public OAuthTokenResponse getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -52,27 +52,27 @@ public class GoogleOauthClient implements OAuthClient {
 
         HttpEntity<?> request = new HttpEntity<>(body, headers);
 
-        ResponseEntity<GoogleTokenResponse> response = restTemplate.postForEntity(
+        ResponseEntity<OAuthTokenResponse> response = restTemplate.postForEntity(
                 tokenUri,
                 request,
-                GoogleTokenResponse.class
+                OAuthTokenResponse.class
         );
 
         return response.getBody();
     }
 
     @Override
-    public GoogleUserInfoResponse getUserInfo(String accessToken) {
+    public OAuthUserInfoResponse getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<GoogleUserInfoResponse> response = restTemplate.exchange(
+        ResponseEntity<OAuthUserInfoResponse> response = restTemplate.exchange(
                 userInfoUri,
                 HttpMethod.GET,
                 entity,
-                GoogleUserInfoResponse.class
+                OAuthUserInfoResponse.class
         );
 
         return response.getBody();

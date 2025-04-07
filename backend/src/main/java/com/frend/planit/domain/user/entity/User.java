@@ -12,6 +12,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -45,7 +47,7 @@ public class User extends BaseTime {
     private String nickname;
 
     @Column(name = "profile_image")
-    private String profileImage;
+    private String profileImageUrl;
 
     @Column(length = 255)
     private String bio; // 자기소개
@@ -89,10 +91,39 @@ public class User extends BaseTime {
         this.phone = phone;
         this.birthDate = birthDate;
         this.gender = gender;
-        this.status = UserStatus.ACTIVE;
+        this.status = UserStatus.REGISTERED;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updatePhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void updateBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void updateMailingType(boolean mailingType) {
+        this.mailingType = mailingType;
+    }
+
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+
+    }
+
+    public void updateEmail(
+            @NotBlank(message = "이메일은 필수입니다.") @Email(message = "이메일 형식이 올바르지 않습니다.") String email) {
+        this.email = email;
+
     }
 
     public void updateLastLoginAt(LocalDateTime now) {
         this.lastLoginAt = now;
     }
+
 }

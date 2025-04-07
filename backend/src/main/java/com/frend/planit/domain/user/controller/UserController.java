@@ -35,11 +35,29 @@ public class UserController {
     }
 
     /**
-     * 닉네임 중복 여부 확인
+     * 추가 정보 입력 시 닉네임 중복 여부 확인
      */
     @GetMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         boolean available = userService.isNicknameAvailable(nickname);
+        return ResponseEntity.ok(available);
+    }
+
+    /**
+     * 추가 정보 입력 시 이메일 중복 여부 확인
+     */
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean available = userService.isEmailAvailable(email);
+        return ResponseEntity.ok(available);
+    }
+
+    /**
+     * 추가 정보 입력 시 휴대폰 번호 중복 여부 확인
+     */
+    @GetMapping("/check-phone")
+    public ResponseEntity<Boolean> checkPhone(@RequestParam String phone) {
+        boolean available = userService.isPhoneAvailable(phone);
         return ResponseEntity.ok(available);
     }
 

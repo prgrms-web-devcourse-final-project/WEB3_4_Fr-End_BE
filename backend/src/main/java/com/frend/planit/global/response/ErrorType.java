@@ -49,10 +49,18 @@ public enum ErrorType {
     MATE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물이 존재하지 않습니다."),
 
     // MateComment
-    MATE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다.");
+    MATE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
 
+    // Schedule
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스케줄이 존재하지 않습니다."),
+    SCHEDULE_DAY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스케줄 날짜가 존재하지 않습니다."),
 
-    /*********************************************************************************/
+    // Travel
+    TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행선지가 존재하지 않습니다."),
+
+    // Calendar
+    CALENDAR_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 캘린더가 존재하지 않습니다.");
+  
 
     private final int code;
     private final String message;

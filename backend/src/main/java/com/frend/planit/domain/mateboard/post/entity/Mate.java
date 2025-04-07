@@ -1,10 +1,14 @@
 package com.frend.planit.domain.mateboard.post.entity;
 
+import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,27 +31,26 @@ public class Mate extends BaseTime {
      */
 
     /**
-     * 사용자 ID (TODO: User 엔티티와 연관 관계 매핑 예정)
-     *
-     * @ManyToOne(fetch = FetchType.LAZY) private User id;
+     * 사용자 ID
      */
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User writer;
 
     /**
      * 사용자 프로필 이미지 (TODO: User 엔티티와 연관 관계 매핑 예정)
      */
-    private String profile_image;
+
+    /**
+     * 사용자 닉네임 (TODO: User 엔티티와 연관 관계 매핑 예정)
+     */
 
     /**
      * 작성자 성별 (TODO: User 엔티티와 연관 관계 매핑 예정)
      */
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private AuthorGender authorGender;
 
     /**
-     * 게시글에 등록된 이미지 (최대 5장)
+     * 게시글에 등록된 이미지 (최대 1장)
      * TODO: Picture 테이블과 연동 예정
      private List<Picture> pictures;
      *
@@ -97,6 +100,12 @@ public class Mate extends BaseTime {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MateGender mateGender;
+
+    /**
+     * 메이트 모집 인원
+     */
+    @Column(nullable = false)
+    private int recruitCount;
 
     /**
      * 게시글 생성 날짜(createdAt) BaseTime 상속

@@ -27,7 +27,6 @@ public enum ErrorType {
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
     UNSUPPORTED_SOCIAL_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 로그인 타입입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."),
-    NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "작성자 권한이 없습니다."),
 
     // Image
     MIME_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "지원하지 않는 확장자입니다."),
@@ -48,9 +47,18 @@ public enum ErrorType {
 
     // MateBoard
     MATE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물이 존재하지 않습니다."),
+    NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 
     // MateComment
     MATE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
+
+    // MateApplication
+    SELF_APPLICATION_NOT_ALLOWED(HttpStatus.FORBIDDEN, "자신의 게시글에는 신청할 수 없습니다."),
+    MATE_ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "이미 모집이 종료된 게시글입니다."),
+    MATE_ALREADY_FULL(HttpStatus.BAD_REQUEST, "모집 인원이 초과되었습니다."),
+    ALREADY_APPLIED(HttpStatus.BAD_REQUEST, "이미 신청한 게시글입니다."),
+    MATE_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "신청 내역이 존재하지 않습니다."),
+    INVALID_CANCEL_STATUS(HttpStatus.BAD_REQUEST, "대기 상태일 때만 신청을 취소할 수 있습니다."),
 
     // Schedule
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스케줄이 존재하지 않습니다."),
@@ -61,7 +69,7 @@ public enum ErrorType {
 
     // Calendar
     CALENDAR_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 캘린더가 존재하지 않습니다.");
-  
+
 
     private final int code;
     private final String message;

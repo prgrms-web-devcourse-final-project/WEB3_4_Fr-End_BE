@@ -4,14 +4,15 @@ import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
 import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.service.CalendarService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/calendar")
+@RequestMapping("/api/v1/calendar")
 public class CalendarController {
     private final CalendarService calendarService;
 
@@ -22,7 +23,6 @@ public class CalendarController {
     @PostMapping
     public ResponseEntity<CalendarResponseDto> createCalendar(@Valid @RequestBody CalendarRequestDto requestDto) {
         CalendarResponseDto responseDto = calendarService.createCalendar(requestDto);
-
         URI location = URI.create("/api/calendar/" + responseDto.getId());
         return ResponseEntity.created(location).body(responseDto);
     }
@@ -33,8 +33,8 @@ public class CalendarController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CalendarResponseDto>> getAllCalendars() {
-        return ResponseEntity.ok(calendarService.getAllCalendars());
+    public ResponseEntity<Page<CalendarResponseDto>> getCalendars(Pageable pageable) {
+        return ResponseEntity.ok(calendarService.getCalendars(pageable));
     }
 
     @PutMapping("/{id}")

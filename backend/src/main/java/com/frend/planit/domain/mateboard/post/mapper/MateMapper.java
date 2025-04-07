@@ -23,8 +23,12 @@ public class MateMapper {
     public static MateResponseDto toResponseDto(Mate mate) {
         return MateResponseDto.builder()
                 .id(mate.getId())
+                .nickname(mate.getWriter().getNickname())
+                .profileImage(mate.getWriter().getProfileImageUrl())
+                .authorGender(mate.getWriter().getGender())
                 .title(mate.getTitle())
                 .content(mate.getContent())
+                .recruitCount(mate.getRecruitCount())
                 .travelRegion(mate.getTravelRegion())
                 .travelStartDate(mate.getTravelStartDate())
                 .travelEndDate(mate.getTravelEndDate())

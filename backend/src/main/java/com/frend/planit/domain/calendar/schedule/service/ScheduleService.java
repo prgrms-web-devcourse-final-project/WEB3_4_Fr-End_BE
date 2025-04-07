@@ -58,4 +58,49 @@ public class ScheduleService {
 
         return ScheduleResponse.from(createdScheduleEntity);
     }
+
+    // 여행 일정 수정
+    @Transactional
+    public ScheduleResponse modifyScheduleDetails(Long calendarId, Long scheduleId,
+            ScheduleRequest scheduleRequest) {
+        // 스케줄 존재 여부 확인
+        ScheduleEntity scheduleEntity = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
+
+        // 캘린더 존재 여부 확인
+        CalendarEntity calendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
+
+        // scheduleEntity의 calendarId와 요청한 calendarId가 일치하는지 확인
+        if (!scheduleEntity.getCalendar().getId().equals(calendarId)) {
+            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
+        }
+
+        // scheduleEntity 수정
+        scheduleEntity.updateSchedule(scheduleRequest);
+
+        return ScheduleResponse.from(scheduleEntity);
+    }
+
+    @Transactional
+    public ScheduleResponse deleteScheduleDetails(Long calendarId, Long scheduleId,
+            ScheduleRequest scheduleRequest) {
+        // 스케줄 존재 여부 확인
+        ScheduleEntity scheduleEntity = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
+
+        // 캘린더 존재 여부 확인
+        CalendarEntity calendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
+
+        // scheduleEntity의 calendarId와 요청한 calendarId가 일치하는지 확인
+        if (!scheduleEntity.getCalendar().getId().equals(calendarId)) {
+            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
+        }
+
+        // scheduleEntity 삭제
+        scheduleRepository.delete(scheduleEntity);
+
+        return ScheduleResponse.from(scheduleEntity);
+    }
 }

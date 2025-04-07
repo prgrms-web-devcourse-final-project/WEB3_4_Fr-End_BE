@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -175,4 +176,97 @@ public class ScheduleControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("요청 형식이 잘못되었습니다."));
     }
+
+    @Test
+    @DisplayName("여행 일정 수정 - 성공")
+    void modifyScheduleDetailsSuccess() throws Exception {
+        // given
+        ScheduleResponse updatedResponse = ScheduleResponse.builder()
+                .scheduleTitle("수정된 여행 제목")
+                .startDate(LocalDate.of(2025, 6, 2))
+                .endDate(LocalDate.of(2025, 6, 4))
+                .alertTime(LocalTime.of(9, 0))
+                .note("수정된 노트")
+                .build();
+
+        given(scheduleService.modifyScheduleDetails(calendarId, scheduleId, scheduleRequest))
+                .willReturn(updatedResponse);
+
+        // when & then
+        mockMvc.perform(
+                        patch("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId,
+                                scheduleId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(scheduleRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.scheduleTitle").value("수정된 여행 제목"))
+                .andExpect(jsonPath("$.startDate").value("2025-06-02"))
+                .andExpect(jsonPath("$.endDate").value("2025-06-04"))
+                .andExpect(jsonPath("$.alertTime").value("09:00:00"))
+                .andExpect(jsonPath("$.note").value("수정된 노트"));
+
+        verify(scheduleService, times(1)).modifyScheduleDetails(calendarId, scheduleId,
+                scheduleRequest);
+    }
+
+    @Test
+    @DisplayName("여행 일정 수정 - 실패 (존재하지 않는 스케줄)")
+    void modifyScheduleDetailsFail_scheduleNotFound() throws Exception {
+        // given
+        given(scheduleService.modifyScheduleDetails(calendarId, scheduleId, scheduleRequest))
+                .willThrow(new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
+
+        // when & then
+        mockMvc.perform(
+                        patch("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId,
+                                scheduleId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(scheduleRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("해당 스케줄이 존재하지 않습니다."));
+
+        verify(scheduleService, times(1)).modifyScheduleDetails(calendarId, scheduleId,
+                scheduleRequest);
+    }
+
+    @Test
+    @DisplayName("여행 일정 수정 - 실패 (캘린더 ID 불일치)")
+    void modifyScheduleDetailsFail_calendarMismatch() throws Exception {
+        // given
+        given(scheduleService.modifyScheduleDetails(calendarId, scheduleId, scheduleRequest))
+                .willThrow(new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
+
+        // when & then
+        mockMvc.perform(
+                        patch("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId,
+                                scheduleId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(scheduleRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("해당 캘린더가 존재하지 않습니다."));
+
+        verify(scheduleService, times(1)).modifyScheduleDetails(calendarId, scheduleId,
+                scheduleRequest);
+    }
+
+    @Test
+    @DisplayName("여행 일정 수정 - 실패 (유효성 검증 오류)")
+    void modifyScheduleDetailsFail_validationError() throws Exception {
+        // given: 제목이 빠진 잘못된 요청
+        ScheduleRequest invalidRequest = ScheduleRequest.builder()
+                .startDate(LocalDate.of(2025, 6, 1))
+                .endDate(LocalDate.of(2025, 6, 3))
+                .note("제목 없음 테스트")
+                .build();
+
+        // when & then
+        mockMvc.perform(
+                        patch("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId,
+                                scheduleId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("요청 형식이 잘못되었습니다."));
+    }
+
 }

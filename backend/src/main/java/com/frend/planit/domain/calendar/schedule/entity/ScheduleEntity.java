@@ -94,4 +94,12 @@ public class ScheduleEntity {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public void updateSchedule(ScheduleRequest scheduleRequest) {
+        this.scheduleTitle = scheduleRequest.getScheduleTitle();
+        this.startDate = scheduleRequest.getStartDate();
+        this.endDate = scheduleRequest.getEndDate();
+        this.note = scheduleRequest.getNote();
+        this.alertTime = scheduleRequest.getAlertTime();
+    }
 }

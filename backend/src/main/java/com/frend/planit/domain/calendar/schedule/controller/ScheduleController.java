@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,5 +48,29 @@ public class ScheduleController {
             @Valid @RequestBody ScheduleRequest scheduleRequest
     ) {
         return scheduleService.createScheduleDetails(calendarId, scheduleId, scheduleRequest);
+    }
+
+    @PatchMapping
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "여행 일정 수정")
+    @ResponseStatus(HttpStatus.OK)
+    public ScheduleResponse modifyScheduleDetails(
+            @PathVariable Long calendarId,
+            @PathVariable Long scheduleId,
+            @Valid @RequestBody ScheduleRequest scheduleRequest
+    ) {
+        return scheduleService.modifyScheduleDetails(calendarId, scheduleId, scheduleRequest);
+    }
+
+    @DeleteMapping
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "여행 일정 삭제")
+    @ResponseStatus(HttpStatus.OK)
+    public ScheduleResponse deleteScheduleDetails(
+            @PathVariable Long calendarId,
+            @PathVariable Long scheduleId,
+            @Valid @RequestBody ScheduleRequest scheduleRequest
+    ) {
+        return scheduleService.deleteScheduleDetails(calendarId, scheduleId, scheduleRequest);
     }
 }

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SharedCalendarService {
@@ -21,5 +23,12 @@ public class SharedCalendarService {
 
         SharedCalendarEntity shared = SharedCalendarEntity.create(calendar, receiver);
         sharedCalendarRepository.save(shared);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CalendarEntity> getSharedCalendars(User user) {
+        return sharedCalendarRepository.findAllBySharedUser(user).stream()
+                .map(SharedCalendarEntity::getCalendar)
+                .toList();
     }
 }

@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 public class CalendarService {
@@ -38,11 +36,6 @@ public class CalendarService {
     public Page<CalendarResponseDto> getCalendars(Pageable pageable) {
         return calendarRepository.findAll(pageable)
                 .map(CalendarResponseDto::new);
-    }
-
-    @Transactional(readOnly = true)
-    public List<CalendarResponseDto> getAllCalendars() {
-        throw new UnsupportedOperationException("Use getCalendars(Pageable) instead of getAllCalendars()");
     }
 
     @Transactional

@@ -2,15 +2,27 @@ package com.frend.planit.domain.chatbot.service;
 
 import com.frend.planit.domain.chatbot.entity.AIChatRoom;
 import com.frend.planit.domain.chatbot.repository.AIChatRoomRepository;
+import com.frend.planit.global.exception.ServiceException;
+import com.frend.planit.global.response.ErrorType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 
 @Service
 @RequiredArgsConstructor
 public class AIChatRoomService {
 
+    private final OpenAiChatModel chatClient;
     private final AIChatRoomRepository aiChatRoomRepository;
+    private final AIChatMessageService aiChatMessageService;
 
+    @Transactional
     public AIChatRoom createRoom() {
         AIChatRoom aiChatRoom = AIChatRoom
                 .builder()
@@ -32,5 +44,38 @@ public class AIChatRoomService {
                 )
                 .build();
         return aiChatRoomRepository.save(aiChatRoom);
+    }
+
+    public AIChatRoom findById(Long id) {
+        return aiChatRoomRepository.findById(id)
+                .orElseThrow(() -> new ServiceException(ErrorType.AI_CHAT_ROOM_NOT_FOUND));
+    }
+
+    @Transactional
+    public Flux<ServerSentEvent<String>> generateStream(Long chatRoomId, String userMessage) {
+
+        // 채팅방 ID로 AIChatRoom 조회
+        AIChatRoom aiChatRoom = findById(chatRoomId);
+
+        List<Message> promptMessages = aiChatMessageService.buildPromptMessages(aiChatRoom,
+                userMessage);
+        Prompt prompt = new Prompt(promptMessages);
+        StringBuilder fullResponse = new StringBuilder();
+
+        return chatClient.stream(prompt)
+                .map(chunk -> {
+                    if (chunk.getResult() == null ||
+                            chunk.getResult().getOutput() == null ||
+                            chunk.getResult().getOutput().getText() == null) {
+
+                        String botMessage = fullResponse.toString();
+                        aiChatMessageService.saveMessageAsync(aiChatRoom, userMessage, botMessage);
+                        return ServerSentEvent.<String>builder().data("[DONE]").build();
+                    }
+
+                    String text = chunk.getResult().getOutput().getText();
+                    fullResponse.append(text);
+                    return ServerSentEvent.<String>builder().data("\"" + text + "\"").build();
+                });
     }
 }

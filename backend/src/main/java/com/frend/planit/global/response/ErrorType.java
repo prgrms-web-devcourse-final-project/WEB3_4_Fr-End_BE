@@ -67,14 +67,19 @@ public enum ErrorType {
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스케줄이 존재하지 않습니다."),
     SCHEDULE_DAY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스케줄 날짜가 존재하지 않습니다."),
 
+    // Travel
+    TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행선지가 존재하지 않습니다."),
+
     // Calendar
     CALENDAR_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 캘린더가 존재하지 않습니다."),
     INVALID_CALENDAR_DATE(HttpStatus.BAD_REQUEST, "종료 시간은 시작 시간보다 빠를 수 없습니다."),
     INVALID_ALERT_TIME(HttpStatus.BAD_REQUEST, "알람 시간은 시작 시간보다 늦을 수 없습니다."),
 
     // Travel
-    TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행선지가 존재하지 않습니다.");
+    TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행선지가 존재하지 않습니다."),
 
+    // AI Chat
+    AI_CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 채팅방이 존재하지 않습니다.");
 
     private final int code;
     private final String message;

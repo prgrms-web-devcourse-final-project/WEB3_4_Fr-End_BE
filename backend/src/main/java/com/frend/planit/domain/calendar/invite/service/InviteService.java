@@ -4,6 +4,8 @@ import com.frend.planit.domain.calendar.entity.CalendarEntity;
 import com.frend.planit.domain.calendar.invite.entity.InviteEntity;
 import com.frend.planit.domain.calendar.invite.repository.InviteRepository;
 import com.frend.planit.domain.calendar.repository.CalendarRepository;
+import com.frend.planit.domain.calendar.service.SharedCalendarService;
+import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.response.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ public class InviteService {
 
     private final InviteRepository inviteRepository;
     private final CalendarRepository calendarRepository;
+    private final SharedCalendarService sharedCalendarService;
 
     @Transactional
     public String create(Long calendarId) {
@@ -36,8 +39,11 @@ public class InviteService {
         inviteRepository.save(invite);
     }
 
-    @Transactional(readOnly = true)
-    public InviteEntity findValidInvite(String inviteCode) {
+    /**
+     * 초대 링크 클릭 시 실행: 공유 등록
+     */
+    @Transactional
+    public void shareCalendarByInvite(String inviteCode, User receiver) {
         InviteEntity invite = inviteRepository.findByInviteCode(inviteCode)
                 .orElseThrow(() -> ErrorType.INVITE_NOT_FOUND.serviceException());
 
@@ -45,6 +51,6 @@ public class InviteService {
             throw ErrorType.INVITE_INVALID.serviceException();
         }
 
-        return invite;
+        sharedCalendarService.registerShare(invite.getCalendar(), receiver);
     }
 }

@@ -91,8 +91,17 @@ public class AIChatRoomService {
         return chatRooms;
     }
 
+    @Transactional
     public AIChatRoom findByIdAndUserId(Long chatRoomId, Long userId) {
         return aiChatRoomRepository.findByIdAndUserId(chatRoomId, userId)
                 .orElseThrow(() -> new ServiceException(ErrorType.AI_CHAT_ROOM_NOT_FOUND));
+    }
+
+    @Transactional
+    public void deleteChatRoom(Long chatRoomId, Long userId) {
+        AIChatRoom chatRoom = aiChatRoomRepository.findByIdAndUserId(chatRoomId, userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.AI_CHAT_ROOM_NOT_FOUND));
+
+        aiChatRoomRepository.delete(chatRoom);
     }
 }

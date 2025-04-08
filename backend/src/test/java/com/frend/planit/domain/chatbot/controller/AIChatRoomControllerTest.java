@@ -1,6 +1,8 @@
 package com.frend.planit.domain.chatbot.controller;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -193,4 +195,22 @@ public class AIChatRoomControllerTest {
                 .andExpect(jsonPath("$[1].botMessage").value("봇 메시지 2"));
     }
 
+    @Test
+    @DisplayName("로그인 사용자의 채팅방 삭제 - 성공")
+    void deleteChatRoomSuccess() throws Exception {
+        // given
+        Long userId = 1L;
+        Long roomId = 10L;
+
+        // deleteChatRoom은 void 메서드이므로 별도로 mocking하지 않아도 됨
+        doNothing().when(aiChatRoomService).deleteChatRoom(roomId, userId);
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/ai/chat/rooms/{chatRoomId}", roomId)
+                        .with(request -> {
+                            request.setUserPrincipal(() -> String.valueOf(userId));
+                            return request;
+                        }))
+                .andExpect(status().isOk());
+    }
 }

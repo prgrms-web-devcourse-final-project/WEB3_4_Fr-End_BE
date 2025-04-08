@@ -4,6 +4,7 @@ import com.frend.planit.domain.chatbot.dto.response.AIChatMessageResponse;
 import com.frend.planit.domain.chatbot.entity.AIChatRoom;
 import com.frend.planit.domain.chatbot.service.AIChatRoomService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,7 @@ import reactor.core.publisher.Flux;
 @RestController
 @RequestMapping("api/v1/ai/chat/rooms")
 @RequiredArgsConstructor
+@Tag(name = "AIChatBot Controller", description = "AI 챗봇 컨트롤러")
 public class AIChatRoomController {
 
     private final AIChatRoomService aiChatRoomService;
@@ -75,5 +78,19 @@ public class AIChatRoomController {
                 .stream()
                 .map(AIChatMessageResponse::from)
                 .toList();
+    }
+
+    @Operation(summary = "로그인 사용자의 채팅방 삭제")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{chatRoomId}")
+    @Transactional(readOnly = true)
+    public void deleteChatRoom(
+            @PathVariable Long chatRoomId,
+            Principal principal
+    ) {
+
+        Long userId = Long.parseLong(principal.getName());
+
+        aiChatRoomService.deleteChatRoom(chatRoomId, userId);
     }
 }

@@ -1,8 +1,11 @@
 package com.frend.planit.domain.chatbot.controller;
 
+import com.frend.planit.domain.chatbot.dto.response.AIChatMessageResponse;
 import com.frend.planit.domain.chatbot.entity.AIChatRoom;
 import com.frend.planit.domain.chatbot.service.AIChatRoomService;
 import io.swagger.v3.oas.annotations.Operation;
+import java.security.Principal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,7 +28,7 @@ public class AIChatRoomController {
     private final AIChatRoomService aiChatRoomService;
 
     @Operation(summary = "채팅방 생성")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public AIChatRoom createRoom() {
 
@@ -43,5 +46,34 @@ public class AIChatRoomController {
             @RequestParam(defaultValue = "안녕하세요.") String userMessage
     ) {
         return aiChatRoomService.generateStream(chatRoomId, userMessage);
+    }
+
+    @Operation(summary = "로그인 사용자의 채팅방 전체 목록 조회")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public List<AIChatRoom> getChatRooms(Principal principal) {
+
+        Long userId = Long.parseLong(principal.getName()); // 로그인한 사용자의 ID
+
+        return aiChatRoomService.findChatRoomsByUserId(userId);
+    }
+
+    @Operation(summary = "로그인 사용자의 채팅방 메세지 기록 조회")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{chatRoomId}/messages")
+    @Transactional(readOnly = true)
+    public List<AIChatMessageResponse> getMessages(
+            @PathVariable Long chatRoomId,
+            Principal principal
+    ) {
+
+        Long userId = Long.parseLong(principal.getName());
+
+        AIChatRoom aiChatRoom = aiChatRoomService.findByIdAndUserId(chatRoomId, userId);
+
+        return aiChatRoom.getMessages()
+                .stream()
+                .map(AIChatMessageResponse::from)
+                .toList();
     }
 }

@@ -78,4 +78,21 @@ public class AIChatRoomService {
                     return ServerSentEvent.<String>builder().data("\"" + text + "\"").build();
                 });
     }
+
+    @Transactional
+    public List<AIChatRoom> findChatRoomsByUserId(Long userId) {
+
+        List<AIChatRoom> chatRooms = aiChatRoomRepository.findAllByUserId(userId);
+
+        if (chatRooms.isEmpty()) {
+            throw new ServiceException(ErrorType.AI_CHAT_ROOM_NOT_FOUND);
+        }
+
+        return chatRooms;
+    }
+
+    public AIChatRoom findByIdAndUserId(Long chatRoomId, Long userId) {
+        return aiChatRoomRepository.findByIdAndUserId(chatRoomId, userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.AI_CHAT_ROOM_NOT_FOUND));
+    }
 }

@@ -1,9 +1,9 @@
 package com.frend.planit.domain.calendar.invite.controller;
 
-import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
-import com.frend.planit.domain.calendar.invite.entity.InviteEntity;
 import com.frend.planit.domain.calendar.invite.service.InviteService;
-import com.frend.planit.domain.calendar.service.CalendarService;
+import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.domain.user.repository.UserRepository;
+import com.frend.planit.global.response.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,27 +14,30 @@ import org.springframework.web.bind.annotation.*;
 public class InviteController {
 
     private final InviteService inviteService;
-    private final CalendarService calendarService;
+    private final UserRepository userRepository;
 
-    // 1. 초대 링크 생성
+    //초대 링크 클릭 → 공유 등록 (userId를 명시적으로 받음)
+    @PostMapping("/accept/{inviteCode}")
+    public ResponseEntity<Void> acceptInvite(@PathVariable String inviteCode,
+                                             @RequestParam Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> ErrorType.USER_NOT_FOUND.serviceException());
+
+        inviteService.shareCalendarByInvite(inviteCode, user);
+        return ResponseEntity.ok().build();
+    }
+
+    // 초대 생성
     @PostMapping("/{calendarId}")
     public ResponseEntity<String> createInvitation(@PathVariable Long calendarId) {
         String inviteCode = inviteService.create(calendarId);
         return ResponseEntity.status(201).body(inviteCode);
     }
 
-    // 2. 초대 링크 무효화
+    // 초대 무효화
     @PostMapping("/invalidate/{inviteCode}")
     public ResponseEntity<Void> invalidateInvitation(@PathVariable String inviteCode) {
         inviteService.invalidate(inviteCode);
         return ResponseEntity.ok().build();
-    }
-
-    // 3. 초대 코드로 캘린더 접근
-    @GetMapping("/{inviteCode}")
-    public ResponseEntity<CalendarResponseDto> getCalendarByInviteCode(@PathVariable String inviteCode) {
-        InviteEntity invite = inviteService.findValidInvite(inviteCode);
-        CalendarResponseDto response = new CalendarResponseDto(invite.getCalendar());
-        return ResponseEntity.ok(response);
     }
 }

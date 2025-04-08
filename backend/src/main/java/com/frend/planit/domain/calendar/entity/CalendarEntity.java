@@ -1,8 +1,9 @@
 package com.frend.planit.domain.calendar.entity;
 
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
-import com.frend.planit.global.base.BaseTime;
 import com.frend.planit.domain.calendar.exception.CalendarException;
+import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.global.base.BaseTime;
 import com.frend.planit.global.response.ErrorType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,6 +22,10 @@ public class CalendarEntity extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Column(name = "calendar_title", nullable = false, length = 20)
     private String calendarTitle;
 
@@ -36,13 +41,14 @@ public class CalendarEntity extends BaseTime {
     @Column(name = "note", length = 200)
     private String note;
 
-    public static CalendarEntity fromDto(CalendarRequestDto requestDto) {
+    public static CalendarEntity fromDto(CalendarRequestDto requestDto, User user) {
         validateDates(requestDto.startDate(), requestDto.endDate(), requestDto.alertTime());
         return CalendarEntity.builder()
-                .calendarTitle(requestDto.calendarTitle()) //제목
-                .startDate(requestDto.startDate()) //일정시작
-                .endDate(requestDto.endDate()) //일정종료
-                .alertTime(requestDto.alertTime()) //알람
+                .user(user)
+                .calendarTitle(requestDto.calendarTitle())
+                .startDate(requestDto.startDate())
+                .endDate(requestDto.endDate())
+                .alertTime(requestDto.alertTime())
                 .note(requestDto.note())
                 .build();
     }

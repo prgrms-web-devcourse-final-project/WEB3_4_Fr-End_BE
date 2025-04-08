@@ -72,8 +72,8 @@ public class MateService {
         mateRepository.save(mate);
         // 3. 이미지 연결(선택)
         if (mateRequestDto.getImageId() != null) {
-            imageService.commitImage(mateRequestDto.getImageId(), HolderType.MATEBOARD,
-                    mate.getId());
+            imageService.saveImage(HolderType.MATEBOARD, mate.getId(),
+                    mateRequestDto.getImageId());
         }
         // 3. 생성된 게시글 ID 반환
         return mate.getId();
@@ -90,7 +90,7 @@ public class MateService {
         Mate mate = findMateOrThrow(id);
 
         // 게시글 이미지 조회
-        ImageResponse imageResponse = imageService.getImage(HolderType.MATEBOARD, mate.getId());
+        ImageResponse imageResponse = imageService.getAllImages(HolderType.MATEBOARD, mate.getId());
         String imageUrl =
                 imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);
 
@@ -149,11 +149,11 @@ public class MateService {
         // 이미지 수정 시 반영(선택)
 
         if (mateRequestDto.getImageId() != null) {
-            imageService.commitImage(mateRequestDto.getImageId(), HolderType.MATEBOARD,
-                    updateMate.getId());
+            imageService.saveImage(HolderType.MATEBOARD, updateMate.getId(),
+                    mateRequestDto.getImageId());
         }
 
-        ImageResponse imageResponse = imageService.getImage(HolderType.MATEBOARD,
+        ImageResponse imageResponse = imageService.getAllImages(HolderType.MATEBOARD,
                 updateMate.getId());
 
         String imageUrl =
@@ -178,7 +178,7 @@ public class MateService {
         if (!deleteMate.getWriter().getId().equals(userId)) {
             throw new ServiceException(NOT_AUTHORIZED);
         }
-        ImageResponse imageResponse = imageService.getImage(HolderType.MATEBOARD,
+        ImageResponse imageResponse = imageService.getAllImages(HolderType.MATEBOARD,
                 deleteMate.getId());
         String imageUrl =
                 imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);

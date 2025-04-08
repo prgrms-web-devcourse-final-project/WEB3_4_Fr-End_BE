@@ -60,7 +60,7 @@ public class ImageService {
      * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
-    public void saveImage(@NonNull HolderType holderType, @NonNull Long holderId, long imageId) {
+    public void saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
         int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
         if (updatedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
@@ -68,8 +68,7 @@ public class ImageService {
     }
 
     @Transactional
-    public void saveImages(@NonNull HolderType holderType, @NonNull Long holderId,
-            List<Long> imageIds) {
+    public void saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
         int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
         if (updatedCount != imageIds.size()) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);

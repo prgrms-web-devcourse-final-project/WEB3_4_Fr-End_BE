@@ -52,16 +52,18 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         if (calendarRepository.count() == 0) {
+            User user = userRepository.findById(1L).orElseThrow(); // 존재하는 테스트 유저
+
             CalendarEntity calendar = CalendarEntity.builder()
                     .calendarTitle("테스트 캘린더1")
                     .startDate(LocalDateTime.now().minusDays(1))
                     .endDate(LocalDateTime.now().plusDays(1))
                     .note("테스트 노트1")
+                    .user(user) // 사용자 정보 추가
                     .build();
 
             calendarRepository.save(calendar);
         }
-
         if (mateRepository.count() == 0) {
             Mate mate = new Mate();
             mate.setWriter(userRepository.findById(1L).orElse(null));

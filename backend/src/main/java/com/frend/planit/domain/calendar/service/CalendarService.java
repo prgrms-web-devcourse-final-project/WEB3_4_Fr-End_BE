@@ -44,7 +44,7 @@ public class CalendarService {
         CalendarEntity calendar = calendarRepository.findById(id)
                 .orElseThrow(() -> new CalendarException(ErrorType.CALENDAR_NOT_FOUND));
 
-        // ✅ 공유자 or 소유자만 수정 가능
+        // 공유자 or 소유자만 수정 가능
         if (!calendarPermissionValidator.hasModifyAccess(calendar, user)) {
             throw new CalendarException(ErrorType.FORBIDDEN);
         }
@@ -58,7 +58,7 @@ public class CalendarService {
         CalendarEntity calendar = calendarRepository.findById(id)
                 .orElseThrow(() -> new CalendarException(ErrorType.CALENDAR_NOT_FOUND));
 
-        // ✅ 오직 소유자만 삭제 가능
+        // 오직 소유자만 삭제 가능
         if (!calendarPermissionValidator.isOwner(calendar, user)) {
             throw new CalendarException(ErrorType.FORBIDDEN);
         }

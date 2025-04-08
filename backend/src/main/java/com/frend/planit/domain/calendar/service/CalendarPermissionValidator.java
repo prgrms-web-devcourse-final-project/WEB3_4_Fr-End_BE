@@ -12,13 +12,13 @@ public class CalendarPermissionValidator {
 
     private final SharedCalendarRepository sharedCalendarRepository;
 
-    // 캘린더에 관한 수정관한여부 확인
-    public boolean hasModifyPermission(CalendarEntity calendar, User user) {
-        return calendar.getUser().equals(user) ||
-                sharedCalendarRepository.existsByCalendarAndSharedUser(calendar, user);
+    // 공유자 or 소유자 모두 접근 허용 (수정, 일정 등록)
+    public boolean hasModifyAccess(CalendarEntity calendar, User user) {
+        return calendar.getUser().equals(user)
+                || sharedCalendarRepository.existsByCalendarAndSharedUser(calendar, user);
     }
 
-    // 최초 생성자만 캘린더 삭제가능
+    // 오직 소유자만 접근 허용 (삭제)
     public boolean isOwner(CalendarEntity calendar, User user) {
         return calendar.getUser().equals(user);
     }

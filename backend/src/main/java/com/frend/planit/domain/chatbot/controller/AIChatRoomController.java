@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/ai/chat")
+@RequestMapping("/ai/chat/rooms")
 @RequiredArgsConstructor
 public class AIChatRoomController {
 
@@ -23,7 +23,7 @@ public class AIChatRoomController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
     public AIChatRoom createRoom() {
-        
+
         AIChatRoom aiChatRoom = aiChatRoomService.createRoom();
 
         return aiChatRoom;

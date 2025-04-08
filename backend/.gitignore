@@ -43,6 +43,7 @@ out/
 **/.DS_Store
 **/._.DS_Store
 /logs
+/src/main/generated/
 
 ### secret.yml ###
 application-secret.yml

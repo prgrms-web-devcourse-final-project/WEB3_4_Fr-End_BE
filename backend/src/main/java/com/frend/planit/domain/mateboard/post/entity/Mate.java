@@ -1,11 +1,21 @@
 package com.frend.planit.domain.mateboard.post.entity;
 
+import com.frend.planit.domain.mateboard.application.entity.MateApplication;
+import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
+import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.base.BaseTime;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,32 +37,32 @@ public class Mate extends BaseTime {
      */
 
     /**
-     * 사용자 ID (TODO: User 엔티티와 연관 관계 매핑 예정)
-     *
-     * @ManyToOne(fetch = FetchType.LAZY) private User id;
+     * 사용자 ID
      */
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User writer;
 
     /**
      * 사용자 프로필 이미지 (TODO: User 엔티티와 연관 관계 매핑 예정)
      */
-    private String profile_image;
 
     /**
-     * 작성자 성별 (TODO: User 엔티티와 연관 관계 매핑 예정)
+     * 사용자 닉네임
      */
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private AuthorGender authorGender;
 
     /**
-     * 게시글에 등록된 이미지 (최대 5장)
-     * TODO: Picture 테이블과 연동 예정
-     private List<Picture> pictures;
-     *
+     * 작성자 성별
      */
 
+    /**
+     * 작성자 프로필 이미지
+     */
+
+    /**
+     * 게시글에 등록된 이미지 (최대 1장)
+     */
+    
     /**
      * 게시글 제목
      */
@@ -99,14 +109,31 @@ public class Mate extends BaseTime {
     private MateGender mateGender;
 
     /**
-     * 게시글 생성 날짜(createdAt) BaseTime 상속
+     * 메이트 모집 인원
      */
-    //
+    @Column(nullable = false)
+    private int recruitCount;
 
     /**
-     * 게시글 수정 날짜(modified_at) BaseTime 상속
+     * 메이트 신청 목록
+     */
+    @OneToMany(mappedBy = "mate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MateApplication> applications = new ArrayList<>();
+
+    /**
+     * 게시글 생성 날짜(createdAt), 게시글 수정 날짜(modifiedAt) BaseTime 상속
      */
     //
+    public void closeRecruitmentIfFull() {
+        long acceptedCount = this.applications.stream().filter(app -> app.getStatus()
+                == MateApplicationStatus.ACCEPTED).count();
+        if (acceptedCount >= this.recruitCount) {
+            this.recruitmentStatus = RecruitmentStatus.CLOSED;
+        }
+    }
+
+    public boolean isRecruiting() {
+        return this.recruitmentStatus == RecruitmentStatus.OPEN;
+    }
 
 }
-

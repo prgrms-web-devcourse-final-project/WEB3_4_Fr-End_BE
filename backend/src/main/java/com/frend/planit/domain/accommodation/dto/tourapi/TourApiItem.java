@@ -18,12 +18,24 @@ public record TourApiItem(
         String addr1,
 
         @JacksonXmlProperty(localName = "firstimage")
-        String firstImage
+        String firstImage,
+
+        @JacksonXmlProperty(localName = "areacode")
+        Integer areaCode,
+
+        @JacksonXmlProperty(localName = "cat3")
+        String cat3,
+
+        @JacksonXmlProperty(localName = "mapx")
+        Double mapX,
+
+        @JacksonXmlProperty(localName = "mapy")
+        Double mapY
 
 ) {
     public AccommodationRequestDto toDto() {
         BigDecimal randomPrice = BigDecimal.valueOf(50000 + new Random().nextInt(150000));
-        List<String> amenities = List.of("WiFi", "주차장", "에어컨");
+        List<String> amenities = List.of("WiFi", "세미나실", "에어컨", "헬스장");
 
         return new AccommodationRequestDto(
                 title,
@@ -31,7 +43,13 @@ public record TourApiItem(
                 randomPrice,
                 5,
                 firstImage != null ? firstImage : "https://placehold.co/600x400?text=No+Image",
-                amenities
+                amenities,
+                areaCode,
+                cat3,
+                mapX,
+                mapY,
+                "15:00",
+                "11:00"
         );
     }
 }

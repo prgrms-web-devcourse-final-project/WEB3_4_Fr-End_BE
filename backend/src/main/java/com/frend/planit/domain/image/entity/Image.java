@@ -20,14 +20,13 @@ public class Image extends BaseTime {
     @Column(nullable = false)
     private String url;
 
+    @Setter
+    @Column(nullable = false)
+    private String fileName;
+
     @Column
     private HolderType holderType;
 
     @Column
     private Long holderId;
-
-    public void setHolder(HolderType holderType, long holderId) {
-        this.holderType = holderType;
-        this.holderId = holderId;
-    }
 }

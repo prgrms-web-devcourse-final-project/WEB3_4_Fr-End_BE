@@ -14,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AccommodationService {
@@ -21,14 +23,26 @@ public class AccommodationService {
     private final AccommodationRepository repository;
 
     @Transactional
-    public void syncFromTourApi(java.util.List<AccommodationRequestDto> externalData) {
+    public void syncFromTourApi(List<AccommodationRequestDto> externalData) {
         for (AccommodationRequestDto dto : externalData) {
+            if (isInvalid(dto)) {
+                continue;
+            }
+
             repository.findByNameAndLocation(dto.name(), dto.location())
                     .ifPresentOrElse(
                             existing -> updateEntity(existing, dto),
                             () -> repository.save(toEntity(dto))
                     );
         }
+    }
+
+    private boolean isInvalid(AccommodationRequestDto dto) {
+        return dto.name() == null || dto.name().isBlank()
+                || dto.location() == null || dto.location().isBlank()
+                || dto.mainImage() == null || dto.mainImage().isBlank()
+                || dto.pricePerNight() == null
+                || dto.availableRooms() == null;
     }
 
     @Transactional(readOnly = true)
@@ -75,6 +89,12 @@ public class AccommodationService {
                 .availableRooms(dto.availableRooms())
                 .mainImage(dto.mainImage())
                 .amenities(dto.amenities())
+                .areaCode(dto.areaCode())
+                .cat3(dto.cat3())
+                .mapX(dto.mapX())
+                .mapY(dto.mapY())
+                .checkInTime(dto.checkInTime())
+                .checkOutTime(dto.checkOutTime())
                 .build();
     }
 

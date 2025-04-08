@@ -27,7 +27,7 @@ public class MateComment extends BaseTime {
      * 메이트 모집 게시글 ID
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mate_post_id", nullable = false)
+    @JoinColumn(name = "mate_id", nullable = false)
     private Mate mate;
 
     /**

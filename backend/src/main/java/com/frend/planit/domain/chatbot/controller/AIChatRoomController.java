@@ -42,12 +42,13 @@ public class AIChatRoomController {
 
     @Operation(summary = "채팅방 대화 생성")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/{chatRoomId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/{chatRoomId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Transactional
     public Flux<ServerSentEvent<String>> generateStream(
             @PathVariable Long chatRoomId,
             @RequestParam(defaultValue = "안녕하세요.") String userMessage
     ) {
+
         return aiChatRoomService.generateStream(chatRoomId, userMessage);
     }
 

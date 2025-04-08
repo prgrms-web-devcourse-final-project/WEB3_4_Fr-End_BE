@@ -1,5 +1,10 @@
 package com.frend.planit.domain.chatbot.service;
 
+import com.frend.planit.domain.calendar.entity.CalendarEntity;
+import com.frend.planit.domain.calendar.repository.CalendarRepository;
+import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
+import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
+import com.frend.planit.domain.chatbot.chatbotUtils.AIUserContextHelper;
 import com.frend.planit.domain.chatbot.entity.AIChatRoom;
 import com.frend.planit.domain.chatbot.repository.AIChatRoomRepository;
 import com.frend.planit.global.exception.ServiceException;
@@ -21,6 +26,8 @@ public class AIChatRoomService {
     private final OpenAiChatModel chatClient;
     private final AIChatRoomRepository aiChatRoomRepository;
     private final AIChatMessageService aiChatMessageService;
+    private final ScheduleRepository scheduleRepository;
+    private final CalendarRepository calendarRepository;
 
     @Transactional
     public AIChatRoom createRoom() {
@@ -57,9 +64,31 @@ public class AIChatRoomService {
         // 채팅방 ID로 AIChatRoom 조회
         AIChatRoom aiChatRoom = findById(chatRoomId);
 
+        // 로그인한 사용자의 ID 가져오기
+        Long userId = aiChatRoom.getUser().getId();
+
+        // 사용자 캘린더 조회
+        CalendarEntity calendar = calendarRepository.findByUserId(userId);
+        if (calendar == null) {
+            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
+        }
+
+        // 유저의 여행 일정 데이터 가져오기
+        List<ScheduleEntity> userSchedules = scheduleRepository.findAllByCalendarId(
+                calendar.getId());
+        if (userSchedules.isEmpty()) {
+            throw new ServiceException(ErrorType.SCHEDULE_NOT_FOUND);
+        }
+
+        // 여행 일정 기반 컨텍스트 생성
+        String travelContext = AIUserContextHelper.buildUserTravelContext(userSchedules);
+
+        // 메시지 생성 (컨텍스트 + 사용자의 질문)
         List<Message> promptMessages = aiChatMessageService.buildPromptMessages(aiChatRoom,
                 userMessage);
+
         Prompt prompt = new Prompt(promptMessages);
+
         StringBuilder fullResponse = new StringBuilder();
 
         return chatClient.stream(prompt)

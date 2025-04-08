@@ -84,7 +84,7 @@ public class AIChatRoomControllerTest {
         String userMessage = "안녕하세요.";
 
         // when
-        WebTestClient.ResponseSpec response = webTestClient.get()
+        WebTestClient.ResponseSpec response = webTestClient.post()
                 .uri(uriBuilder ->
                         uriBuilder.path("/api/v1/ai/chat/rooms/{chatRoomId}")
                                 .queryParam("userMessage", userMessage)

@@ -40,7 +40,7 @@ public class Mate extends BaseTime {
      * 사용자 ID
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "writer_id", nullable = false)
     private User writer;
 
     /**
@@ -62,7 +62,7 @@ public class Mate extends BaseTime {
     /**
      * 게시글에 등록된 이미지 (최대 1장)
      */
-    
+
     /**
      * 게시글 제목
      */

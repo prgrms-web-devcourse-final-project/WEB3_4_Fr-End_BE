@@ -91,8 +91,10 @@ public class MateService {
         // 게시글 이미지 조회
         ImageResponse imageResponse = imageService.getFirstImage(HolderType.MATEBOARD,
                 mate.getId());
-        String imageUrl =
-                imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);
+        String imageUrl = (imageResponse != null && imageResponse.imageUrls() != null
+                && !imageResponse.imageUrls().isEmpty())
+                ? imageResponse.imageUrls().get(0)
+                : null;
 
         // DTO 변환 시 이미지 URL 포함
         return MateMapper.toResponseDto(mate, imageUrl);
@@ -155,8 +157,10 @@ public class MateService {
         ImageResponse imageResponse = imageService.getFirstImage(HolderType.MATEBOARD,
                 updateMate.getId());
 
-        String imageUrl =
-                imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);
+        String imageUrl = (imageResponse != null && imageResponse.imageUrls() != null
+                && !imageResponse.imageUrls().isEmpty())
+                ? imageResponse.imageUrls().get(0)
+                : null;
 
         // 6. 수정한 게시글 id 전달
         return MateMapper.toResponseDto(updateMate, imageUrl);
@@ -180,8 +184,10 @@ public class MateService {
 
         ImageResponse imageResponse = imageService.getFirstImage(HolderType.MATEBOARD,
                 deleteMate.getId());
-        String imageUrl =
-                imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);
+        String imageUrl = (imageResponse != null && imageResponse.imageUrls() != null
+                && !imageResponse.imageUrls().isEmpty())
+                ? imageResponse.imageUrls().get(0)
+                : null;
 
         // 3. 게시글 삭제
         mateRepository.delete(deleteMate);

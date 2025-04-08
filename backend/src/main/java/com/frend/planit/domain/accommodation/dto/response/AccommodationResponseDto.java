@@ -12,6 +12,12 @@ public record AccommodationResponseDto(
         Integer availableRooms,
         String mainImage,
         List<String> amenities,
+        Integer areaCode,
+        String cat3,
+        Double mapX,
+        Double mapY,
+        String checkInTime,
+        String checkOutTime,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt
 ) {}

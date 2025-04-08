@@ -53,7 +53,7 @@ public class AccommodationEntity extends BaseTime {
     public void updateFrom(AccommodationRequestDto dto) {
         this.name = dto.name();
         this.location = dto.location();
-        this.pricePerNight = dto.pricePerNight();
+        this.pricePerNight = dto.pricePerNight() != null ? dto.pricePerNight() : new BigDecimal("110000");
         this.availableRooms = dto.availableRooms();
         this.mainImage = dto.mainImage();
         this.amenities = dto.amenities();
@@ -61,7 +61,7 @@ public class AccommodationEntity extends BaseTime {
         this.cat3 = dto.cat3();
         this.mapX = dto.mapX();
         this.mapY = dto.mapY();
-        this.checkInTime = dto.checkInTime();
-        this.checkOutTime = dto.checkOutTime();
+        this.checkInTime = dto.checkInTime() != null && !dto.checkInTime().isBlank() ? dto.checkInTime() : "15:00";
+        this.checkOutTime = dto.checkOutTime() != null && !dto.checkOutTime().isBlank() ? dto.checkOutTime() : "11:00";
     }
 }

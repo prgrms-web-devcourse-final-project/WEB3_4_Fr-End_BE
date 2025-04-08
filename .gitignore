@@ -1,3 +1,4 @@
 ### IntelliJ IDEA ###
 .idea
 db_dev.mv.db
+db_local.mv.db

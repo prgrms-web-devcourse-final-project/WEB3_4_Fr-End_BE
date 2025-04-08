@@ -20,6 +20,10 @@ public class Image extends BaseTime {
     @Column(nullable = false)
     private String url;
 
+    @Setter
+    @Column(nullable = false)
+    private String fileName;
+
     @Column
     private HolderType holderType;
 

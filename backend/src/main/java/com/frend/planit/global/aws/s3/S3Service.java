@@ -7,11 +7,17 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Base64;
+import java.util.List;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +37,8 @@ public class S3Service {
 
     @Value("${spring.cloud.aws.s3.max-upload-size}")
     private long maxUploadSize;
+
+    private final S3Client s3Client;
 
     public S3PresignedPostResponse createPresignedPostUrl(String fileName, String contentType) {
         // 기본값 설정
@@ -65,6 +73,31 @@ public class S3Service {
         );
 
         return postResponse;
+    }
+
+    public void deleteFile(String fileName) {
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .build();
+            s3Client.deleteObject(deleteRequest);
+        } catch (Exception e) {
+            throw new ServiceException(ErrorType.S3_DELETE_FAILED, e);
+        }
+    }
+
+    public void deleteFiles(List<ObjectIdentifier> fileNames) {
+        try {
+            DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+                    .bucket(bucketName)
+                    .delete(Delete.builder().objects(fileNames).build())
+                    .build();
+
+            s3Client.deleteObjects(deleteRequest);
+        } catch (Exception e) {
+            throw new ServiceException(ErrorType.S3_DELETE_FAILED, e);
+        }
     }
 
     private String createPolicyDocument(String fileName, String contentType, String amzDate,

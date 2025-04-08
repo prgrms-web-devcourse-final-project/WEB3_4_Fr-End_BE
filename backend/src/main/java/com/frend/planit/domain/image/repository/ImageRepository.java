@@ -33,4 +33,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
             HolderType holderType, Long holderId);
 
     List<Image> findAllByHolderTypeAndHolderIdOrderByIdAsc(HolderType holderType, Long holderId);
+
+    List<Image> findAllByHolderTypeIsNullAndHolderIdIsNull();
 }

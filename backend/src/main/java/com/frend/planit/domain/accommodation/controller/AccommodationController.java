@@ -1,4 +1,3 @@
-// AccommodationController.java
 package com.frend.planit.domain.accommodation.controller;
 
 import com.frend.planit.domain.accommodation.dto.request.AccommodationRequestDto;
@@ -6,9 +5,10 @@ import com.frend.planit.domain.accommodation.dto.response.AccommodationResponseD
 import com.frend.planit.domain.accommodation.service.AccommodationService;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
+import com.frend.planit.global.response.PageResponse; // ✅ 추가된 import
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -27,15 +27,17 @@ public class AccommodationController {
         return ResponseEntity.ok(accommodationService.findById(id));
     }
 
-    // 숙소 전체 조회 + 정렬 + 페이징
+    // 숙소 전체 조회 + 정렬 + 페이징 (PageResponse 적용)
     @GetMapping
-    public Page<AccommodationResponseDto> findAllPaged(
+    public ResponseEntity<PageResponse<AccommodationResponseDto>> findAllPaged(
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String direction,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return accommodationService.findAllPaged(sortBy, direction, page, size);
+        PageResponse<AccommodationResponseDto> response =
+                new PageResponse<>(accommodationService.findAllPaged(sortBy, direction, page, size));
+        return ResponseEntity.ok(response);
     }
 
     // 숙소 생성

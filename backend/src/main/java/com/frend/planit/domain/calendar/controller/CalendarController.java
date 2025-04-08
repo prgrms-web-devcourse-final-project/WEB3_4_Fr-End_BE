@@ -3,6 +3,7 @@ package com.frend.planit.domain.calendar.controller;
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
 import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.service.CalendarService;
+import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,8 +34,9 @@ public class CalendarController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CalendarResponseDto>> getCalendars(Pageable pageable) {
-        return ResponseEntity.ok(calendarService.getCalendars(pageable));
+    public ResponseEntity<PageResponse<CalendarResponseDto>> getCalendars(Pageable pageable) {
+        Page<CalendarResponseDto> page = calendarService.getCalendars(pageable);
+        return ResponseEntity.ok(PageResponse.from(page));
     }
 
     @PutMapping("/{id}")

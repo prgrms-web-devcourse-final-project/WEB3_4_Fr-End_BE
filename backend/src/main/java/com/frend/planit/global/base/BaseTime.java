@@ -1,5 +1,6 @@
 package com.frend.planit.global.base;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
@@ -17,9 +18,11 @@ public class BaseTime extends BaseEntity {
 
     @CreatedDate
     @Setter(AccessLevel.PRIVATE)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Setter(AccessLevel.PRIVATE)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime modifiedAt;
 }

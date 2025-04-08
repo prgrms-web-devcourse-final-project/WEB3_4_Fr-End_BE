@@ -11,9 +11,6 @@ public record CalendarRequestDto(
         @NotBlank @Size(max = 20) String calendarTitle,
         @NotNull @FutureOrPresent LocalDateTime startDate,
         @NotNull @FutureOrPresent LocalDateTime endDate,
-        LocalDateTime time,
         LocalDateTime alertTime,
         @Size(max = 200) String note
-) {
-
-}
+) {}

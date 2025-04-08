@@ -3,7 +3,8 @@ package com.frend.planit.domain.calendar.service;
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
 import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.entity.CalendarEntity;
-import com.frend.planit.domain.calendar.exception.CalendarNotFoundException;
+import com.frend.planit.domain.calendar.exception.CalendarException;
+import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.domain.calendar.repository.CalendarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ public class CalendarService {
     @Transactional(readOnly = true)
     public CalendarResponseDto getCalendar(Long id) {
         CalendarEntity calendar = calendarRepository.findById(id)
-                .orElseThrow(() -> new CalendarNotFoundException("Calendar with id " + id + " not found"));
+                .orElseThrow(() -> new CalendarException(ErrorType.CALENDAR_NOT_FOUND));
         return new CalendarResponseDto(calendar);
     }
 
@@ -47,7 +48,7 @@ public class CalendarService {
     @Transactional
     public CalendarResponseDto updateCalendar(Long id, CalendarRequestDto requestDto) {
         CalendarEntity calendar = calendarRepository.findById(id)
-                .orElseThrow(() -> new CalendarNotFoundException("Calendar with id " + id + " not found"));
+                .orElseThrow(() -> new CalendarException(ErrorType.CALENDAR_NOT_FOUND));
 
         calendar.updateCalendar(requestDto);
         return new CalendarResponseDto(calendar);
@@ -56,7 +57,7 @@ public class CalendarService {
     @Transactional
     public void deleteCalendar(Long id) {
         if (!calendarRepository.existsById(id)) {
-            throw new CalendarNotFoundException("Calendar with id " + id + " not found");
+            throw new CalendarException(ErrorType.CALENDAR_NOT_FOUND);
         }
         calendarRepository.deleteById(id);
     }

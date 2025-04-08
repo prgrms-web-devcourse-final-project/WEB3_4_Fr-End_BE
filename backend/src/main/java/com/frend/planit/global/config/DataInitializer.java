@@ -13,13 +13,14 @@ import com.frend.planit.domain.user.enums.Gender;
 import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.repository.UserRepository;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 @Profile({"dev", "local"})
@@ -55,7 +56,6 @@ public class DataInitializer implements ApplicationRunner {
                     .calendarTitle("테스트 캘린더1")
                     .startDate(LocalDateTime.now().minusDays(1))
                     .endDate(LocalDateTime.now().plusDays(1))
-                    .time(LocalDateTime.now())
                     .note("테스트 노트1")
                     .build();
 

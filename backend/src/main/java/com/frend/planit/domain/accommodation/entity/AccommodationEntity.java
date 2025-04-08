@@ -53,7 +53,7 @@ public class AccommodationEntity extends BaseTime {
     public void updateFrom(AccommodationRequestDto dto) {
         this.name = dto.name();
         this.location = dto.location();
-        this.pricePerNight = dto.pricePerNight() != null ? dto.pricePerNight() : new BigDecimal("110000");
+        this.pricePerNight = dto.pricePerNight() != null ? dto.pricePerNight() : new BigDecimal("110,000");
         this.availableRooms = dto.availableRooms();
         this.mainImage = dto.mainImage();
         this.amenities = dto.amenities();

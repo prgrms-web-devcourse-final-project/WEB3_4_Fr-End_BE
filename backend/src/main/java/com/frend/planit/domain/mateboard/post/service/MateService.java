@@ -4,6 +4,9 @@ import static com.frend.planit.global.response.ErrorType.MATE_POST_NOT_FOUND;
 import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
 import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
 
+import com.frend.planit.domain.image.dto.response.ImageResponse;
+import com.frend.planit.domain.image.service.ImageService;
+import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
@@ -36,6 +39,7 @@ public class MateService {
     private final MateQueryRepository mateQueryRepository;
     private final MateRepository mateRepository;
     private final UserRepository userRepository;
+    private final ImageService imageService;
 
     /**
      * ID로 게시글을 조회하고, 존재하지 않으면 예외를 던집니다.
@@ -66,6 +70,11 @@ public class MateService {
         Mate mate = createMateEntity(writer, mateRequestDto);
         // 2. 생성된 게시글 저장
         mateRepository.save(mate);
+        // 3. 이미지 연결(선택)
+        if (mateRequestDto.getImageId() != null) {
+            imageService.saveImage(HolderType.MATEBOARD, mate.getId(),
+                    mateRequestDto.getImageId());
+        }
         // 3. 생성된 게시글 ID 반환
         return mate.getId();
     }
@@ -79,7 +88,14 @@ public class MateService {
      */
     public MateResponseDto getMate(Long id) {
         Mate mate = findMateOrThrow(id);
-        return MateMapper.toResponseDto(mate);
+
+        // 게시글 이미지 조회
+        ImageResponse imageResponse = imageService.getAllImages(HolderType.MATEBOARD, mate.getId());
+        String imageUrl =
+                imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);
+
+        // DTO 변환 시 이미지 URL 포함
+        return MateMapper.toResponseDto(mate, imageUrl);
     }
 
     /**
@@ -126,10 +142,25 @@ public class MateService {
         updateMate.setTravelEndDate(mateRequestDto.getTravelEndDate());
         updateMate.setMateGender(mateRequestDto.getMateGender());
         updateMate.setRecruitCount(mateRequestDto.getRecruitCount());
+
         // 4. 수정한 게시글 저장
         mateRepository.save(updateMate);
+
+        // 이미지 수정 시 반영(선택)
+
+        if (mateRequestDto.getImageId() != null) {
+            imageService.saveImage(HolderType.MATEBOARD, updateMate.getId(),
+                    mateRequestDto.getImageId());
+        }
+
+        ImageResponse imageResponse = imageService.getAllImages(HolderType.MATEBOARD,
+                updateMate.getId());
+
+        String imageUrl =
+                imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);
+
         // 5. 수정한 게시글 id 전달
-        return MateMapper.toResponseDto(updateMate);
+        return MateMapper.toResponseDto(updateMate, imageUrl);
     }
 
     /**
@@ -147,11 +178,15 @@ public class MateService {
         if (!deleteMate.getWriter().getId().equals(userId)) {
             throw new ServiceException(NOT_AUTHORIZED);
         }
+        ImageResponse imageResponse = imageService.getAllImages(HolderType.MATEBOARD,
+                deleteMate.getId());
+        String imageUrl =
+                imageResponse.imageUrls().isEmpty() ? null : imageResponse.imageUrls().get(0);
 
         // 3. 게시글 삭제
         mateRepository.delete(deleteMate);
         // 4. 삭제된 게시글 정보 리턴
-        return MateMapper.toResponseDto(deleteMate);
+        return MateMapper.toResponseDto(deleteMate, imageUrl);
     }
 
     /**

@@ -33,6 +33,7 @@ public class TravelService {
 
         // 행선지 조회
         List<TravelEntity> travels = travelRepository.findAllByScheduleId(scheduleId);
+
         // 스케줄에 속한 행선지가 없는 경우 예외 처리
         if (travels.isEmpty()) {
             throw new ServiceException(ErrorType.TRAVEL_NOT_FOUND);

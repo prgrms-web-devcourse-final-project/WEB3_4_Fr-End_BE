@@ -73,12 +73,10 @@ public class ScheduleEntity {
                 .build();
 
         // ScheduleDay 자동 생성
-        LocalDate current = schedule.getStartDate();
-        int order = 1;
-        while (!current.isAfter(schedule.getEndDate())) {
-            ScheduleDayEntity day = ScheduleDayEntity.of(current, order++);
+        List<ScheduleDayEntity> newDays = schedule.generateScheduleDays(schedule.getStartDate(),
+                schedule.getEndDate());
+        for (ScheduleDayEntity day : newDays) {
             schedule.addScheduleDay(day);
-            current = current.plusDays(1);
         }
 
         return schedule;
@@ -101,5 +99,32 @@ public class ScheduleEntity {
         this.endDate = scheduleRequest.getEndDate();
         this.note = scheduleRequest.getNote();
         this.alertTime = scheduleRequest.getAlertTime();
+
+        // 기존 scheduleDayList 비우기
+        this.scheduleDayList.clear(); // orphanRemoval = true 적용되어 있어야 함
+
+        // ScheduleDay 자동 생성
+        List<ScheduleDayEntity> newDays = generateScheduleDays(this.startDate, this.endDate);
+        for (ScheduleDayEntity day : newDays) {
+            this.addScheduleDay(day); // 연관관계도 함께 설정됨
+        }
+    }
+
+    // Entity 공통 메서드
+
+    // ScheduleDay 자동 생성
+    public List<ScheduleDayEntity> generateScheduleDays(LocalDate startDate, LocalDate endDate) {
+        List<ScheduleDayEntity> dayList = new ArrayList<>();
+
+        LocalDate current = startDate;
+
+        int order = 1;
+
+        while (!current.isAfter(endDate)) {
+            dayList.add(ScheduleDayEntity.of(current, order++));
+            current = current.plusDays(1);
+        }
+
+        return dayList;
     }
 }

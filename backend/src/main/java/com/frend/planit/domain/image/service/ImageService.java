@@ -16,8 +16,10 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +60,7 @@ public class ImageService {
      * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
-    public void saveImage(@NonNull HolderType holderType, @NonNull Long holderId, long imageId) {
+    public void saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
         int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
         if (updatedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
@@ -66,8 +68,7 @@ public class ImageService {
     }
 
     @Transactional
-    public void saveImages(@NonNull HolderType holderType, @NonNull Long holderId,
-            List<Long> imageIds) {
+    public void saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
         int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
         if (updatedCount != imageIds.size()) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
@@ -92,40 +93,70 @@ public class ImageService {
      * 1. 변경 전 이미지의 Holder를 초기화
      * 2. 변경 후 이미지의 Holder를 설정
      */
-    @Transactional
     public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
+        deleteImage(holderType, holderId);
+        saveImage(holderType, holderId, newImageId);
+    }
+
+    public void updateImages(
+            @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
+        deleteImages(holderType, holderId);
+        saveImages(holderType, holderId, newImageIds);
+    }
+
+    /*
+     * 게시글과 이미지의 연결을 해제합니다.
+     * 삭제는 주기적으로 이루어집니다.
+     */
+    @Transactional
+    public void deleteImage(@NonNull HolderType holderType, long holderId) {
         Optional<Image> oldImage = imageRepository
                 .findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
 
-        if (oldImage.isPresent() && oldImage.get().getId() != newImageId) {
-            imageRepository.updateHolderForImage(null, null, oldImage.get().getId());
+        if (oldImage.isPresent()) {
+            int deletedCount = imageRepository.updateHolderForImage(
+                    null, null, oldImage.get().getId());
+            if (deletedCount != 1) {
+                throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
+            }
         }
-
-        imageRepository.updateHolderForImage(holderType, holderId, newImageId);
     }
 
     @Transactional
-    public void updateImages(
-            @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
+    public void deleteImages(@NonNull HolderType holderType, long holderId) {
         List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
                 holderType, holderId);
 
-        imageRepository.updateHolderForImages(null, null,
-                oldImages.stream().map(Image::getId).toList());
-
-        imageRepository.updateHolderForImages(holderType, holderId, newImageIds);
+        int deletedCount = imageRepository.updateHolderForImages(
+                null, null, oldImages.stream().map(Image::getId).toList());
+        if (deletedCount != oldImages.size()) {
+            throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
+        }
     }
 
-    public void deleteImage(@NonNull HolderType holderType, long holderId) {
-    }
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void cleanImages() {
+        try {
+            List<Image> unusedImages = imageRepository.findAllByHolderTypeIsNullAndHolderIdIsNull();
+            List<ObjectIdentifier> imageNames = unusedImages.stream()
+                    .map(image -> ObjectIdentifier.builder().key(image.getFileName()).build())
+                    .toList();
 
-    public void deleteImages(@NonNull HolderType holderType, long holderId) {
+            imageRepository.deleteAllInBatch(unusedImages);
+            s3Service.deleteFiles(imageNames);
+        } catch (ServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServiceException(ErrorType.IMAGE_CLEAN_FAILED, e);
+        }
     }
 
     @Transactional
     private Image createImage(String fileName) {
         Image image = new Image();
         image.setUrl(imageDomain + fileName);
+        image.setFileName(fileName);
         return imageRepository.save(image);
     }
 

@@ -81,13 +81,13 @@ public class TravelEntity extends BaseTime {
     }
 
     public void updateTravel(TravelRequest travelRequest, ScheduleDayEntity scheduleDay) {
+        this.scheduleDay = scheduleDay;
         this.location = travelRequest.getLocation();
         this.category = travelRequest.getCategory();
         this.lat = travelRequest.getLat();
         this.lng = travelRequest.getLng();
         this.visitHour = travelRequest.getHour();
         this.visitMinute = travelRequest.getMinute();
-        this.scheduleDay = scheduleDay;
     }
 
     // Test Code에서 사용하기 위한 setter

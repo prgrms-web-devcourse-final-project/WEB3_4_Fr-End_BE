@@ -1,5 +1,9 @@
 package com.frend.planit.domain.mateboard.post.repository;
 
+import com.frend.planit.domain.image.entity.QImage;
+import com.frend.planit.domain.image.type.HolderType;
+import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
+import com.frend.planit.domain.mateboard.application.entity.QMateApplication;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.entity.QMate;
 import com.frend.planit.domain.mateboard.post.entity.RecruitmentStatus;
@@ -7,6 +11,7 @@ import com.frend.planit.domain.mateboard.post.entity.TravelRegion;
 import com.frend.planit.domain.user.entity.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +46,8 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
             Pageable pageable) {
         QMate mate = QMate.mate;
         QUser user = QUser.user;
+        QImage image = QImage.image;
+        QMateApplication application = QMateApplication.mateApplication;
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -74,8 +81,22 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         mate.travelEndDate,
                         mate.recruitmentStatus,
                         mate.mateGender,
+                        user.gender,
+                        mate.recruitCount,
+                        com.querydsl.jpa.JPAExpressions
+                                .select(application.count())
+                                .from(application)
+                                .where(application.mate.eq(mate)
+                                        .and(application.status.eq(
+                                                MateApplicationStatus.ACCEPTED))),
                         mate.writer.nickname,
                         mate.writer.profileImageUrl,
+                        JPAExpressions.select(image.url)
+                                .from(image)
+                                .where(image.holderType.eq(HolderType.MATEBOARD)
+                                        .and(image.holderId.eq(mate.id)))
+                                .orderBy(image.id.asc())
+                                .limit(1),
                         mate.createdAt
                 ))
                 .from(mate)

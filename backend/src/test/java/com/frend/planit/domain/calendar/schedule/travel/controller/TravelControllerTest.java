@@ -105,11 +105,13 @@ public class TravelControllerTest {
                 .build();
 
         DailyTravelResponse day1 = new DailyTravelResponse(
+                10L,
                 LocalDate.of(2025, 4, 2),
                 List.of(travel1)
         );
 
         DailyTravelResponse day2 = new DailyTravelResponse(
+                11L,
                 LocalDate.of(2025, 4, 3),
                 List.of(travel2)
         );

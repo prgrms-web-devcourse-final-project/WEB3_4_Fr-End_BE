@@ -47,7 +47,7 @@ public class KakaoOAuthClient implements OAuthClient {
         body.add("code", code);
 
         return restTemplate.postForEntity(
-                tokenUri,  // 🔥 하드코딩 대신 설정된 값 사용
+                tokenUri,
                 body,
                 OAuthTokenResponse.class
         ).getBody();

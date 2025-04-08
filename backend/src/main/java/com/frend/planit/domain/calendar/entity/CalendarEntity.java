@@ -34,7 +34,7 @@ public class CalendarEntity extends BaseTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "calendar_title", nullable = false, length = 20)
@@ -52,13 +52,14 @@ public class CalendarEntity extends BaseTime {
     @Column(name = "note", length = 200)
     private String note;
 
-    public static CalendarEntity fromDto(CalendarRequestDto requestDto) {
+    public static CalendarEntity fromDto(CalendarRequestDto requestDto, User user) {
         validateDates(requestDto.startDate(), requestDto.endDate(), requestDto.alertTime());
         return CalendarEntity.builder()
-                .calendarTitle(requestDto.calendarTitle()) //제목
-                .startDate(requestDto.startDate()) //일정시작
-                .endDate(requestDto.endDate()) //일정종료
-                .alertTime(requestDto.alertTime()) //알람
+                .user(user)
+                .calendarTitle(requestDto.calendarTitle())
+                .startDate(requestDto.startDate())
+                .endDate(requestDto.endDate())
+                .alertTime(requestDto.alertTime())
                 .note(requestDto.note())
                 .build();
     }

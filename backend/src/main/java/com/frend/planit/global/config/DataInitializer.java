@@ -13,13 +13,14 @@ import com.frend.planit.domain.user.enums.Gender;
 import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.repository.UserRepository;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 @Profile({"dev", "local"})
@@ -51,17 +52,18 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         if (calendarRepository.count() == 0) {
+            User user = userRepository.findById(1L).orElseThrow(); // 존재하는 테스트 유저
+
             CalendarEntity calendar = CalendarEntity.builder()
                     .calendarTitle("테스트 캘린더1")
                     .startDate(LocalDateTime.now().minusDays(1))
                     .endDate(LocalDateTime.now().plusDays(1))
-                    .time(LocalDateTime.now())
                     .note("테스트 노트1")
+                    .user(user) // 사용자 정보 추가
                     .build();
 
             calendarRepository.save(calendar);
         }
-
         if (mateRepository.count() == 0) {
             Mate mate = new Mate();
             mate.setWriter(userRepository.findById(1L).orElse(null));

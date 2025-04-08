@@ -1,9 +1,10 @@
 package com.frend.planit.global.response;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 /*
  * 페이징을 위한 DTO 클래스입니다.
@@ -27,5 +28,9 @@ public class PageResponse<T> {
         this.hasPrevious = page.hasPrevious();
         this.totalData = page.getTotalElements();
         this.data = page.getContent();
+    }
+
+    public static <T> PageResponse<T> from(Page<T> page) {
+        return new PageResponse<>(page);
     }
 }

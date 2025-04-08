@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -85,7 +86,7 @@ public class AccommodationService {
         return AccommodationEntity.builder()
                 .name(dto.name())
                 .location(dto.location())
-                .pricePerNight(dto.pricePerNight())
+                .pricePerNight(dto.pricePerNight() != null ? dto.pricePerNight() : new BigDecimal("110000"))
                 .availableRooms(dto.availableRooms())
                 .mainImage(dto.mainImage())
                 .amenities(dto.amenities())
@@ -93,8 +94,8 @@ public class AccommodationService {
                 .cat3(dto.cat3())
                 .mapX(dto.mapX())
                 .mapY(dto.mapY())
-                .checkInTime(dto.checkInTime())
-                .checkOutTime(dto.checkOutTime())
+                .checkInTime(dto.checkInTime() != null && !dto.checkInTime().isBlank() ? dto.checkInTime() : "15:00")
+                .checkOutTime(dto.checkOutTime() != null && !dto.checkOutTime().isBlank() ? dto.checkOutTime() : "11:00")
                 .build();
     }
 
@@ -111,6 +112,12 @@ public class AccommodationService {
                 entity.getAvailableRooms(),
                 entity.getMainImage(),
                 entity.getAmenities(),
+                entity.getAreaCode(),
+                entity.getCat3(),
+                entity.getMapX(),
+                entity.getMapY(),
+                entity.getCheckInTime(),
+                entity.getCheckOutTime(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt()
         );

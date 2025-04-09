@@ -89,9 +89,4 @@ public class TravelEntity extends BaseTime {
         this.visitHour = travelRequest.getHour();
         this.visitMinute = travelRequest.getMinute();
     }
-
-    // Test Code에서 사용하기 위한 setter
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Schedule Controller", description = "여행 일정 컨트롤러")
-@RequestMapping("/api/v1/calendars/{calendarId}/schedule/{scheduleId}")
+@RequestMapping("/api/v1/calendars/{calendarId}/schedules")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    @GetMapping
+    @GetMapping("/{scheduleId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 조회")
     @ResponseStatus(HttpStatus.OK)
@@ -44,13 +44,12 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.CREATED)
     public ScheduleResponse createSchedule(
             @PathVariable Long calendarId,
-            @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleRequest scheduleRequest
     ) {
-        return scheduleService.createSchedule(calendarId, scheduleId, scheduleRequest);
+        return scheduleService.createSchedule(calendarId, scheduleRequest);
     }
 
-    @PatchMapping
+    @PatchMapping("/{scheduleId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 수정")
     @ResponseStatus(HttpStatus.OK)
@@ -62,7 +61,7 @@ public class ScheduleController {
         return scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{scheduleId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "여행 일정 삭제")
     @ResponseStatus(HttpStatus.OK)

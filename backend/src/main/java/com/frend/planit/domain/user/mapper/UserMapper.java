@@ -1,6 +1,7 @@
 package com.frend.planit.domain.user.mapper;
 
 import com.frend.planit.domain.auth.dto.request.LocalRegisterRequest;
+import com.frend.planit.domain.auth.dto.response.LocalRegisterResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.enums.LoginType;
@@ -25,7 +26,7 @@ public class UserMapper {
                 .build();
     }
 
-    // 로컬 회원가입 매핑
+    // 로컬 매핑
     public static User toEntity(LocalRegisterRequest request, PasswordEncoder passwordEncoder) {
         return User.builder()
                 .loginId(request.getLoginId())
@@ -42,5 +43,15 @@ public class UserMapper {
                 .status(UserStatus.REGISTERED)
                 .loginType(LoginType.LOCAL)
                 .build();
+    }
+
+    // 로컬 회원가입 매핑
+    public static LocalRegisterResponse toResponse(User user) {
+        return new LocalRegisterResponse(
+                user.getId(),
+                user.getLoginId(),
+                user.getNickname(),
+                user.getEmail()
+        );
     }
 }

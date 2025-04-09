@@ -1,12 +1,15 @@
 package com.frend.planit.domain.auth.controller;
 
 import com.frend.planit.domain.auth.dto.request.LocalLoginRequest;
+import com.frend.planit.domain.auth.dto.request.LocalRegisterRequest;
 import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.auth.dto.request.TokenRefreshRequest;
 import com.frend.planit.domain.auth.dto.response.AuthResponse;
+import com.frend.planit.domain.auth.dto.response.LocalRegisterResponse;
 import com.frend.planit.domain.auth.dto.response.RedirectUrlResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.auth.service.AuthService;
+import com.frend.planit.domain.auth.service.LocalRegisterService;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final LocalRegisterService localRegisterService;
 
     /**
      * 소셜 로그인
@@ -49,6 +53,18 @@ public class AuthController {
         AuthResponse response = authService.localLogin(request);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * 로컬 회원가입
+     */
+    @PostMapping("/local-register")
+    public ResponseEntity<LocalRegisterResponse> register(
+            @RequestBody @Valid LocalRegisterRequest request
+    ) {
+        LocalRegisterResponse response = localRegisterService.register(request);
+        return ResponseEntity.ok(response);
+    }
+
 
     /**
      * 액세스 토큰 재발급

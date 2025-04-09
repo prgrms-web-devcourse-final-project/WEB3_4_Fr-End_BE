@@ -126,6 +126,9 @@ public class ImageService {
     public void deleteImages(@NonNull HolderType holderType, long holderId) {
         List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
                 holderType, holderId);
+        if (oldImages.isEmpty()) {
+            return;
+        }
 
         int deletedCount = imageRepository.updateHolderForImages(
                 null, null, oldImages.stream().map(Image::getId).toList());
@@ -139,6 +142,9 @@ public class ImageService {
     public void cleanImages() {
         try {
             List<Image> unusedImages = imageRepository.findAllByHolderTypeIsNullAndHolderIdIsNull();
+            if (unusedImages.isEmpty()) {
+                return;
+            }
             List<ObjectIdentifier> imageNames = unusedImages.stream()
                     .map(image -> ObjectIdentifier.builder().key(image.getFileName()).build())
                     .toList();

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import lombok.Builder;
 import lombok.Getter;
 
 /**
@@ -18,6 +19,7 @@ import lombok.Getter;
  * @version 1.0
  * @since 2025-03-28
  */
+@Builder
 @Getter
 public class MateRequestDto {
 
@@ -44,7 +46,7 @@ public class MateRequestDto {
 
     @NotNull(message = "메이트 성별을 선택해 주세요.")
     private MateGender mateGender;
-    
+
     private Long imageId;
 
     /**

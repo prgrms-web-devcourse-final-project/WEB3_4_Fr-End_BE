@@ -1,0 +1,17 @@
+-- 무결성 제약 해제
+SET REFERENTIAL_INTEGRITY FALSE;
+
+-- 데이터 삭제
+DELETE FROM mate_application;
+DELETE FROM mate_comment;
+DELETE FROM mate;
+DELETE FROM users;
+
+-- PK 시퀀스 초기화 (ID=1부터 시작)
+ALTER TABLE users ALTER COLUMN id RESTART WITH 1;
+ALTER TABLE mate ALTER COLUMN id RESTART WITH 1;
+ALTER TABLE mate_comment ALTER COLUMN id RESTART WITH 1;
+ALTER TABLE mate_application ALTER COLUMN id RESTART WITH 1;
+
+-- 무결성 제약 복구
+SET REFERENTIAL_INTEGRITY TRUE;

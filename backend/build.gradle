@@ -69,8 +69,13 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    
+    test {
+        useJUnitPlatform()
+    }
 
     // 비동기 코드 테스트 라이브러리
     testImplementation 'io.projectreactor:reactor-test'
@@ -83,30 +88,31 @@ dependencyManagement {
 }
 
 // Querydsl 빌드 옵션 (옵셔널)
-def generated = 'src/main/generated'
+    def generated = 'src/main/generated'
 
 // querydsl QClass 파일 생성 위치를 지정
-tasks.withType(JavaCompile).configureEach {
-    options.getGeneratedSourceOutputDirectory().set(file(generated))
-}
+    tasks.withType(JavaCompile).configureEach {
+        options.getGeneratedSourceOutputDirectory().set(file(generated))
+    }
 
 // java source set 에 querydsl QClass 위치 추가
-sourceSets {
-    main.java.srcDirs += [generated]
-}
+    sourceSets {
+        main.java.srcDirs += [generated]
+    }
 
 // gradle clean 시에 QClass 디렉토리 삭제
-clean {
-    delete file(generated)
-}
+    clean {
+        delete file(generated)
+    }
 
 // querydsl 수동 빌드 task 정의
-tasks.register("compileQuerydsl", JavaCompile) {
-    group = "build"
-    description = "Generates the QueryDSL Q-types"
+    tasks.register("compileQuerydsl", JavaCompile) {
+        group = "build"
+        description = "Generates the QueryDSL Q-types"
 
-    source = sourceSets.main.java
-    classpath = configurations.compileClasspath + configurations.annotationProcessor
-    destinationDirectory = file(generated)
-    options.getGeneratedSourceOutputDirectory().set(file(generated))
+        source = sourceSets.main.java
+        classpath = configurations.compileClasspath + configurations.annotationProcessor
+        destinationDirectory = file(generated)
+        options.getGeneratedSourceOutputDirectory().set(file(generated))
+    }
 }

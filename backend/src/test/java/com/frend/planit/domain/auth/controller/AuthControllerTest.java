@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frend.planit.domain.auth.client.GoogleOauthClient;
 import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.auth.dto.request.TokenRefreshRequest;
-import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
+import com.frend.planit.domain.auth.dto.response.AuthResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.auth.service.AuthService;
 import com.frend.planit.domain.user.enums.Role;
@@ -52,7 +52,7 @@ class AuthControllerTest {
     @DisplayName("소셜 로그인 성공")
     void socialLoginSuccess() throws Exception {
         SocialLoginRequest request = new SocialLoginRequest(SocialType.GOOGLE, "test-code");
-        SocialLoginResponse response = new SocialLoginResponse("access-token", "refresh-token",
+        AuthResponse response = new AuthResponse("access-token", "refresh-token",
                 false, "test@email.com");
 
         Mockito.when(authService.authentiate(any(SocialLoginRequest.class)))

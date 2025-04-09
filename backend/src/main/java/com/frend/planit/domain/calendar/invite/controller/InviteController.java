@@ -16,7 +16,7 @@ public class InviteController {
     private final InviteService inviteService;
     private final UserRepository userRepository;
 
-    //초대 링크 클릭 → 공유 등록 (userId를 명시적으로 받음)
+    //초대 링크 클릭하면 공유
     @PostMapping("/accept/{inviteCode}")
     public ResponseEntity<Void> acceptInvite(@PathVariable String inviteCode,
                                              @RequestParam Long userId) {

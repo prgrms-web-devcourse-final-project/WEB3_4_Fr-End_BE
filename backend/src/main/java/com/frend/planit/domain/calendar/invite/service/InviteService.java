@@ -11,9 +11,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
+import static com.frend.planit.global.response.ErrorType.*;
+
 @Service
 @RequiredArgsConstructor
 public class InviteService {
+
+    private static <T> T orThrow(Optional<T> optional, ErrorType errorType) {
+        return optional.orElseThrow(() -> errorType.serviceException());
+    }
 
     private final InviteRepository inviteRepository;
     private final CalendarRepository calendarRepository;
@@ -21,8 +29,7 @@ public class InviteService {
 
     @Transactional
     public String create(Long calendarId) {
-        CalendarEntity calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> ErrorType.CALENDAR_NOT_FOUND.serviceException());
+        CalendarEntity calendar = orThrow(calendarRepository.findById(calendarId), CALENDAR_NOT_FOUND);
 
         InviteEntity invite = InviteEntity.create(calendar);
         inviteRepository.save(invite);
@@ -32,23 +39,17 @@ public class InviteService {
 
     @Transactional
     public void invalidate(String inviteCode) {
-        InviteEntity invite = inviteRepository.findByInviteCode(inviteCode)
-                .orElseThrow(() -> ErrorType.INVITE_NOT_FOUND.serviceException());
-
+        InviteEntity invite = orThrow(inviteRepository.findByInviteCode(inviteCode), INVITE_NOT_FOUND);
         invite.invalidate();
         inviteRepository.save(invite);
     }
 
-    /**
-     * 초대 링크 클릭 시 실행: 공유 등록
-     */
     @Transactional
     public void shareCalendarByInvite(String inviteCode, User receiver) {
-        InviteEntity invite = inviteRepository.findByInviteCode(inviteCode)
-                .orElseThrow(() -> ErrorType.INVITE_NOT_FOUND.serviceException());
+        InviteEntity invite = orThrow(inviteRepository.findByInviteCode(inviteCode), INVITE_NOT_FOUND);
 
         if (!invite.isValid()) {
-            throw ErrorType.INVITE_INVALID.serviceException();
+            throw INVITE_INVALID.serviceException();
         }
 
         sharedCalendarService.registerShare(invite.getCalendar(), receiver);

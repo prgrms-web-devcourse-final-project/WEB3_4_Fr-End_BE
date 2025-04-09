@@ -4,6 +4,7 @@ import com.frend.planit.domain.auth.dto.response.NaverUserInfoResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthTokenResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.user.enums.SocialType;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,6 +18,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@Getter
 @RequiredArgsConstructor
 public class NaverOAuthClient implements OAuthClient {
 

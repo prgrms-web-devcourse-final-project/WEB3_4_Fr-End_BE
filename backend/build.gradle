@@ -69,8 +69,13 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    test {
+        useJUnitPlatform()
+    }
 
     // 비동기 코드 테스트 라이브러리
     testImplementation 'io.projectreactor:reactor-test'

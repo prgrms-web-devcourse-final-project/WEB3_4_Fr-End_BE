@@ -4,6 +4,7 @@ import com.frend.planit.domain.auth.dto.response.KakaoUserInfoResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthTokenResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.user.enums.SocialType;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,6 +17,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@Getter
 @RequiredArgsConstructor
 public class KakaoOAuthClient implements OAuthClient {
 
@@ -47,7 +49,7 @@ public class KakaoOAuthClient implements OAuthClient {
         body.add("code", code);
 
         return restTemplate.postForEntity(
-                tokenUri,  // 🔥 하드코딩 대신 설정된 값 사용
+                tokenUri,
                 body,
                 OAuthTokenResponse.class
         ).getBody();

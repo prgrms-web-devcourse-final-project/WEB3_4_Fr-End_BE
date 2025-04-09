@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.frend'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.3-SNAPSHOT'
 
 java {
     toolchain {
@@ -21,6 +21,10 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+ext {
+    set('springAiVersion', "1.0.0-M6") // Spring AI version
 }
 
 dependencies {
@@ -53,6 +57,9 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+    // Spring AI
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -69,6 +76,16 @@ dependencies {
     test {
         useJUnitPlatform()
     }
+
+    // 비동기 코드 테스트 라이브러리
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
+}
 
 // Querydsl 빌드 옵션 (옵셔널)
     def generated = 'src/main/generated'

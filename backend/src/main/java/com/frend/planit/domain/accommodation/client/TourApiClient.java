@@ -44,53 +44,58 @@ public class TourApiClient {
 
     public List<AccommodationRequestDto> fetchAccommodations() {
         List<AccommodationRequestDto> result = new ArrayList<>();
-        int page = 1;
-        boolean hasMore = true;
 
-        while (hasMore) {
-            try {
-                URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + "/areaBasedList1")
-                        .queryParam("serviceKey", serviceKey)
-                        .queryParam("MobileOS", "ETC")
-                        .queryParam("MobileApp", URLEncoder.encode("PlanIt", StandardCharsets.UTF_8))
-                        .queryParam("numOfRows", 200)
-                        .queryParam("pageNo", page)
-                        .queryParam("contentTypeId", 32)
-                        .queryParam("areaCode", 1)
-                        .queryParam("_type", "xml")
-                        .build(true)
-                        .toUri();
+        List<Integer> areaCodes = List.of(1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39);
 
-                String xml = restTemplate.getForObject(uri, String.class);
-                log.info("📦 [TourAPI] (page {}) 응답 XML:\n{}", page, xml);
+        log.info("TourAPI : 전국 숙소 정보 조회 시작합니다");
 
-                if (xml != null && xml.contains("SERVICE_KEY_IS_NOT_REGISTERED_ERROR")) {
-                    log.error("[TourAPI] 인증키 등록 오류 발생 → 포털에서 API 등록 상태 확인 필요");
-                    return Collections.emptyList();
-                }
+        for (int areaCode : areaCodes) {
+            int page = 1;
+            boolean hasMore = true;
 
-                TourApiResponse response = xmlMapper.readValue(xml, TourApiResponse.class);
-                List<TourApiItem> items = response.getBody().getItems();
+            while (hasMore) {
+                try {
+                    URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + "/areaBasedList1")
+                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("MobileOS", "ETC")
+                            .queryParam("MobileApp", URLEncoder.encode("PlanIt", StandardCharsets.UTF_8))
+                            .queryParam("numOfRows", 200)
+                            .queryParam("pageNo", page)
+                            .queryParam("contentTypeId", 32)
+                            .queryParam("areaCode", areaCode)
+                            .queryParam("_type", "xml")
+                            .build(true)
+                            .toUri();
 
-                List<AccommodationRequestDto> dtos = items.stream()
-                        .map(TourApiItem::toDto)
-                        .toList();
+                    String xml = restTemplate.getForObject(uri, String.class);
 
-                if (items == null || items.isEmpty()) {
-                    hasMore = false;
-                } else {
-                    for (TourApiItem item : items) {
-                        result.add(item.toDto());
+                    if (xml != null && xml.contains("SERVICE_KEY_IS_NOT_REGISTERED_ERROR")) {
+                        log.error("TourAPI : 인증키 등록 오류 발생 > 포털에서 API 등록 상태 확인 필요");
+                        return Collections.emptyList();
                     }
-                    page++;
-                }
 
-            } catch (Exception e) {
-                log.error("[TourAPI] 데이터 수신 실패 (page {}): {}", page, e.getMessage());
-                hasMore = false;
+                    TourApiResponse response = xmlMapper.readValue(xml, TourApiResponse.class);
+                    List<TourApiItem> items = response.getBody().getItems();
+
+                    if (items == null || items.isEmpty()) {
+                        hasMore = false;
+                    } else {
+                        List<AccommodationRequestDto> dtos = items.stream()
+                                .map(TourApiItem::toDto)
+                                .toList();
+
+                        result.addAll(dtos);
+                        page++;
+                    }
+
+                } catch (Exception e) {
+                    log.error("TourAPI : 데이터 수신 실패 (지역코드: {}, 페이지: {}): {}", areaCode, page, e.getMessage());
+                    hasMore = false;
+                }
             }
         }
 
+        log.info("TourAPI : 전국 숙소 데이터 조회 완료. 총 수신 건수: {}개", result.size());
         return result;
     }
 }

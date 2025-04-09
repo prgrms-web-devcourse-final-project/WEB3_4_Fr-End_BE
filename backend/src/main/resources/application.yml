@@ -22,6 +22,16 @@ spring:
         highlight_sql: true
         use_sql_comments: true
 
+  ai:
+    openai:
+      base-url: https://api.groq.com/openai
+      api-key: NEED_TO_INPUT_ON_SECRET
+      chat:
+        options:
+          model: llama3-70b-8192
+
+    open-in-view: false
+
 tourapi:
   base-url: http://apis.data.go.kr/B551011/KorService1
   service-key: I4TjfUPviE7BtpQwJy2ND47A3%2BIFWw7lNPnaoEzq39BM0U1AFmkz%2BqID4tNqdRa6OlLTfxEX3Gubng09dF%2Ba3w%3D%3D

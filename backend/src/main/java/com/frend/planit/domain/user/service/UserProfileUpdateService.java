@@ -22,7 +22,7 @@ public class UserProfileUpdateService {
     private final UserRepository userRepository;
 
     public void updateNickname(Long userId, UserUpdateNicknameRequest request) {
-        if (userRepository.existsByNickname(request.getNickname())) {
+        if (userRepository.existsByNicknameAndIdNot(request.getNickname(), userId)) {
             throw new ServiceException(ErrorType.REQUEST_NOT_VALID);
         }
         getUser(userId).updateNickname(request.getNickname());

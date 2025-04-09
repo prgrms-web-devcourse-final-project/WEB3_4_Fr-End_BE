@@ -3,7 +3,6 @@ package com.frend.planit.domain.mateboard.comment.controller;
 import com.frend.planit.domain.mateboard.comment.dto.request.MateCommentRequestDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.service.MateCommentService;
-import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +49,8 @@ public class MateCommentController {
     public Long createComment(
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
             @PathVariable Long mateId,
-            @AuthenticationPrincipal User loginUser) {// TODO: 로그인 기능 연동 필요
-        return mateCommentService.createComment(loginUser.getId(), mateId, mateCommentRequestDto);
+            @AuthenticationPrincipal Long userId) {
+        return mateCommentService.createComment(userId, mateId, mateCommentRequestDto);
     }
 
     /**
@@ -92,20 +91,21 @@ public class MateCommentController {
     @ResponseStatus(HttpStatus.OK)
     public MateCommentResponseDto updateComment(@PathVariable Long id,
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
-            @AuthenticationPrincipal User loginUser) {
-        return mateCommentService.updateComment(id, mateCommentRequestDto, loginUser.getId());
+            @AuthenticationPrincipal Long userId) {
+        return mateCommentService.updateComment(id, mateCommentRequestDto, userId);
     }
 
     /**
      * 특정 댓글을 삭제합니다.
      *
-     * @param id 삭제할 댓글 ID
-     * @return 삭제된 댓글 ID
+     * @param id
+     * @param userId
+     * @return
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public MateCommentResponseDto deleteComment(@PathVariable Long id,
-            @AuthenticationPrincipal User loginUser) {
-        return mateCommentService.deleteComment(id, loginUser.getId());
+            @AuthenticationPrincipal Long userId) {
+        return mateCommentService.deleteComment(id, userId);
     }
 }

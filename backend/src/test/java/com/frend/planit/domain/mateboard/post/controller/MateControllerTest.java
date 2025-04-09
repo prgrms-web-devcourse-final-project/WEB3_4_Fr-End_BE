@@ -210,6 +210,4 @@ public class MateControllerTest {
         mockMvc.perform(delete("/api/v1/mate-board/posts/{id}", postId))
                 .andExpect(status().isNoContent());
     }
-
-
 }

@@ -8,6 +8,7 @@ import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.mapper.UserMapper;
 import com.frend.planit.domain.user.repository.UserRepository;
@@ -18,9 +19,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -115,5 +119,41 @@ public class AuthService {
         refreshTokenRedisService.delete(userId);
     }
 
+    public String generateRedirectUri(SocialType socialType) {
+        OAuthClient client = oauthClientFactory.getClient(socialType);
 
+        String clientId = client.getClientId();
+        String redirectUri = client.getRedirectUri();
+
+        String scope = "openid email profile";
+        String responseType = "code";
+        String accessType = "offline";
+        String prompt = "consent";
+
+        if (socialType == SocialType.KAKAO) {
+            scope = "profile_nickname profile_image";
+        } else if (socialType == SocialType.NAVER) {
+            scope = "name";
+        }
+
+        return UriComponentsBuilder
+                .fromUriString(getOauthBaseUrl(socialType))
+                .queryParam("client_id", clientId)
+                .queryParam("redirect_uri", redirectUri)
+                .queryParam("response_type", responseType)
+                .queryParam("scope", scope)
+                .queryParam("access_type", accessType)
+                .queryParam("prompt", prompt)
+                .build()
+                .toUriString();
+    }
+
+    // 프론트에 baseurl 넘기기 위한 메서드
+    private String getOauthBaseUrl(SocialType type) {
+        return switch (type) {
+            case GOOGLE -> "https://accounts.google.com/o/oauth2/v2/auth";
+            case KAKAO -> "https://kauth.kakao.com/oauth/authorize";
+            case NAVER -> "https://nid.naver.com/oauth2.0/authorize";
+        };
+    }
 }

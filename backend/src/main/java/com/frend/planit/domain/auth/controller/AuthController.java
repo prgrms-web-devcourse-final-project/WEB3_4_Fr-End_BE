@@ -2,18 +2,22 @@ package com.frend.planit.domain.auth.controller;
 
 import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.auth.dto.request.TokenRefreshRequest;
+import com.frend.planit.domain.auth.dto.response.RedirectUrlResponse;
 import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.auth.service.AuthService;
+import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -43,7 +47,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    //토큰 제거하면서 로그아웃
+    // 토큰 제거하면서 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
@@ -55,4 +59,14 @@ public class AuthController {
         authService.logout(accessToken);
         return ResponseEntity.noContent().build();
     }
+
+    // redirect-url 프론트로 직접 넘기기
+    @GetMapping("/redirect-url")
+    public ResponseEntity<RedirectUrlResponse> getRedirectUri(
+            @RequestParam("socialType") SocialType socialType
+    ) {
+        String redirectUrl = authService.generateRedirectUri(socialType);
+        return ResponseEntity.ok(new RedirectUrlResponse(redirectUrl));
+    }
+
 }

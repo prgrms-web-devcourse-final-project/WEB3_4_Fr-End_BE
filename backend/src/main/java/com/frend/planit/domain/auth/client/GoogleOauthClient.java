@@ -3,6 +3,7 @@ package com.frend.planit.domain.auth.client;
 import com.frend.planit.domain.auth.dto.response.OAuthTokenResponse;
 import com.frend.planit.domain.auth.dto.response.OAuthUserInfoResponse;
 import com.frend.planit.domain.user.enums.SocialType;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
+@Getter
 @Component
 @RequiredArgsConstructor
 public class GoogleOauthClient implements OAuthClient {

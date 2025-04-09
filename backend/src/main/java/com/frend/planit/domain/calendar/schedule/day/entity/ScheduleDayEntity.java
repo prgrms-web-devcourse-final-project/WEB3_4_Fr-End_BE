@@ -67,9 +67,4 @@ public class ScheduleDayEntity extends BaseTime {
     public void setSchedule(ScheduleEntity schedule) {
         this.schedule = schedule;
     }
-
-    // Test Code에서 사용하기 위한 setter
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

@@ -81,10 +81,7 @@ public enum ErrorType {
 
     // Invite
     INVITE_NOT_FOUND(HttpStatus.NOT_FOUND, "초대 정보를 찾을 수 없습니다."),
-    INVITE_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 초대 코드입니다."),
-
-    // Travel
-    TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행선지가 존재하지 않습니다.");
+    INVITE_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 초대 코드입니다.");
 
     private final int code;
     private final String message;

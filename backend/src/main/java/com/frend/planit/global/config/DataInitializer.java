@@ -13,14 +13,13 @@ import com.frend.planit.domain.user.enums.Gender;
 import com.frend.planit.domain.user.enums.LoginType;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.repository.UserRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Component
 @Profile({"dev", "local"})
@@ -81,8 +80,7 @@ public class DataInitializer implements ApplicationRunner {
         if (mateCommentRepository.count() == 0) {
             MateComment mateComment = new MateComment();
             mateComment.setMate(mateRepository.findById(1L).orElse(null));
-            mateComment.setUserId(1L);
-            mateComment.setNickname("테스트유저1");
+            mateComment.setUser(userRepository.findById(1L).orElse(null));
             mateComment.setContent("테스트 댓글 내용1");
         }
     }

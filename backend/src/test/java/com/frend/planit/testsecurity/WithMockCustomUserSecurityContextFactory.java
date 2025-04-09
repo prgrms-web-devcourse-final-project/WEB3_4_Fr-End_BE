@@ -1,7 +1,6 @@
 package com.frend.planit.testsecurity;
 
 
-import com.frend.planit.domain.user.entity.User;
 import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -15,10 +14,10 @@ public class WithMockCustomUserSecurityContextFactory implements
     public SecurityContext createSecurityContext(WithMockCustomUser annotation) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
 
-        User user = UserTestFactory.createMockUser(annotation.id(), annotation.username());
+        Long userId = annotation.id();
 
         UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(user, "password", List.of());
+                new UsernamePasswordAuthenticationToken(userId, null, List.of());
 
         context.setAuthentication(auth);
         return context;

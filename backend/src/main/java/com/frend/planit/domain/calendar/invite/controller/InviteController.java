@@ -8,21 +8,27 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
+import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
+
 @RestController
 @RequestMapping("/api/v1/invites")
 @RequiredArgsConstructor
 public class InviteController {
 
+    private static <T> T orThrow(Optional<T> optional, ErrorType errorType) {
+        return optional.orElseThrow(() -> errorType.serviceException());
+    }
+
     private final InviteService inviteService;
     private final UserRepository userRepository;
 
-    //초대 링크 클릭 → 공유 등록 (userId를 명시적으로 받음)
+    // 초대 링크 ( 링크 클릭 시, 캘린더 공유)
     @PostMapping("/accept/{inviteCode}")
     public ResponseEntity<Void> acceptInvite(@PathVariable String inviteCode,
                                              @RequestParam Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ErrorType.USER_NOT_FOUND.serviceException());
-
+        User user = orThrow(userRepository.findById(userId), USER_NOT_FOUND);
         inviteService.shareCalendarByInvite(inviteCode, user);
         return ResponseEntity.ok().build();
     }
@@ -31,10 +37,10 @@ public class InviteController {
     @PostMapping("/{calendarId}")
     public ResponseEntity<String> createInvitation(@PathVariable Long calendarId) {
         String inviteCode = inviteService.create(calendarId);
-        return ResponseEntity.status(201).body(inviteCode);
+        return ResponseEntity.status(201).body(inviteCode); // 201 Created
     }
 
-    // 초대 무효화
+   // 초대 링크 무효화
     @PostMapping("/invalidate/{inviteCode}")
     public ResponseEntity<Void> invalidateInvitation(@PathVariable String inviteCode) {
         inviteService.invalidate(inviteCode);

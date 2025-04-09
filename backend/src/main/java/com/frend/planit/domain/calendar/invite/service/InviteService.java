@@ -27,16 +27,16 @@ public class InviteService {
     private final CalendarRepository calendarRepository;
     private final SharedCalendarService sharedCalendarService;
 
+    // 초대 코드 생성
     @Transactional
     public String create(Long calendarId) {
         CalendarEntity calendar = orThrow(calendarRepository.findById(calendarId), CALENDAR_NOT_FOUND);
-
         InviteEntity invite = InviteEntity.create(calendar);
         inviteRepository.save(invite);
-
         return invite.getInviteCode();
     }
 
+    // 생성된 초대 코드 무효화
     @Transactional
     public void invalidate(String inviteCode) {
         InviteEntity invite = orThrow(inviteRepository.findByInviteCode(inviteCode), INVITE_NOT_FOUND);
@@ -44,6 +44,7 @@ public class InviteService {
         inviteRepository.save(invite);
     }
 
+    // 초대 링크(코드)를 통해 캘린더 공유처리
     @Transactional
     public void shareCalendarByInvite(String inviteCode, User receiver) {
         InviteEntity invite = orThrow(inviteRepository.findByInviteCode(inviteCode), INVITE_NOT_FOUND);

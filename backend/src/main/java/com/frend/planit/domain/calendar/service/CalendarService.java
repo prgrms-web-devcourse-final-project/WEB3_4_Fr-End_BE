@@ -21,7 +21,6 @@ import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
 @RequiredArgsConstructor
 public class CalendarService {
 
-    // Null이면 지정된 예외 표시
     private static <T> T orThrow(Optional<T> optional, ErrorType errorType) {
         return optional.orElseThrow(() -> errorType.serviceException());
     }
@@ -29,7 +28,7 @@ public class CalendarService {
     private final CalendarRepository calendarRepository;
     private final CalendarPermissionValidator calendarPermissionValidator;
 
-    // 캘린더 생성, 201응답
+    //캘린더 생성
     @Transactional
     public CalendarResponseDto createCalendar(CalendarRequestDto requestDto, User user) {
         CalendarEntity calendar = CalendarEntity.fromDto(requestDto, user);
@@ -37,18 +36,17 @@ public class CalendarService {
         return new CalendarResponseDto(saved);
     }
 
-    // 특정 캘린더 조회
+    // 캘린더 단건 조회
     @Transactional(readOnly = true)
     public CalendarResponseDto getCalendar(Long id) {
         CalendarEntity calendar = orThrow(calendarRepository.findById(id), CALENDAR_NOT_FOUND);
         return new CalendarResponseDto(calendar);
     }
 
-    // 본인 캘린더 목록 조회 (페이징)
+    // 전체 캘린더 조회
     @Transactional(readOnly = true)
     public Page<CalendarResponseDto> getCalendars(Pageable pageable) {
-        return calendarRepository.findAll(pageable)
-                .map(CalendarResponseDto::new);
+        return calendarRepository.findAll(pageable).map(CalendarResponseDto::new);
     }
 
     // 캘린더 수정 (생성자, 공유자 가능)
@@ -58,6 +56,7 @@ public class CalendarService {
         if (!calendarPermissionValidator.hasModifyAccess(calendar, user)) {
             throw NOT_AUTHORIZED.serviceException();
         }
+
         calendar.updateCalendar(requestDto);
         return new CalendarResponseDto(calendar);
     }
@@ -69,6 +68,7 @@ public class CalendarService {
         if (!calendarPermissionValidator.isOwner(calendar, user)) {
             throw NOT_AUTHORIZED.serviceException();
         }
+
         calendarRepository.delete(calendar);
     }
 }

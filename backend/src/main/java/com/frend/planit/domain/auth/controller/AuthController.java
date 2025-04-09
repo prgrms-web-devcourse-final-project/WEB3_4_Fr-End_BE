@@ -1,11 +1,15 @@
 package com.frend.planit.domain.auth.controller;
 
+import com.frend.planit.domain.auth.dto.request.LocalLoginRequest;
+import com.frend.planit.domain.auth.dto.request.LocalRegisterRequest;
 import com.frend.planit.domain.auth.dto.request.SocialLoginRequest;
 import com.frend.planit.domain.auth.dto.request.TokenRefreshRequest;
+import com.frend.planit.domain.auth.dto.response.AuthResponse;
+import com.frend.planit.domain.auth.dto.response.LocalRegisterResponse;
 import com.frend.planit.domain.auth.dto.response.RedirectUrlResponse;
-import com.frend.planit.domain.auth.dto.response.SocialLoginResponse;
 import com.frend.planit.domain.auth.dto.response.TokenRefreshResponse;
 import com.frend.planit.domain.auth.service.AuthService;
+import com.frend.planit.domain.auth.service.LocalRegisterService;
 import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
@@ -26,19 +30,45 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final LocalRegisterService localRegisterService;
 
     /**
-     * 소셜 로그인 (Google, Kakao, Naver)
+     * 소셜 로그인
      */
     @PostMapping("/social-login")
-    public ResponseEntity<SocialLoginResponse> socialLogin(
+    public ResponseEntity<AuthResponse> socialLogin(
             @RequestBody @Valid SocialLoginRequest request
     ) {
-        SocialLoginResponse response = authService.authentiate(request);
+        AuthResponse response = authService.authentiate(request);
         return ResponseEntity.ok(response);
     }
 
-    // Access Token 재발급 API, 클라이언트로부터 전달받은 Refresh Token이 유효할 경우, 새로운 Access Token을 발급
+    /**
+     * 로컬 로그인
+     */
+    @PostMapping("/local-login")
+    public ResponseEntity<AuthResponse> localLogin(
+            @RequestBody @Valid LocalLoginRequest request
+    ) {
+        AuthResponse response = authService.localLogin(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 로컬 회원가입
+     */
+    @PostMapping("/local-register")
+    public ResponseEntity<LocalRegisterResponse> register(
+            @RequestBody @Valid LocalRegisterRequest request
+    ) {
+        LocalRegisterResponse response = localRegisterService.register(request);
+        return ResponseEntity.ok(response);
+    }
+
+
+    /**
+     * 액세스 토큰 재발급
+     */
     @PostMapping("/token/refresh")
     public ResponseEntity<TokenRefreshResponse> refreshAccessToken(
             @RequestBody @Valid TokenRefreshRequest request
@@ -47,7 +77,9 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // 토큰 제거하면서 로그아웃
+    /**
+     * 로그아웃
+     */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
@@ -60,7 +92,9 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-    // redirect-url 프론트로 직접 넘기기
+    /**
+     * 소셜 로그인 리디렉션 URL 생성
+     */
     @GetMapping("/redirect-url")
     public ResponseEntity<RedirectUrlResponse> getRedirectUri(
             @RequestParam("socialType") SocialType socialType
@@ -68,5 +102,4 @@ public class AuthController {
         String redirectUrl = authService.generateRedirectUri(socialType);
         return ResponseEntity.ok(new RedirectUrlResponse(redirectUrl));
     }
-
 }

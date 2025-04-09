@@ -37,6 +37,12 @@ public class User extends BaseTime {
     @Column(name = "social_id", nullable = false, length = 255)
     private String socialId;
 
+    @Column(unique = true)
+    private String loginId;
+
+    @Column(length = 50)
+    private String password;
+
     @Column(length = 50)
     private String email;
 

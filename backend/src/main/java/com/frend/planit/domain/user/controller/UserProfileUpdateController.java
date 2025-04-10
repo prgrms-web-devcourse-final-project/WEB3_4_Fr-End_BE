@@ -4,6 +4,7 @@ import com.frend.planit.domain.user.dto.request.UserUpdateBioRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateEmailRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateMailingTypeRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateNicknameRequest;
+import com.frend.planit.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdatePhoneRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateProfileImageRequest;
 import com.frend.planit.domain.user.service.UserProfileUpdateService;
@@ -80,6 +81,16 @@ public class UserProfileUpdateController {
             @RequestBody @Valid UserUpdateEmailRequest request
     ) {
         userProfileUpdateService.updateEmail(userId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 비밀번호 변경
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updatePassword(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid UserUpdatePasswordRequest request
+    ) {
+        userProfileUpdateService.updatePassword(userId, request);
         return ResponseEntity.noContent().build();
     }
 }

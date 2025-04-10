@@ -3,6 +3,7 @@ package com.frend.planit.domain.mateboard.application.entity;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.base.BaseTime;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +40,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "mate_application")
+@AttributeOverride(name = "id", column = @Column(name = "mate_application_id"))
 public class MateApplication extends BaseTime {
 
     // 지원자
@@ -47,7 +51,7 @@ public class MateApplication extends BaseTime {
 
     // 지원한 게시글
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mate_id", nullable = false)
+    @JoinColumn(name = "mate_post_id", nullable = false)
     private Mate mate;
 
     // 신청 상태 (대기 / 수락 / 거절)

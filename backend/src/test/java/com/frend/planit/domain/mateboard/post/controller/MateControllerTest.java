@@ -43,31 +43,32 @@ public class MateControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
+    
     @DisplayName("게시글 생성 API 테스트")
     @Test
     @WithMockCustomUser(id = 1L, username = "mockuser")
     void createMate_success() throws Exception {
-        // given
+        System.out.println("===== 테스트 실행됨 =====");
+
         MateRequestDto requestDto = MateRequestDto.builder()
                 .title("테스트 제목입니다")
                 .content("테스트 내용입니다. 20자 이상 입력해야 해서 울릉도 동남쪽 뱃길따라 이백리 외로운 섬하나 새들의 고향.")
                 .recruitCount(3)
                 .travelRegion(TravelRegion.ALL)
-                .travelStartDate(LocalDate.of(2025, 05, 01))
-                .travelEndDate(LocalDate.of(2025, 05, 30))
+                .travelStartDate(LocalDate.of(2025, 5, 1))
+                .travelEndDate(LocalDate.of(2025, 5, 30))
                 .mateGender(MateGender.NO_PREFERENCE)
                 .build();
 
         String json = objectMapper.writeValueAsString(requestDto);
 
-        // when & then
         mockMvc.perform(post("/api/v1/mate-board/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$").isNumber()); // 생성된 게시글 ID나 내용
+                .andExpect(jsonPath("$").isNumber());
     }
+
 
     @Test
     @DisplayName("메이트 게시글 단건 조회 성공")
@@ -210,6 +211,4 @@ public class MateControllerTest {
         mockMvc.perform(delete("/api/v1/mate-board/posts/{id}", postId))
                 .andExpect(status().isNoContent());
     }
-
-
 }

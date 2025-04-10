@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frend.planit.global.GlobalTestController;
 import com.frend.planit.global.GlobalTestController.GlobalTestRequest;
 import com.frend.planit.global.response.ErrorType;
+import com.frend.planit.global.security.JwtTokenProvider;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,12 +26,22 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @ActiveProfiles("test")
 @WebMvcTest(GlobalTestController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ExceptionHandlerTest {
+
+    @MockitoBean
+    JwtTokenProvider jwtTokenProvider;
+
+    @MockitoBean(name = "jpaAuditingHandler")
+    Object jpaAuditingHandler;
+
+    @MockitoBean(name = "jpaMappingContext")
+    Object jpaMappingContext;
 
     @Autowired
     MockMvc mockMvc;

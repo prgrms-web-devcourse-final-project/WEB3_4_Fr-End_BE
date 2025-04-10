@@ -34,13 +34,13 @@ import lombok.NoArgsConstructor;
 )
 public class User extends BaseTime {
 
-    @Column(name = "social_id", nullable = false, length = 255)
+    @Column(name = "social_id", length = 255)
     private String socialId;
 
     @Column(unique = true)
     private String loginId;
 
-    @Column(length = 50)
+    @Column(length = 255)
     private String password;
 
     @Column(length = 50)
@@ -126,6 +126,10 @@ public class User extends BaseTime {
             @NotBlank(message = "이메일은 필수입니다.") @Email(message = "이메일 형식이 올바르지 않습니다.") String email) {
         this.email = email;
 
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
     }
 
     public void updateLastLoginAt(LocalDateTime now) {

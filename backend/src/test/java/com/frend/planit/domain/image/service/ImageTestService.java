@@ -38,7 +38,7 @@ public class ImageTestService {
                 .orElseThrow(() -> new ServiceException(ErrorType.COMMON_SERVER_ERROR));
 
         return new ImageTestResponse(testEntity.name, testEntity.age, testEntity.email,
-                imageService.getAllImages(HolderType.TEST, testEntity.id));
+                imageService.getImages(HolderType.TEST, testEntity.id));
     }
 
     @Transactional
@@ -51,7 +51,7 @@ public class ImageTestService {
         imageService.updateImages(HolderType.TEST, id, testRequest.imageIds());
 
         return new ImageTestResponse(testEntity.name, testEntity.age, testEntity.email,
-                imageService.getAllImages(HolderType.TEST, id));
+                imageService.getImages(HolderType.TEST, id));
     }
 
     @Transactional

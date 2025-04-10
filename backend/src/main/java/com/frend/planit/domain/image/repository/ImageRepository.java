@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Image i SET i.holderType = :holderType, i.holderId = :holderId WHERE i.id = :imageId")
     int updateHolderForImage(
             @Param("holderType") HolderType holderType,
@@ -21,7 +21,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
             @Param("imageId") long imageId
     );
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Image i SET i.holderType = :holderType, i.holderId = :holderId WHERE i.id IN :imageIds")
     int updateHolderForImages(
             @Param("holderType") HolderType holderType,

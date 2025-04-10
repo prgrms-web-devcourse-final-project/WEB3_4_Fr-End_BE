@@ -4,7 +4,7 @@ import static com.frend.planit.global.response.ErrorType.MATE_POST_NOT_FOUND;
 import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
 import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
 
-import com.frend.planit.domain.image.dto.response.ImageResponse;
+import com.frend.planit.domain.image.dto.response.ImagesResponse;
 import com.frend.planit.domain.image.service.ImageService;
 import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
@@ -89,11 +89,11 @@ public class MateService {
         Mate mate = findMateOrThrow(id);
 
         // 게시글 이미지 조회
-        ImageResponse imageResponse = imageService.getFirstImage(HolderType.MATEBOARD,
+        ImagesResponse imagesResponse = imageService.getImages(HolderType.MATEBOARD,
                 mate.getId());
-        String imageUrl = (imageResponse != null && imageResponse.imageUrls() != null
-                && !imageResponse.imageUrls().isEmpty())
-                ? imageResponse.imageUrls().get(0)
+        String imageUrl = (imagesResponse != null && imagesResponse.imageUrls() != null
+                && !imagesResponse.imageUrls().isEmpty())
+                ? imagesResponse.imageUrls().get(0)
                 : null;
 
         // DTO 변환 시 이미지 URL 포함
@@ -154,12 +154,12 @@ public class MateService {
                     mateRequestDto.getImageId());
         }
 
-        ImageResponse imageResponse = imageService.getFirstImage(HolderType.MATEBOARD,
+        ImagesResponse imagesResponse = imageService.getImages(HolderType.MATEBOARD,
                 updateMate.getId());
 
-        String imageUrl = (imageResponse != null && imageResponse.imageUrls() != null
-                && !imageResponse.imageUrls().isEmpty())
-                ? imageResponse.imageUrls().get(0)
+        String imageUrl = (imagesResponse != null && imagesResponse.imageUrls() != null
+                && !imagesResponse.imageUrls().isEmpty())
+                ? imagesResponse.imageUrls().get(0)
                 : null;
 
         // 6. 수정한 게시글 id 전달
@@ -182,11 +182,11 @@ public class MateService {
             throw new ServiceException(NOT_AUTHORIZED);
         }
 
-        ImageResponse imageResponse = imageService.getFirstImage(HolderType.MATEBOARD,
+        ImagesResponse imagesResponse = imageService.getImages(HolderType.MATEBOARD,
                 deleteMate.getId());
-        String imageUrl = (imageResponse != null && imageResponse.imageUrls() != null
-                && !imageResponse.imageUrls().isEmpty())
-                ? imageResponse.imageUrls().get(0)
+        String imageUrl = (imagesResponse != null && imagesResponse.imageUrls() != null
+                && !imagesResponse.imageUrls().isEmpty())
+                ? imagesResponse.imageUrls().get(0)
                 : null;
 
         // 3. 게시글 삭제

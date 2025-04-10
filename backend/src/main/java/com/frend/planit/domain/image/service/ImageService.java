@@ -38,6 +38,7 @@ public class ImageService {
      * 3. 클라이언트는 POST URL을 통해 S3에 이미지를 업로드
      * 4. 업로드가 완료되면 클라이언트는 GET URL로 이미지에 접근
      */
+    @Transactional
     public UploadResponse uploadImage(String contentType) {
         // 이미지 타입 추출
         String imageMimeType = getImageMimeType(contentType);
@@ -76,11 +77,13 @@ public class ImageService {
     /*
      * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
      */
+    @Transactional(readOnly = true)
     public ImageResponse getFirstImage(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
+    @Transactional(readOnly = true)
     public ImageResponse getAllImages(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
@@ -91,11 +94,13 @@ public class ImageService {
      * 1. 변경 전 이미지의 Holder를 초기화
      * 2. 변경 후 이미지의 Holder를 설정
      */
+    @Transactional
     public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
         deleteImage(holderType, holderId);
         saveImage(holderType, holderId, newImageId);
     }
 
+    @Transactional
     public void updateImages(
             @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
         deleteImages(holderType, holderId);
@@ -177,18 +182,5 @@ public class ImageService {
         image.setUrl(imageDomain + fileName);
         image.setFileName(fileName);
         return imageRepository.save(image);
-    }
-
-    private Image findImageById(long imageId) {
-        return imageRepository.findById(imageId)
-                .orElseThrow(() -> new ServiceException(ErrorType.IMAGE_NOT_FOUND));
-    }
-
-    private List<Image> findAllImagesByIds(List<Long> imageIds) {
-        List<Image> images = imageRepository.findAllById(imageIds);
-        if (images.size() != imageIds.size()) {
-            throw new ServiceException(ErrorType.IMAGE_NOT_FOUND);
-        }
-        return images;
     }
 }

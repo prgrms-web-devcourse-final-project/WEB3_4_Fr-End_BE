@@ -27,7 +27,6 @@ public class AIChatRoomController {
     @ResponseStatus(HttpStatus.CREATED)
     public AIChatRoomResponse createChatRoom(@AuthenticationPrincipal Long userId) {
         return aiChatRoomService.createChatRoom(userId);
-
     }
 
 }

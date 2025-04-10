@@ -34,13 +34,13 @@ import lombok.NoArgsConstructor;
 )
 public class User extends BaseTime {
 
-    @Column(name = "social_id", nullable = false, length = 255)
+    @Column(name = "social_id", length = 255)
     private String socialId;
 
     @Column(unique = true)
     private String loginId;
 
-    @Column(length = 50)
+    @Column(length = 255)
     private String password;
 
     @Column(length = 50)

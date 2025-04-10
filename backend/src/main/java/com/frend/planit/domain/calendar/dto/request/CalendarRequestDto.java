@@ -12,5 +12,7 @@ public record CalendarRequestDto(
         @NotNull @FutureOrPresent LocalDateTime startDate,
         @NotNull @FutureOrPresent LocalDateTime endDate,
         LocalDateTime alertTime,
+        String labelColor,
         @Size(max = 200) String note
+
 ) {}

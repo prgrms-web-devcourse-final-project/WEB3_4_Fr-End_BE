@@ -13,6 +13,7 @@ public class CalendarResponseDto {
     private final LocalDateTime endDate;
     private final LocalDateTime alertTime;
     private final String note;
+    private final String labelColor;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
@@ -23,6 +24,7 @@ public class CalendarResponseDto {
         this.endDate = entity.getEndDate();
         this.alertTime = entity.getAlertTime();
         this.note = entity.getNote();
+        this.labelColor = entity.getLabelColor();
         this.createdAt = entity.getCreatedAt();
         this.modifiedAt = entity.getModifiedAt();
     }

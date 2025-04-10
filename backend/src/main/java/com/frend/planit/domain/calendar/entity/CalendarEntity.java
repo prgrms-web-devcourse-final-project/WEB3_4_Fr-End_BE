@@ -43,6 +43,10 @@ public class CalendarEntity extends BaseTime {
     @Column(name = "note", length = 200)
     private String note;
 
+    //캘린더에서 날짜선택 후 스케쥴만들때 띠 색상
+    @Column(name = "label_color", length = 7, nullable = false)
+    private String labelColor;
+
     // 스케쥴엔티티와 연관관계
     @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScheduleEntity> schedules = new ArrayList<>();

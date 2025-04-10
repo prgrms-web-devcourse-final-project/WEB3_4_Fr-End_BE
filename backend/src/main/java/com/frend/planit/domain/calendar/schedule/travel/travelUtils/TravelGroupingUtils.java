@@ -25,8 +25,7 @@ public class TravelGroupingUtils {
 
         // 그룹핑된 날짜별 여행 리스트로 DailyTravelResponse 변환
         return travelsByDate.entrySet().stream()
-                .sorted(Map.Entry.<LocalDate, List<TravelEntity>>comparingByKey()
-                        .reversed()) // 내림차순 정렬
+                .sorted(Map.Entry.<LocalDate, List<TravelEntity>>comparingByKey()) // 오름차순 정렬
                 .map(entry -> {
                     LocalDate date = entry.getKey();
                     List<TravelEntity> travelList = entry.getValue();

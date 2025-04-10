@@ -1,6 +1,7 @@
 package com.frend.planit.domain.calendar.entity;
 
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
+import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.base.BaseTime;
 import com.frend.planit.global.response.ErrorType;
@@ -8,6 +9,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "calendar")
@@ -40,6 +43,15 @@ public class CalendarEntity extends BaseTime {
     @Column(name = "note", length = 200)
     private String note;
 
+    // 캘린더에서 날짜 선택 후 스케줄 만들 때 띠 색상
+    @Column(name = "label_color", length = 7, nullable = false)
+    @Builder.Default
+    private String labelColor = "#3b82f6";
+
+    // 스케줄 엔티티와 연관 관계
+    @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduleEntity> schedules = new ArrayList<>();
+
     public static CalendarEntity fromDto(CalendarRequestDto requestDto, User user) {
         validateDates(requestDto.startDate(), requestDto.endDate(), requestDto.alertTime());
         return CalendarEntity.builder()
@@ -49,6 +61,9 @@ public class CalendarEntity extends BaseTime {
                 .endDate(requestDto.endDate())
                 .alertTime(requestDto.alertTime())
                 .note(requestDto.note())
+                .labelColor(
+                        requestDto.labelColor() != null ? requestDto.labelColor() : "#3b82f6"
+                ) // 기본 색상 프론트랑 맞춤 특별히
                 .build();
     }
 
@@ -59,6 +74,9 @@ public class CalendarEntity extends BaseTime {
         this.endDate = requestDto.endDate();
         this.alertTime = requestDto.alertTime();
         this.note = requestDto.note();
+        if (requestDto.labelColor() != null) {
+            this.labelColor = requestDto.labelColor();
+        }
     }
 
     private static void validateDates(LocalDateTime startDate, LocalDateTime endDate, LocalDateTime alertTime) {

@@ -1,6 +1,7 @@
 package com.frend.planit.domain.calendar.entity;
 
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
+import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.base.BaseTime;
 import com.frend.planit.global.response.ErrorType;
@@ -8,6 +9,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "calendar")
@@ -39,6 +42,10 @@ public class CalendarEntity extends BaseTime {
 
     @Column(name = "note", length = 200)
     private String note;
+
+    // 스케쥴엔티티와 연관관계
+    @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduleEntity> schedules = new ArrayList<>();
 
     public static CalendarEntity fromDto(CalendarRequestDto requestDto, User user) {
         validateDates(requestDto.startDate(), requestDto.endDate(), requestDto.alertTime());

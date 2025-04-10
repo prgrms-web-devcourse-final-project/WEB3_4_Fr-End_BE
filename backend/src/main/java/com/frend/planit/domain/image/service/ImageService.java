@@ -40,7 +40,7 @@ public class ImageService {
      */
     @Transactional
     public UploadResponse uploadImage(String contentType) {
-        // 이미지 타입 추출
+        // 이미지 타입 검증 및 추출
         String imageMimeType = getImageMimeType(contentType);
 
         // 이미지 GET URL 임시 생성
@@ -59,19 +59,21 @@ public class ImageService {
      * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
-    public void saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
+    public long saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
         int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
         if (updatedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
         }
+        return updatedCount;
     }
 
     @Transactional
-    public void saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
+    public long saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
         int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
         if (updatedCount != imageIds.size()) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
         }
+        return updatedCount;
     }
 
     /*
@@ -95,16 +97,16 @@ public class ImageService {
      * 2. 변경 후 이미지의 Holder를 설정
      */
     @Transactional
-    public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
+    public long updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
         deleteImage(holderType, holderId);
-        saveImage(holderType, holderId, newImageId);
+        return saveImage(holderType, holderId, newImageId);
     }
 
     @Transactional
-    public void updateImages(
+    public long updateImages(
             @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
         deleteImages(holderType, holderId);
-        saveImages(holderType, holderId, newImageIds);
+        return saveImages(holderType, holderId, newImageIds);
     }
 
     /*

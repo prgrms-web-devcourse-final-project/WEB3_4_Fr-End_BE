@@ -38,14 +38,13 @@ public class ImageService {
      * 3. 클라이언트는 POST URL을 통해 S3에 이미지를 업로드
      * 4. 업로드가 완료되면 클라이언트는 GET URL로 이미지에 접근
      */
+    @Transactional
     public UploadResponse uploadImage(String contentType) {
-        // 이미지 확장자 검증
-        if (!ImageMimeType.isSupported(contentType)) {
-            throw new ServiceException(ErrorType.MIME_NOT_SUPPORTED);
-        }
+        // 이미지 타입 검증 및 추출
+        String imageMimeType = getImageMimeType(contentType);
 
         // 이미지 GET URL 임시 생성
-        String fileName = RandomUtil.generateUid() + '.' + contentType.split("/")[1];
+        String fileName = RandomUtil.generateUid() + '.' + imageMimeType.split("/")[1];
         Image image = createImage(fileName);
 
         // Presigned POST URL 생성
@@ -60,29 +59,33 @@ public class ImageService {
      * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
-    public void saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
+    public long saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
         int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
         if (updatedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
         }
+        return updatedCount;
     }
 
     @Transactional
-    public void saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
+    public long saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
         int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
         if (updatedCount != imageIds.size()) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
         }
+        return updatedCount;
     }
 
     /*
      * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
      */
+    @Transactional(readOnly = true)
     public ImageResponse getFirstImage(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
+    @Transactional(readOnly = true)
     public ImageResponse getAllImages(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
@@ -93,15 +96,17 @@ public class ImageService {
      * 1. 변경 전 이미지의 Holder를 초기화
      * 2. 변경 후 이미지의 Holder를 설정
      */
-    public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
+    @Transactional
+    public long updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
         deleteImage(holderType, holderId);
-        saveImage(holderType, holderId, newImageId);
+        return saveImage(holderType, holderId, newImageId);
     }
 
-    public void updateImages(
+    @Transactional
+    public long updateImages(
             @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
         deleteImages(holderType, holderId);
-        saveImages(holderType, holderId, newImageIds);
+        return saveImages(holderType, holderId, newImageIds);
     }
 
     /*
@@ -109,47 +114,68 @@ public class ImageService {
      * 삭제는 주기적으로 이루어집니다.
      */
     @Transactional
-    public void deleteImage(@NonNull HolderType holderType, long holderId) {
+    public long deleteImage(@NonNull HolderType holderType, long holderId) {
         Optional<Image> oldImage = imageRepository
                 .findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
-
-        if (oldImage.isPresent()) {
-            int deletedCount = imageRepository.updateHolderForImage(
-                    null, null, oldImage.get().getId());
-            if (deletedCount != 1) {
-                throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
-            }
+        if (oldImage.isEmpty()) {
+            return 0;
         }
+
+        int deletedCount = imageRepository.updateHolderForImage(
+                null, null, oldImage.get().getId());
+        if (deletedCount != 1) {
+            throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
+        }
+        return deletedCount;
     }
 
     @Transactional
-    public void deleteImages(@NonNull HolderType holderType, long holderId) {
+    public long deleteImages(@NonNull HolderType holderType, long holderId) {
         List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
                 holderType, holderId);
+        if (oldImages.isEmpty()) {
+            return 0;
+        }
 
         int deletedCount = imageRepository.updateHolderForImages(
                 null, null, oldImages.stream().map(Image::getId).toList());
         if (deletedCount != oldImages.size()) {
             throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
         }
+        return deletedCount;
     }
 
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
-    public void cleanImages() {
+    public long cleanImages() {
         try {
             List<Image> unusedImages = imageRepository.findAllByHolderTypeIsNullAndHolderIdIsNull();
+            if (unusedImages.isEmpty()) {
+                return 0;
+            }
             List<ObjectIdentifier> imageNames = unusedImages.stream()
                     .map(image -> ObjectIdentifier.builder().key(image.getFileName()).build())
                     .toList();
 
             imageRepository.deleteAllInBatch(unusedImages);
             s3Service.deleteFiles(imageNames);
+            return unusedImages.size();
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
             throw new ServiceException(ErrorType.IMAGE_CLEAN_FAILED, e);
         }
+    }
+
+    private String getImageMimeType(String contentType) {
+        for (String element : contentType.split(";")) {
+            element = element.trim();
+            if (ImageMimeType.isSupported(element)) {
+                return element;
+            }
+        }
+
+        throw new ServiceException(ErrorType.MIME_NOT_SUPPORTED);
     }
 
     @Transactional
@@ -158,18 +184,5 @@ public class ImageService {
         image.setUrl(imageDomain + fileName);
         image.setFileName(fileName);
         return imageRepository.save(image);
-    }
-
-    private Image findImageById(long imageId) {
-        return imageRepository.findById(imageId)
-                .orElseThrow(() -> new ServiceException(ErrorType.IMAGE_NOT_FOUND));
-    }
-
-    private List<Image> findAllImagesByIds(List<Long> imageIds) {
-        List<Image> images = imageRepository.findAllById(imageIds);
-        if (images.size() != imageIds.size()) {
-            throw new ServiceException(ErrorType.IMAGE_NOT_FOUND);
-        }
-        return images;
     }
 }

@@ -1,5 +1,6 @@
 package com.frend.planit.domain.accommodation.service;
 
+import com.frend.planit.domain.accommodation.client.TourApiClient;
 import com.frend.planit.domain.accommodation.dto.request.AccommodationRequestDto;
 import com.frend.planit.domain.accommodation.dto.response.AccommodationResponseDto;
 import com.frend.planit.domain.accommodation.entity.AccommodationEntity;
@@ -8,10 +9,7 @@ import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +21,7 @@ import java.util.List;
 public class AccommodationService {
 
     private final AccommodationRepository repository;
+    private final TourApiClient tourApiClient;
 
     @Transactional(readOnly = true)
     public AccommodationResponseDto findById(Long id) {
@@ -109,8 +108,15 @@ public class AccommodationService {
         repository.save(entity);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isEmpty() {
+        return repository.count() == 0;
+    }
+
     @Transactional
-    public void syncFromTourApi(List<AccommodationRequestDto> dtos) {
+    public void syncFromTourApi() {
+        log.info("TourAPI: 숙소 동기화 시작");
+        List<AccommodationRequestDto> dtos = tourApiClient.fetchAccommodations();
         int savedCount = 0;
 
         for (AccommodationRequestDto dto : dtos) {
@@ -136,6 +142,6 @@ public class AccommodationService {
             }
         }
 
-        log.info("동기화 완료. 총 {}개의 신규 숙소가 저장되었습니다.", savedCount);
+        log.info("TourAPI: 숙소 동기화 완료 - 신규 저장 {}건", savedCount);
     }
 }

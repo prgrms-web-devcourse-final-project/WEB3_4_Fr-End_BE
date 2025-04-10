@@ -1,7 +1,6 @@
 package com.frend.planit.domain.mateboard.application.controller;
 
 import com.frend.planit.domain.mateboard.application.service.MateApplicationService;
-import com.frend.planit.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,24 +31,24 @@ public class MateApplicationController {
      * 메이트 모집 게시글에 신청합니다.
      *
      * @param mateId 신청할 게시글 ID
-     * @param user   현재 로그인한 사용자
+     * @param userId 현재 로그인한 사용자
      */
     @PostMapping("/{mateId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void applyToMate(@PathVariable Long mateId, @AuthenticationPrincipal User user) {
-        mateApplicationService.applyToMate(user.getId(), mateId);
+    public void applyToMate(@PathVariable Long mateId, @AuthenticationPrincipal Long userId) {
+        mateApplicationService.applyToMate(userId, mateId);
     }
 
     /**
      * 메이트 모집 게시글에 대한 신청을 취소합니다.
      *
      * @param mateId 신청을 취소할 게시글 ID
-     * @param user   현재 로그인한 사용자 (신청자 본인)
+     * @param userId 현재 로그인한 사용자 (신청자 본인)
      */
     @DeleteMapping("/{mateId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelApplication(@PathVariable Long mateId, @AuthenticationPrincipal User user) {
-        mateApplicationService.cancelApplication(user.getId(), mateId);
+    public void cancelApplication(@PathVariable Long mateId, @AuthenticationPrincipal Long userId) {
+        mateApplicationService.cancelApplication(userId, mateId);
     }
 
     /**
@@ -57,15 +56,15 @@ public class MateApplicationController {
      *
      * @param mateId      게시글 ID
      * @param applicantId 수락할 신청자 ID
-     * @param user        현재 로그인한 사용자 (게시글 작성자)
+     * @param userId      현재 로그인한 사용자 (게시글 작성자)
      */
     @PutMapping("/{mateId}/accept/{applicantId}")
     @ResponseStatus(HttpStatus.OK)
     public void acceptApplication(
             @PathVariable Long mateId,
             @PathVariable Long applicantId,
-            @AuthenticationPrincipal User user) {
-        mateApplicationService.acceptApplication(mateId, applicantId, user.getId());
+            @AuthenticationPrincipal Long userId) {
+        mateApplicationService.acceptApplication(mateId, applicantId, userId);
     }
 
     /**
@@ -73,14 +72,14 @@ public class MateApplicationController {
      *
      * @param mateId      게시글 ID
      * @param applicantId 거절할 신청자 ID
-     * @param user        현재 로그인한 사용자 (게시글 작성자)
+     * @param userId      현재 로그인한 사용자 (게시글 작성자)
      */
     @PutMapping("/{mateId}/reject/{applicantId}")
     @ResponseStatus(HttpStatus.OK)
     public void rejectApplication(
             @PathVariable Long mateId,
             @PathVariable Long applicantId,
-            @AuthenticationPrincipal User user) {
-        mateApplicationService.rejectApplication(mateId, applicantId, user.getId());
+            @AuthenticationPrincipal Long userId) {
+        mateApplicationService.rejectApplication(mateId, applicantId, userId);
     }
 }

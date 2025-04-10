@@ -3,7 +3,6 @@ package com.frend.planit.domain.mateboard.post.controller;
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.service.MateService;
-import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,15 +42,15 @@ public class MateController {
     /**
      * 메이트 모집 게시글을 생성합니다.
      *
-     * @param user           로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
+     * @param userId         로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
      * @param mateRequestDto 사용자가 입력한 게시글 정보
      * @return mateId 생성된 게시글 ID
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> createMate(@AuthenticationPrincipal User user,
+    public ResponseEntity<?> createMate(@AuthenticationPrincipal Long userId,
             @RequestBody @Valid MateRequestDto mateRequestDto) {
-        Long mateId = mateService.createMate(user.getId(), mateRequestDto);
+        Long mateId = mateService.createMate(userId, mateRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(mateId);
     }
 
@@ -89,27 +88,27 @@ public class MateController {
      *
      * @param id             수정할 게시글 ID
      * @param mateRequestDto 수정할 게시글의 요청 본문(제목, 내용, 날짜, 지역, 성별 등)
-     * @param user           로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
+     * @param userId         로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
      * @return 수정된 게시글 응답 DTO
      */
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public MateResponseDto updateMate(@PathVariable Long id,
             @RequestBody @Valid MateRequestDto mateRequestDto,
-            @AuthenticationPrincipal User user) {
-        return mateService.updateMate(id, mateRequestDto, user.getId());
+            @AuthenticationPrincipal Long userId) {
+        return mateService.updateMate(id, mateRequestDto, userId);
     }
 
     /**
      * 메이트 모집 게시글을 삭제합니다.
      *
-     * @param id   삭제할 게시글 ID
-     * @param user 로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
+     * @param id     삭제할 게시글 ID
+     * @param userId 로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
      * @return 삭제한 게시글 응답 DTO
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteMate(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        mateService.deleteMate(id, user.getId());
+    public void deleteMate(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
+        mateService.deleteMate(id, userId);
     }
 }

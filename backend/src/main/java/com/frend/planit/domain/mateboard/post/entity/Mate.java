@@ -4,6 +4,7 @@ import com.frend.planit.domain.mateboard.application.entity.MateApplication;
 import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.base.BaseTime;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +14,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(name = "mate")
+@AttributeOverride(name = "id", column = @Column(name = "mate_post_id"))
 public class Mate extends BaseTime {
 
     /**
@@ -40,11 +44,11 @@ public class Mate extends BaseTime {
      * 사용자 ID
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User writer;
 
     /**
-     * 사용자 프로필 이미지 (TODO: User 엔티티와 연관 관계 매핑 예정)
+     * 사용자 프로필 이미지
      */
 
     /**

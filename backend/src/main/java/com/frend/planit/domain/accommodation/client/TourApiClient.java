@@ -59,7 +59,7 @@ public class TourApiClient {
                             .queryParam("serviceKey", serviceKey)
                             .queryParam("MobileOS", "ETC")
                             .queryParam("MobileApp", URLEncoder.encode("PlanIt", StandardCharsets.UTF_8))
-                            .queryParam("numOfRows", 200)
+                            .queryParam("numOfRows", 400) // 기존 200이었는데 계산해보니 일일한도가 3회정도여서 늘림 5~6회가능
                             .queryParam("pageNo", page)
                             .queryParam("contentTypeId", 32)
                             .queryParam("areaCode", areaCode)
@@ -75,9 +75,16 @@ public class TourApiClient {
                     }
 
                     TourApiResponse response = xmlMapper.readValue(xml, TourApiResponse.class);
-                    List<TourApiItem> items = response.getBody().getItems();
 
-                    if (items == null || items.isEmpty()) {
+                    // NULL 방어 로직 추가 ( 일일한도떄문인데.. 해결하다만듬)
+                    if (response.getBody() == null || response.getBody().getItems() == null) {
+                        log.warn("TourAPI 응답 body 또는 items null입니다. (지역코드: {}, 페이지: {})\n응답 XML:\n{}", areaCode, page, xml);
+                        hasMore = false;
+                        continue;
+                    }
+
+                    List<TourApiItem> items = response.getBody().getItems();
+                    if (items.isEmpty()) {
                         hasMore = false;
                     } else {
                         List<AccommodationRequestDto> dtos = items.stream()
@@ -89,7 +96,7 @@ public class TourApiClient {
                     }
 
                 } catch (Exception e) {
-                    log.error("TourAPI : 데이터 수신 실패 (지역코드: {}, 페이지: {}): {}", areaCode, page, e.getMessage());
+                    log.error("TourAPI : 데이터 수신 실패 유영주짱(지역코드: {}, 페이지: {}): {}", areaCode, page, e.getMessage(), e);
                     hasMore = false;
                 }
             }

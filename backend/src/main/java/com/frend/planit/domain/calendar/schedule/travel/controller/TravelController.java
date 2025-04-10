@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/schedules/{scheduleId}/travels")
 @Tag(name = "Travel Controller", description = "행선지 컨트롤러")
+@SecurityRequirement(name = "bearerAuth")
+@RequestMapping("/api/v1/schedules/{scheduleId}/travels")
 public class TravelController {
 
     private final TravelService travelService;
 
     @GetMapping
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "행선지 조회")
     @ResponseStatus(HttpStatus.OK)
     public List<DailyTravelResponse> getAllTravels(@PathVariable Long scheduleId) {
@@ -38,7 +38,6 @@ public class TravelController {
     }
 
     @PostMapping
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "행선지 생성")
     @ResponseStatus(HttpStatus.CREATED)
     public TravelResponse createTravel(
@@ -49,7 +48,6 @@ public class TravelController {
     }
 
     @DeleteMapping("/{travelId}")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "행선지 삭제")
     @ResponseStatus(HttpStatus.OK)
     public void deleteTravel(
@@ -60,7 +58,6 @@ public class TravelController {
     }
 
     @PatchMapping("/{travelId}")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "행선지 수정")
     @ResponseStatus(HttpStatus.OK)
     public TravelResponse modifyTravel(

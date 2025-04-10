@@ -43,11 +43,12 @@ public class CalendarEntity extends BaseTime {
     @Column(name = "note", length = 200)
     private String note;
 
-    //캘린더에서 날짜선택 후 스케쥴만들때 띠 색상
+    // 캘린더에서 날짜 선택 후 스케줄 만들 때 띠 색상
     @Column(name = "label_color", length = 7, nullable = false)
-    private String labelColor;
+    @Builder.Default
+    private String labelColor = "#3b82f6";
 
-    // 스케쥴엔티티와 연관관계
+    // 스케줄 엔티티와 연관 관계
     @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScheduleEntity> schedules = new ArrayList<>();
 
@@ -60,6 +61,9 @@ public class CalendarEntity extends BaseTime {
                 .endDate(requestDto.endDate())
                 .alertTime(requestDto.alertTime())
                 .note(requestDto.note())
+                .labelColor(
+                        requestDto.labelColor() != null ? requestDto.labelColor() : "#3b82f6"
+                ) // 기본 색상 프론트랑 맞춤 특별히
                 .build();
     }
 
@@ -70,6 +74,9 @@ public class CalendarEntity extends BaseTime {
         this.endDate = requestDto.endDate();
         this.alertTime = requestDto.alertTime();
         this.note = requestDto.note();
+        if (requestDto.labelColor() != null) {
+            this.labelColor = requestDto.labelColor();
+        }
     }
 
     private static void validateDates(LocalDateTime startDate, LocalDateTime endDate, LocalDateTime alertTime) {

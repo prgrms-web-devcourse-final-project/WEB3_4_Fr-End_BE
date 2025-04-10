@@ -1,6 +1,7 @@
 package com.frend.planit.domain.user.controller;
 
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -10,10 +11,15 @@ import com.frend.planit.domain.user.dto.request.UserUpdateBioRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateEmailRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateMailingTypeRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateNicknameRequest;
+import com.frend.planit.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdatePhoneRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateProfileImageRequest;
+import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.domain.user.enums.LoginType;
+import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.domain.user.service.UserProfileUpdateService;
 import com.frend.planit.global.security.JwtAuthenticationFilter;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +27,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = UserProfileUpdateController.class)
@@ -43,6 +51,12 @@ class UserProfileUpdateControllerTest {
 
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private PasswordEncoder passwordEncoder;
+
+    @MockBean
+    private UserRepository userRepository;
 
     private final Long userId = 1L;
 
@@ -130,4 +144,35 @@ class UserProfileUpdateControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("비밀번호 변경 API - 성공")
+    @WithMockUser
+    void updatePassword_success() throws Exception {
+        Long mockUserId = 1L;
+
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest();
+        ReflectionTestUtils.setField(request, "currentPassword", "1234");
+        ReflectionTestUtils.setField(request, "newPassword", "5678");
+
+        User mockUser = User.builder()
+                .loginId("testuser")
+                .password("encoded1234")
+                .loginType(LoginType.LOCAL)
+                .build();
+
+        // 👇 id 필드는 직접 설정
+        ReflectionTestUtils.setField(mockUser, "id", mockUserId);
+
+        when(userRepository.findById(mockUserId)).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("1234", "encoded1234")).thenReturn(true);
+        when(passwordEncoder.encode("5678")).thenReturn("encoded5678");
+
+        mockMvc.perform(patch("/api/v1/user/me/password")
+                        .principal(() -> mockUserId.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+    }
+
 }

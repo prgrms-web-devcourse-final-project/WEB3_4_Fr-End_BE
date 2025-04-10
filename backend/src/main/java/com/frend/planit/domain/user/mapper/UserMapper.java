@@ -30,7 +30,6 @@ public class UserMapper {
     public static User toEntity(LocalRegisterRequest request, PasswordEncoder passwordEncoder) {
         return User.builder()
                 .loginId(request.getLoginId())
-                .socialId("")
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
                 .phone(request.getPhone())

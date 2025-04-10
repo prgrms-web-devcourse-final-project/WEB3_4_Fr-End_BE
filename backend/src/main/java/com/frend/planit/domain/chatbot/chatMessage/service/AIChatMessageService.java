@@ -47,9 +47,6 @@ public class AIChatMessageService {
 
         // 사용자 Schedule 조회
         List<ScheduleEntity> userSchedules = scheduleRepository.findAllByUserId(userId);
-        if (userSchedules.isEmpty()) {
-            throw new ServiceException(ErrorType.SCHEDULE_NOT_FOUND);
-        }
 
         // 여행 일정 기반 시스템 메세지 컨텍스트 생성
         String travelContext = AIUserContextHelper.buildUserTravelContext(userSchedules);

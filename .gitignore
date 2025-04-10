@@ -1,3 +1,6 @@
 ### IntelliJ IDEA ###
 .idea
 db_dev.mv.db
+db_dev.trace.db
+db_local.mv.db
+db_local.trace.db

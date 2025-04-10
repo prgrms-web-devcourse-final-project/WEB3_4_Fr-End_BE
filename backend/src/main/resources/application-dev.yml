@@ -1,0 +1,25 @@
+# MySQL 도커 세팅할 때는 아래 명령어 사용하세요.
+# docker run -d \
+# --name mysql \
+# -e MYSQL_ROOT_PASSWORD=web3411 \
+# -e MYSQL_DATABASE=planit_dev \
+# -p 3306:3306 \
+# mysql:8
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/planit_dev?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: web3411
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+        default_batch_fetch_size: 100

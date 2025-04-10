@@ -3,54 +3,72 @@ package com.frend.planit.domain.calendar.service;
 import com.frend.planit.domain.calendar.dto.request.CalendarRequestDto;
 import com.frend.planit.domain.calendar.dto.response.CalendarResponseDto;
 import com.frend.planit.domain.calendar.entity.CalendarEntity;
-import com.frend.planit.domain.calendar.exception.CalendarNotFoundException;
 import com.frend.planit.domain.calendar.repository.CalendarRepository;
+import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.global.response.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-@RequiredArgsConstructor
+import static com.frend.planit.global.response.ErrorType.CALENDAR_NOT_FOUND;
+import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
+
 @Service
+@RequiredArgsConstructor
 public class CalendarService {
 
+    private static <T> T orThrow(Optional<T> optional, ErrorType errorType) {
+        return optional.orElseThrow(() -> errorType.serviceException());
+    }
+
     private final CalendarRepository calendarRepository;
+    private final CalendarPermissionValidator calendarPermissionValidator;
 
+    //캘린더 생성
     @Transactional
-    public CalendarResponseDto createCalendar(CalendarRequestDto requestDto) {
-        CalendarEntity calendar = CalendarEntity.fromDto(requestDto);
-        calendarRepository.save(calendar);
-        return new CalendarResponseDto(calendar);
+    public CalendarResponseDto createCalendar(CalendarRequestDto requestDto, User user) {
+        CalendarEntity calendar = CalendarEntity.fromDto(requestDto, user);
+        CalendarEntity saved = calendarRepository.save(calendar);
+        return new CalendarResponseDto(saved);
     }
 
+    // 캘린더 단건 조회
+    @Transactional(readOnly = true)
     public CalendarResponseDto getCalendar(Long id) {
-        CalendarEntity calendar = calendarRepository.findById(id)
-                .orElseThrow(() -> new CalendarNotFoundException("Calendar with id " + id + " not found"));
+        CalendarEntity calendar = orThrow(calendarRepository.findById(id), CALENDAR_NOT_FOUND);
         return new CalendarResponseDto(calendar);
     }
 
-    public List<CalendarResponseDto> getAllCalendars() {
-        return calendarRepository.findAll().stream()
-                .map(CalendarResponseDto::new)
-                .collect(Collectors.toList());
+    // 전체 캘린더 조회
+    @Transactional(readOnly = true)
+    public Page<CalendarResponseDto> getCalendars(Pageable pageable) {
+        return calendarRepository.findAll(pageable).map(CalendarResponseDto::new);
     }
 
+    // 캘린더 수정 (생성자, 공유자 가능)
     @Transactional
-    public CalendarResponseDto updateCalendar(Long id, CalendarRequestDto requestDto) {
-        CalendarEntity calendar = calendarRepository.findById(id)
-                .orElseThrow(() -> new CalendarNotFoundException("Calendar with id " + id + " not found"));
+    public CalendarResponseDto updateCalendar(Long id, CalendarRequestDto requestDto, User user) {
+        CalendarEntity calendar = orThrow(calendarRepository.findById(id), CALENDAR_NOT_FOUND);
+        if (!calendarPermissionValidator.hasModifyAccess(calendar, user)) {
+            throw NOT_AUTHORIZED.serviceException();
+        }
 
         calendar.updateCalendar(requestDto);
         return new CalendarResponseDto(calendar);
     }
 
+    // 캘린더 삭제 (생성자만 가능)
     @Transactional
-    public void deleteCalendar(Long id) {
-        if (!calendarRepository.existsById(id)) {
-            throw new CalendarNotFoundException("Calendar with id " + id + " not found");
+    public void deleteCalendar(Long id, User user) {
+        CalendarEntity calendar = orThrow(calendarRepository.findById(id), CALENDAR_NOT_FOUND);
+        if (!calendarPermissionValidator.isOwner(calendar, user)) {
+            throw NOT_AUTHORIZED.serviceException();
         }
-        calendarRepository.deleteById(id);
+
+        calendarRepository.delete(calendar);
     }
 }

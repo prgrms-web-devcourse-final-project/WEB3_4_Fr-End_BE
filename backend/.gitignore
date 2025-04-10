@@ -43,3 +43,14 @@ out/
 **/.DS_Store
 **/._.DS_Store
 /logs
+/src/main/generated/
+
+### secret.yml ###
+application-secret.yml
+
+### db_local ###
+db_local.mv.db
+db_local.trace.db
+
+#### QueryDSL ###
+/src/main/generated/

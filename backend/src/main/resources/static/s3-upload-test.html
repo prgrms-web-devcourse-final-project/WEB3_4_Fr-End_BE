@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>S3 Direct Upload</title>
+</head>
+<body>
+<h1>S3 업로드 테스트</h1>
+<input type="file" id="fileInput"/>
+<script>
+  async function uploadToS3(file) {
+    const contentType = file.type;
+
+    // presigned POST 정보 요청
+    const res = await fetch('/api/v1/image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': contentType
+      }
+    });
+
+    if (!res.ok) {
+      alert('Presigned URL 요청 실패');
+      return;
+    }
+
+    const data = await res.json();
+
+    const myFormData = new FormData();
+    Object.entries(data.presigned.formData).forEach(([key, value]) => {
+      myFormData.append(key, value);
+    });
+    myFormData.append('file', file);
+
+    const uploadRes = await fetch(data.presigned.postUrl, {
+      method: 'POST',
+      body: myFormData
+    });
+
+    if (uploadRes.ok) {
+      alert('✅ 업로드 성공!');
+      const uploadedUrl = data.getUrl;
+      const img = document.createElement('img');
+      img.src = uploadedUrl;
+      img.alt = 'Uploaded image';
+      img.style.maxWidth = '400px';
+      document.body.appendChild(img);
+    } else {
+      const text = await uploadRes.text();
+      console.error('❌ 업로드 실패:', text);
+      alert('업로드 실패');
+    }
+  }
+
+  document.getElementById('fileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) uploadToS3(file);
+  });
+</script>
+</body>
+</html>

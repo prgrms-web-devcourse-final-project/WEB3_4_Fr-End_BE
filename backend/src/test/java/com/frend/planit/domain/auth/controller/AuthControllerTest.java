@@ -99,6 +99,7 @@ class AuthControllerTest {
                 Gender.FEMALE,
                 LocalDate.of(2001, 9, 9),
                 false,
+                null,
                 null
         );
         LocalRegisterResponse response = new LocalRegisterResponse(1L, "ricky50", "Mark",

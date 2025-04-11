@@ -38,6 +38,7 @@ public class LocalRegisterRequest {
     private boolean mailingType = false;
 
     private String socialId = null;
+    private String socialType = null;
 
 }
 

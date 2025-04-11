@@ -36,5 +36,9 @@ public class LocalRegisterRequest {
     private LocalDate birthDate;
 
     private boolean mailingType = false;
+
+    private String socialId = null;
+    private String socialType = null;
+
 }
 

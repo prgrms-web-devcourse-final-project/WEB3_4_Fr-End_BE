@@ -76,6 +76,7 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
         var results = queryFactory
                 .select(new QMateResponseDto(
                         mate.id,
+                        mate.writer.id,
                         mate.title,
                         mate.content,
                         mate.travelRegion,

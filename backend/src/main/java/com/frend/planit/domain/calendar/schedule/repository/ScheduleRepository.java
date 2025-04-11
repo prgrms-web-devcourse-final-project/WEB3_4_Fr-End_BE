@@ -16,6 +16,11 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
             @Param("scheduleId") Long scheduleId);
 
     // 특정 유저의 모든 일정
-    @Query("SELECT s FROM ScheduleEntity s WHERE s.calendar.user.id = :userId")
+    @Query("""
+                SELECT DISTINCT s FROM ScheduleEntity s
+                JOIN FETCH s.scheduleDayList d
+                LEFT JOIN FETCH d.travelList t
+                WHERE s.calendar.user.id = :userId
+            """)
     List<ScheduleEntity> findAllByUserId(@Param("userId") Long userId);
 }

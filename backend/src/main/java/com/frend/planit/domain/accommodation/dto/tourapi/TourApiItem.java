@@ -34,20 +34,24 @@ public record TourApiItem(
 
 ) {
     public AccommodationRequestDto toDto() {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("숙소 이름(title)은 필수 값입니다.");
+        }
+
         BigDecimal randomPrice = BigDecimal.valueOf(50000 + new Random().nextInt(150000));
         List<String> amenities = List.of("WiFi", "세미나실", "에어컨", "헬스장");
 
         return new AccommodationRequestDto(
                 title,
-                addr1,
+                addr1 != null && !addr1.isBlank() ? addr1 : "주소 정보 없음",
                 randomPrice,
                 5,
                 firstImage != null ? firstImage : "https://placehold.co/600x400?text=No+Image",
                 amenities,
-                areaCode,
-                cat3,
-                mapX,
-                mapY,
+                areaCode != null ? areaCode : 0,
+                cat3 != null && !cat3.isBlank() ? cat3 : "ETC",
+                mapX != null ? mapX : 127.0,
+                mapY != null ? mapY : 37.5,
                 "15:00",
                 "11:00"
         );

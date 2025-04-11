@@ -76,13 +76,7 @@ public class ScheduleService {
     public ScheduleEntity findScheduleById(Long scheduleId, Long calendarId) {
 
         // 스케줄 존재 여부 확인
-        ScheduleEntity scheduleEntity = scheduleRepository.findById(scheduleId)
+        return scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
-
-        // scheduleEntity의 calendarId와 요청한 calendarId가 일치하는지 확인
-        if (!scheduleEntity.getCalendar().getId().equals(calendarId)) {
-            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
-        }
-        return scheduleEntity;
     }
 }

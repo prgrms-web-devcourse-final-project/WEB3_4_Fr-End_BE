@@ -4,6 +4,7 @@ import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravel
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.entity.TravelEntity;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class TravelGroupingUtils {
 
         // 그룹핑된 날짜별 여행 리스트로 DailyTravelResponse 변환
         return travelsByDate.entrySet().stream()
+                .sorted(Map.Entry.<LocalDate, List<TravelEntity>>comparingByKey()) // 오름차순 정렬
                 .map(entry -> {
                     LocalDate date = entry.getKey();
                     List<TravelEntity> travelList = entry.getValue();
@@ -32,7 +34,10 @@ public class TravelGroupingUtils {
                     Long scheduleDayId = travelList.isEmpty() ? null
                             : travelList.get(0).getScheduleDay().getId();
 
+                    // 시간 기준으로 정렬된 TravelResponse 리스트
                     List<TravelResponse> travelResponses = travelList.stream()
+                            .sorted(Comparator.comparingInt(TravelEntity::getVisitHour)
+                                    .thenComparingInt(TravelEntity::getVisitMinute))
                             .map(TravelResponse::from)
                             .collect(Collectors.toList());
 

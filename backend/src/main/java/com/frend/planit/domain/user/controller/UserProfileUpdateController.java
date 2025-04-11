@@ -4,6 +4,7 @@ import com.frend.planit.domain.user.dto.request.UserUpdateBioRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateEmailRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateMailingTypeRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateNicknameRequest;
+import com.frend.planit.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdatePhoneRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateProfileImageRequest;
 import com.frend.planit.domain.user.service.UserProfileUpdateService;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +55,15 @@ public class UserProfileUpdateController {
         return ResponseEntity.noContent().build();
     }
 
+    // 프로필 이미지 삭제
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<Void> deleteProfileImage(
+            @AuthenticationPrincipal Long userId
+    ) {
+        userProfileUpdateService.deleteProfileImage(userId);
+        return ResponseEntity.noContent().build();
+    }
+
     // 메일링 타입 수정
     @PatchMapping("/mailing-type")
     public ResponseEntity<Void> updateMailingType(
@@ -80,6 +91,16 @@ public class UserProfileUpdateController {
             @RequestBody @Valid UserUpdateEmailRequest request
     ) {
         userProfileUpdateService.updateEmail(userId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 비밀번호 변경
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updatePassword(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid UserUpdatePasswordRequest request
+    ) {
+        userProfileUpdateService.updatePassword(userId, request);
         return ResponseEntity.noContent().build();
     }
 }

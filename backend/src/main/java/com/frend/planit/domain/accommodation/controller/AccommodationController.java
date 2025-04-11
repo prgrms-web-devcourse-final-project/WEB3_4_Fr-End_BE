@@ -3,14 +3,16 @@ package com.frend.planit.domain.accommodation.controller;
 import com.frend.planit.domain.accommodation.dto.request.AccommodationRequestDto;
 import com.frend.planit.domain.accommodation.dto.response.AccommodationResponseDto;
 import com.frend.planit.domain.accommodation.service.AccommodationService;
+import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.domain.user.enums.Role;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
-import com.frend.planit.global.response.PageResponse; // ✅ 추가된 import
-
+import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -43,12 +45,12 @@ public class AccommodationController {
     // 숙소 생성
     @PostMapping
     public ResponseEntity<AccommodationResponseDto> create(
-            @RequestParam(defaultValue = "false") boolean admin,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody AccommodationRequestDto dto
     ) {
-        validateAdmin(admin);
+        validateAdmin(user);
         AccommodationResponseDto created = accommodationService.create(dto);
-        URI location = URI.create("/api/accommodations/" + created.id());
+        URI location = URI.create("/api/v1/accommodations/" + created.id());
         return ResponseEntity.created(location).body(created);
     }
 
@@ -56,10 +58,10 @@ public class AccommodationController {
     @PutMapping("/{id}")
     public ResponseEntity<AccommodationResponseDto> update(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "false") boolean admin,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody AccommodationRequestDto dto
     ) {
-        validateAdmin(admin);
+        validateAdmin(user);
         return ResponseEntity.ok(accommodationService.update(id, dto));
     }
 
@@ -67,15 +69,15 @@ public class AccommodationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "false") boolean admin
+            @AuthenticationPrincipal User user
     ) {
-        validateAdmin(admin);
+        validateAdmin(user);
         accommodationService.delete(id, true);
         return ResponseEntity.noContent().build();
     }
 
-    private void validateAdmin(boolean isAdmin) {
-        if (!isAdmin) {
+    private void validateAdmin(User user) {
+        if (user == null || user.getRole() != Role.ADMIN) {
             throw new ServiceException(ErrorType.ACCOMMODATION_DELETE_UNAUTHORIZED);
         }
     }

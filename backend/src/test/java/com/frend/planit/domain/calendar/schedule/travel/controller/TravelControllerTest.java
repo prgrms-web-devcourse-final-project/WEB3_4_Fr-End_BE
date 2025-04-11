@@ -70,8 +70,8 @@ public class TravelControllerTest {
                 .category("명소")
                 .lat(37.5665)
                 .lng(126.9780)
-                .hour(14)
-                .minute(30)
+                .hour("14")
+                .minute("30")
                 .build();
 
         travelResponse = TravelResponse.builder()
@@ -221,8 +221,8 @@ public class TravelControllerTest {
                 .category("랜드마크") // 변경됨
                 .lat(37.5512)
                 .lng(126.9882)
-                .hour(16)
-                .minute(45)
+                .hour("16")
+                .minute("45")
                 .build();
 
         TravelResponse modifiedResponse = TravelResponse.builder()

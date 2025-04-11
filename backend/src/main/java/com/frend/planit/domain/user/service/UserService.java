@@ -91,7 +91,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<MateCommentResponseDto> getUserComments(Long userId) {
+    public List<MateCommentResponseDto> getUserCommentsActivity(Long userId) {
         return mateCommentService.getUserMateComments(userId);
     }
 

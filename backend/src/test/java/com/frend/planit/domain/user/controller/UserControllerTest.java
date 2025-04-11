@@ -200,7 +200,7 @@ class UserControllerTest {
                 .build();
 
         // mock 설정
-        when(userService.getUserComments(mockUserId)).thenReturn(List.of(commentDto));
+        when(userService.getUserCommentsActivity(mockUserId)).thenReturn(List.of(commentDto));
 
         // API 호출 및 응답 검증
         mockMvc.perform(get("/api/v1/user/me/activity/mate-comments")

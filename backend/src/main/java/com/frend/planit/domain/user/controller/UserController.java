@@ -84,7 +84,7 @@ public class UserController {
     @GetMapping("/me/activity/mate-comments")
     public ResponseEntity<List<MateCommentResponseDto>> getUserComments(
             @AuthenticationPrincipal Long userId) {
-        List<MateCommentResponseDto> comments = userService.getUserComments(userId);
+        List<MateCommentResponseDto> comments = userService.getUserCommentsActivity(userId);
         return ResponseEntity.ok(comments);
     }
 }

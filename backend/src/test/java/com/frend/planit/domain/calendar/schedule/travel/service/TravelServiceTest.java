@@ -69,6 +69,8 @@ public class TravelServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        MockitoAnnotations.openMocks(this);
+
         // Calendar 엔티티 생성
         calendar = CalendarEntity.builder()
                 .id(1L)
@@ -102,8 +104,8 @@ public class TravelServiceTest {
                 .category("명소")
                 .lat(37.5665)
                 .lng(126.9780)
-                .hour(14)
-                .minute(30)
+                .hour("14")
+                .minute("30")
                 .build();
 
         // 여행지 생성 (scheduleDay 필요함)
@@ -290,6 +292,6 @@ public class TravelServiceTest {
         assertThatThrownBy(() ->
                 travelService.modifyTravel(schedule.getId(), travel.getId(), request))
                 .isInstanceOf(ServiceException.class)
-                .hasMessage(ErrorType.SCHEDULE_DAY_NOT_FOUND.getMessage());
+                .hasMessage(ErrorType.SCHEDULE_NOT_FOUND.getMessage());
     }
 }

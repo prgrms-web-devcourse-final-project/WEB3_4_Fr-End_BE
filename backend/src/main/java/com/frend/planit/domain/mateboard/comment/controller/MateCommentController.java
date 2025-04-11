@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,9 +48,8 @@ public class MateCommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long createComment(
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
-            @PathVariable Long mateId) {
-        // TODO: 로그인 기능 연동 필요
-        Long userId = 1L;
+            @PathVariable Long mateId,
+            @AuthenticationPrincipal Long userId) {
         return mateCommentService.createComment(userId, mateId, mateCommentRequestDto);
     }
 
@@ -90,19 +90,22 @@ public class MateCommentController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public MateCommentResponseDto updateComment(@PathVariable Long id,
-            @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto) {
-        return mateCommentService.updateComment(id, mateCommentRequestDto);
+            @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
+            @AuthenticationPrincipal Long userId) {
+        return mateCommentService.updateComment(id, mateCommentRequestDto, userId);
     }
 
     /**
      * 특정 댓글을 삭제합니다.
      *
-     * @param id 삭제할 댓글 ID
-     * @return 삭제된 댓글 ID
+     * @param id
+     * @param userId
+     * @return
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public MateCommentResponseDto deleteComment(@PathVariable Long id) {
-        return mateCommentService.deleteComment(id);
+    public MateCommentResponseDto deleteComment(@PathVariable Long id,
+            @AuthenticationPrincipal Long userId) {
+        return mateCommentService.deleteComment(id, userId);
     }
 }

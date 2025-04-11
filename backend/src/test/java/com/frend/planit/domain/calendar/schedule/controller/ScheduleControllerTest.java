@@ -16,6 +16,7 @@ import com.frend.planit.domain.calendar.schedule.dto.response.ScheduleResponse;
 import com.frend.planit.domain.calendar.schedule.service.ScheduleService;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
+import com.frend.planit.global.security.JwtTokenProvider;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,9 @@ public class ScheduleControllerTest {
 
     @MockitoBean
     private ScheduleService scheduleService;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
 
     private Long calendarId;
 
@@ -82,7 +86,7 @@ public class ScheduleControllerTest {
 
         // when & then
         mockMvc.perform(
-                        get("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId, scheduleId)
+                        get("/api/v1/calendars/{calendarId}/schedules", calendarId, scheduleId)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.scheduleTitle").value("후쿠오카 여행"))
@@ -103,7 +107,7 @@ public class ScheduleControllerTest {
 
         // when & then
         mockMvc.perform(
-                        get("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId, scheduleId)
+                        get("/api/v1/calendars/{calendarId}/schedules/{scheduleId}", calendarId, scheduleId)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("해당 스케줄이 존재하지 않습니다."));
@@ -115,12 +119,12 @@ public class ScheduleControllerTest {
     @DisplayName("여행 일정 생성 - 성공")
     void createScheduleSuccess() throws Exception {
         // given
-        given(scheduleService.createSchedule(calendarId, scheduleId, scheduleRequest))
+        given(scheduleService.createSchedule(calendarId, scheduleRequest))
                 .willReturn(scheduleResponse);
 
         // when & then
         mockMvc.perform(
-                        post("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId, scheduleId)
+                        post("/api/v1/calendars/{calendarId}/schedules", calendarId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(scheduleRequest)))
                 .andExpect(status().isCreated())
@@ -130,7 +134,7 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.alertTime").value("08:00:00"))
                 .andExpect(jsonPath("$.note").value("여행은 역시 먹방"));
 
-        verify(scheduleService, times(1)).createSchedule(calendarId, scheduleId,
+        verify(scheduleService, times(1)).createSchedule(calendarId,
                 scheduleRequest);
     }
 
@@ -139,22 +143,20 @@ public class ScheduleControllerTest {
     void createScheduleFail_invalidCalendar() throws Exception {
         // given
         Long wrongCalendarId = 888L;
-        Long wrongScheduleId = 999L;
 
-        given(scheduleService.createSchedule(wrongCalendarId, wrongScheduleId,
+        given(scheduleService.createSchedule(wrongCalendarId,
                 scheduleRequest))
                 .willThrow(new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
 
         // when & then
         mockMvc.perform(
-                        post("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", wrongCalendarId,
-                                wrongScheduleId)
+                        post("/api/v1/calendars/{calendarId}/schedules", wrongCalendarId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(scheduleRequest)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("해당 캘린더가 존재하지 않습니다."));
 
-        verify(scheduleService, times(1)).createSchedule(wrongCalendarId, wrongScheduleId,
+        verify(scheduleService, times(1)).createSchedule(wrongCalendarId,
                 scheduleRequest);
     }
 
@@ -170,7 +172,7 @@ public class ScheduleControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/v1/calendars/{calendarId}/schedule/{scheduleId}", calendarId, scheduleId)
+                        post("/api/v1/calendars/{calendarId}/schedules", calendarId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest())

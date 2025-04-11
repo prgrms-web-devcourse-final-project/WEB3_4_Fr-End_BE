@@ -1,6 +1,8 @@
 package com.frend.planit.domain.mateboard.comment.service;
 
 import static com.frend.planit.global.response.ErrorType.MATE_COMMENT_NOT_FOUND;
+import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
+import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
 
 import com.frend.planit.domain.mateboard.comment.dto.request.MateCommentRequestDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
@@ -9,6 +11,8 @@ import com.frend.planit.domain.mateboard.comment.mapper.MateCommentMapper;
 import com.frend.planit.domain.mateboard.comment.repository.MateCommentRepository;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.mateboard.post.service.MateService;
+import com.frend.planit.domain.user.entity.User;
+import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MateCommentService {
 
-    private MateCommentRepository mateCommentRepository;
-    private MateService mateService;
+    private final UserRepository userRepository;
+    private final MateCommentRepository mateCommentRepository;
+    private final MateService mateService;
 
     /**
      * ID로 댓글을 조회하고, 존재하지 않으면 예외를 던집니다.
@@ -54,12 +59,13 @@ public class MateCommentService {
      */
     public Long createComment(Long userId, Long mateId,
             MateCommentRequestDto mateCommentRequestDto) {
-        // 1. 코멘트 엔티티 생성
-        MateComment mateComment = createCommentEntity(userId, mateId, mateCommentRequestDto);
+        // 1. 유저 및 게시글 조회 후 코멘트 엔티티 생성
+        MateComment mateComment = createCommentEntity(mateId, userId,
+                mateCommentRequestDto.getContent());
         // 2. 생성된 엔티티 저장
-        mateCommentRepository.save(mateComment);
+        MateComment saved = mateCommentRepository.save(mateComment);
         // 3. 생성된 댓글 ID 반환
-        return mateComment.getId();
+        return saved.getId();
     }
 
     /**
@@ -102,9 +108,13 @@ public class MateCommentService {
      * @return 수정된 댓글의 응답 DTO
      * @throws RuntimeException 해당 ID의 댓글이 존재하지 않을 경우 예외 발생
      */
-    public MateCommentResponseDto updateComment(Long id, MateCommentRequestDto mateRequestDto) {
+    public MateCommentResponseDto updateComment(Long id, MateCommentRequestDto mateRequestDto,
+            Long userId) {
+
+        // 작성자 본인인지 확인
         // 1. 수정할 Comment 찾기
         MateComment updateComment = findMateCommentOrThrow(id);
+        validateCommentAuthor(updateComment, userId);
         // 2. 수정할 값 입력
         updateComment.setContent(mateRequestDto.getContent());
         // 3. 수정할 Comment 저장
@@ -118,37 +128,44 @@ public class MateCommentService {
      *
      * @param id 삭제할 댓글의 ID
      * @return 삭제한 게시글 응답 DTO
-     * @throws 삭제될 댓글이 존재하지 않을 경우 예외 던짐
+     * @throws ServiceException 댓글이 존재하지 않을 경우 예외 발생
      */
-    public MateCommentResponseDto deleteComment(Long id) {
+    public MateCommentResponseDto deleteComment(Long id, Long userId) {
         // 1. 삭제할 Comment 찾기
         MateComment deleteComment = findMateCommentOrThrow(id);
-        // 2. Comment 삭제
+        // 2. 권한 검증
+        validateCommentAuthor(deleteComment, userId);
+        // 3. Comment 삭제
         mateCommentRepository.delete(deleteComment);
-        // 3. 삭제된 댓글 정보 리턴
+        // 4. 삭제된 댓글 정보 리턴
         return MateCommentMapper.toResponseDto(deleteComment);
     }
 
     /**
      * mateCommentRequestDto, userId, mateId를 기반으로 MateComment 엔티티를 생성합니다.
      *
-     * @param userId                사용자 ID
-     * @param mateId                메이트 모집 게시글 ID
-     * @param mateCommentRequestDto 댓글 요청 DTO
+     * @param userId  사용자 ID
+     * @param mateId  메이트 모집 게시글 ID
+     * @param content 댓글 요청 DTO
      * @return 생성된 MateComment 엔티티
      */
-    private MateComment createCommentEntity(Long userId, Long mateId,
-            MateCommentRequestDto mateCommentRequestDto) {
-        // 1. Comment 작성할 게시글이 있는지 먼저 확인
+    private MateComment createCommentEntity(Long mateId, Long userId,
+            String content) {
+        // 1. Comment 작성할 User와 게시글이 있는지 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND));
         Mate mate = mateService.findMateOrThrow(mateId);
         // 2. Comment 엔티티 생성
         MateComment mateComment = new MateComment();
-        mateComment.setUserId(userId);
+        mateComment.setUser(user);
         mateComment.setMate(mate);
-        mateComment.setNickname(mateCommentRequestDto.getNickname()); // 로그인 기능 구현 이후 제거 예정
-//      mateComment.setProfileImageUrl(mateCommentRequestDto.getProfileImageUrl());// 로그인 기능 구현 이후 제거 예정
-        mateComment.setContent(mateCommentRequestDto.getContent());
+        mateComment.setContent(content);
         return mateComment;
     }
 
+    private void validateCommentAuthor(MateComment comment, Long userId) {
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new ServiceException(NOT_AUTHORIZED);
+        }
+    }
 }

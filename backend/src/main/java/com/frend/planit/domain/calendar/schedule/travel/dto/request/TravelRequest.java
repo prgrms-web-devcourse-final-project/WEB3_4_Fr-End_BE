@@ -1,10 +1,9 @@
 package com.frend.planit.domain.calendar.schedule.travel.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -41,13 +40,19 @@ public class TravelRequest {
     @JsonProperty("y")
     private Double lng;
 
-    @NotNull
-    @Min(0)
-    @Max(23)
-    private int hour;
+    @NotBlank
+    @Pattern(regexp = "^(0[0-9]|1[0-9]|2[0-3])$")
+    private String hour;
 
-    @NotNull
-    @Min(0)
-    @Max(59)
-    private int minute;
+    @NotBlank
+    @Pattern(regexp = "^[0-5][0-9]$")
+    private String minute;
+
+    public int getIntHour() {
+        return Integer.parseInt(hour);
+    }
+
+    public int getIntMinute() {
+        return Integer.parseInt(minute);
+    }
 }

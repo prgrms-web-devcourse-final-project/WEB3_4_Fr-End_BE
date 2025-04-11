@@ -68,8 +68,7 @@ public class ScheduleEntity {
                 .startDate(scheduleRequest.getStartDate())
                 .endDate(scheduleRequest.getEndDate())
                 .note(scheduleRequest.getNote())
-                .alertTime(scheduleRequest.getAlertTime() != null ? scheduleRequest.getAlertTime()
-                        : null)
+                .alertTime(scheduleRequest.getAlertTime())
                 .build();
 
         // ScheduleDay 자동 생성
@@ -86,11 +85,6 @@ public class ScheduleEntity {
     public void addScheduleDay(ScheduleDayEntity scheduleDay) {
         this.scheduleDayList.add(scheduleDay);
         scheduleDay.setSchedule(this);
-    }
-
-    // Test Code에서 사용하기 위한 setter
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void updateSchedule(ScheduleRequest scheduleRequest) {

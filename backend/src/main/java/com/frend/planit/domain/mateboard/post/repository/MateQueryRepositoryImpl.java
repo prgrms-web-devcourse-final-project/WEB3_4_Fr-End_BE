@@ -5,12 +5,13 @@ import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
 import com.frend.planit.domain.mateboard.application.entity.QMateApplication;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
+import com.frend.planit.domain.mateboard.post.dto.response.QMateResponseDto;
 import com.frend.planit.domain.mateboard.post.entity.QMate;
 import com.frend.planit.domain.mateboard.post.entity.RecruitmentStatus;
 import com.frend.planit.domain.mateboard.post.entity.TravelRegion;
 import com.frend.planit.domain.user.entity.QUser;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -44,6 +45,7 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
     @Override
     public Page<MateResponseDto> searchMatePosts(String keyword, String status, String region,
             Pageable pageable) {
+
         QMate mate = QMate.mate;
         QUser user = QUser.user;
         QImage image = QImage.image;
@@ -70,9 +72,9 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
             builder.and(mate.travelRegion.eq(travelRegion));
         }
 
-        // 1. 데이터 조회 쿼리
+        // 데이터 조회 쿼리
         var results = queryFactory
-                .select(Projections.constructor(MateResponseDto.class,
+                .select(new QMateResponseDto(
                         mate.id,
                         mate.title,
                         mate.content,
@@ -81,22 +83,28 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         mate.travelEndDate,
                         mate.recruitmentStatus,
                         mate.mateGender,
-                        user.gender,
                         mate.recruitCount,
-                        com.querydsl.jpa.JPAExpressions
-                                .select(application.count())
-                                .from(application)
-                                .where(application.mate.eq(mate)
-                                        .and(application.status.eq(
-                                                MateApplicationStatus.ACCEPTED))),
-                        mate.writer.nickname,
-                        mate.writer.profileImageUrl,
-                        JPAExpressions.select(image.url)
+                        Expressions.numberTemplate(
+                                Integer.class,
+                                "({0})",
+                                JPAExpressions
+                                        .select(application.count())
+                                        .from(application)
+                                        .where(application.mate.eq(mate)
+                                                .and(application.status.eq(
+                                                        MateApplicationStatus.ACCEPTED)))
+                        ),
+                        JPAExpressions
+                                .select(image.url)
                                 .from(image)
                                 .where(image.holderType.eq(HolderType.MATEBOARD)
                                         .and(image.holderId.eq(mate.id)))
                                 .orderBy(image.id.asc())
                                 .limit(1),
+                        user.nickname,
+                        user.bio,
+                        user.profileImageUrl,
+                        user.gender,
                         mate.createdAt
                 ))
                 .from(mate)
@@ -106,13 +114,12 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // 2. 카운트 쿼리
+        // 카운트 쿼리
         JPAQuery<Long> countQuery = queryFactory
                 .select(mate.count())
                 .from(mate)
                 .where(builder);
 
-        // 3. Page 객체로 반환
         return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchOne);
     }
 }

@@ -1,16 +1,29 @@
 package com.frend.planit.domain.accommodation.loader;
 
 import com.frend.planit.domain.accommodation.service.AccommodationService;
+<<<<<<< HEAD
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+=======
+import jakarta.annotation.PostConstruct;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+>>>>>>> e3400e7444c6dd649f362884cd5cd6fd9ac0844a
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
+<<<<<<< HEAD
 public class AccommodationInitialDataLoader implements ApplicationRunner {
+=======
+@Profile("!test")
+public class AccommodationInitialDataLoader {
+>>>>>>> e3400e7444c6dd649f362884cd5cd6fd9ac0844a
 
     private final AccommodationService accommodationService;
 

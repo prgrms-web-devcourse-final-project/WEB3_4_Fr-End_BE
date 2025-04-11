@@ -1,6 +1,5 @@
 package com.frend.planit.domain.mateboard.comment.dto.response;
 
-import com.frend.planit.domain.mateboard.post.entity.Mate;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +16,7 @@ import lombok.Getter;
 @Builder
 public class MateCommentResponseDto {
 
-    private final Mate matePostId;
+    private final Long matePostId;
 
     private final Long userId;
 

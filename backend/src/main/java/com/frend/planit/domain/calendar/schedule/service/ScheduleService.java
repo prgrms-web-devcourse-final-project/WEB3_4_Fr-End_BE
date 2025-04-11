@@ -22,38 +22,26 @@ public class ScheduleService {
     // 여행 일정 조회
     @Transactional(readOnly = true)
     public ScheduleResponse getSchedules(Long calendarId, Long scheduleId) {
-        // 스케줄 존재 여부 확인
-        ScheduleEntity scheduleEntity = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
-
-        // scheduleEntity의 calendarId와 요청한 calendarId가 일치하는지 확인
-        if (!scheduleEntity.getCalendar().getId().equals(calendarId)) {
-            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
-        }
+        // 여행 일정 존재 여부 확인
+        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId);
 
         return ScheduleResponse.from(scheduleEntity);
     }
 
     // 여행 일정 생성
     @Transactional
-    public ScheduleResponse createSchedule(Long calendarId, Long scheduleId,
-            ScheduleRequest scheduleRequest) {
-        // 스케줄 존재 여부 확인
-        scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
-
-        // 캘린더 존재 여부 확인
+    public ScheduleResponse createSchedule(
+            Long calendarId,
+            ScheduleRequest scheduleRequest
+    ) {
+        // calendar 존재 여부 확인 및 조회
         CalendarEntity calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
 
         // scheduleEntity 생성
         ScheduleEntity scheduleEntity = ScheduleEntity.of(calendar, scheduleRequest);
 
-        // scheduleEntity의 calendarId와 요청한 calendarId가 일치하는지 확인
-        if (!scheduleEntity.getCalendar().getId().equals(calendarId)) {
-            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
-        }
-
+        // scheduleEntity 저장
         ScheduleEntity createdScheduleEntity = scheduleRepository.save(scheduleEntity);
 
         return ScheduleResponse.from(createdScheduleEntity);
@@ -63,18 +51,8 @@ public class ScheduleService {
     @Transactional
     public ScheduleResponse modifySchedule(Long calendarId, Long scheduleId,
             ScheduleRequest scheduleRequest) {
-        // 스케줄 존재 여부 확인
-        ScheduleEntity scheduleEntity = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
-
-        // 캘린더 존재 여부 확인
-        CalendarEntity calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
-
-        // scheduleEntity의 calendarId와 요청한 calendarId가 일치하는지 확인
-        if (!scheduleEntity.getCalendar().getId().equals(calendarId)) {
-            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
-        }
+        // 여행 일정 존재 여부 확인
+        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId);
 
         // scheduleEntity 수정
         scheduleEntity.updateSchedule(scheduleRequest);
@@ -85,22 +63,20 @@ public class ScheduleService {
     // 여행 일정 삭제
     @Transactional
     public ScheduleResponse deleteSchedule(Long calendarId, Long scheduleId) {
-        // 스케줄 존재 여부 확인
-        ScheduleEntity scheduleEntity = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
-
-        // 캘린더 존재 여부 확인
-        CalendarEntity calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
-
-        // scheduleEntity의 calendarId와 요청한 calendarId가 일치하는지 확인
-        if (!scheduleEntity.getCalendar().getId().equals(calendarId)) {
-            throw new ServiceException(ErrorType.CALENDAR_NOT_FOUND);
-        }
+        // 여행 일정 존재 여부 확인
+        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId);
 
         // scheduleEntity 삭제
         scheduleRepository.delete(scheduleEntity);
 
         return ScheduleResponse.from(scheduleEntity);
+    }
+
+    // 여행 일정 존재 여부 확인
+    public ScheduleEntity findScheduleById(Long scheduleId, Long calendarId) {
+
+        // 스케줄 존재 여부 확인
+        return scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)
+                .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
     }
 }

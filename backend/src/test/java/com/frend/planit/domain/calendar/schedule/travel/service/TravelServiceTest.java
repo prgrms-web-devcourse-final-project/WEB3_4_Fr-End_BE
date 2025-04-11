@@ -33,7 +33,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
+@SpringBootTest
+@ActiveProfiles("test")
+@AutoConfigureMockMvc(addFilters = false) // MockMvc 시큐리티 필터 비활성화
 public class TravelServiceTest {
 
     @InjectMocks
@@ -78,14 +85,14 @@ public class TravelServiceTest {
 
         // 스케줄 생성 (3일짜리)
         schedule = ScheduleEntity.of(calendar, scheduleRequest);
-        schedule.setId(1L);
+        ReflectionTestUtils.setField(schedule, "id", 1L);
 
         // 4월 6일에 해당하는 ScheduleDay 찾기
         scheduleDay = schedule.getScheduleDayList().stream()
                 .filter(day -> day.getDate().equals(LocalDate.of(2025, 4, 6)))
                 .findFirst()
                 .orElseThrow();
-        scheduleDay.setId(10L);
+        ReflectionTestUtils.setField(scheduleDay, "id", 10L);
 
         // 요청 DTO
         request = TravelRequest.builder()
@@ -101,7 +108,7 @@ public class TravelServiceTest {
 
         // 여행지 생성 (scheduleDay 필요함)
         travel = TravelEntity.of(request, scheduleDay);
-        travel.setId(100L);
+        ReflectionTestUtils.setField(travel, "id", 100L);
     }
 
     @Test
@@ -117,7 +124,7 @@ public class TravelServiceTest {
         // 그룹핑 유틸리티는 실제 로직과 상관없이 mock 처리
         List<DailyTravelResponse> dummyResponse = List.of(
                 DailyTravelResponse.of(scheduleDay.getId(), scheduleDay.getDate(),
-                        List.of(TravelResponse.from(travel)))
+                        List.of(travel))
         );
         mockStatic(TravelGroupingUtils.class).when(() ->
                 TravelGroupingUtils.groupTravelsByDate(anyList())
@@ -221,7 +228,7 @@ public class TravelServiceTest {
                 .build();
 
         ScheduleEntity wrongSchedule = ScheduleEntity.of(wrongCalendar, wrongScheduleRequest);
-        wrongSchedule.setId(2L);
+        ReflectionTestUtils.setField(wrongSchedule, "id", 2L);
 
         scheduleDay.setSchedule(wrongSchedule);
 
@@ -269,7 +276,7 @@ public class TravelServiceTest {
                 .build();
 
         ScheduleEntity wrongSchedule = ScheduleEntity.of(wrongCalendar, wrongScheduleRequest);
-        wrongSchedule.setId(2L);
+        ReflectionTestUtils.setField(wrongSchedule, "id", 2L);
 
         // 기존 scheduleDay는 여전히 잘못된 스케줄에 연결됨
         scheduleDay.setSchedule(wrongSchedule);

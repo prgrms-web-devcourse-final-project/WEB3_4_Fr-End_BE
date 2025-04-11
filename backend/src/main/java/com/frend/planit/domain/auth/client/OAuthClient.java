@@ -23,4 +23,10 @@ public interface OAuthClient {
      * 어떤 소셜 타입인지 (GOOGLE / KAKAO / NAVER)
      */
     SocialType getSocialType();
+
+
+    String getClientId();
+
+
+    String getRedirectUri();
 }

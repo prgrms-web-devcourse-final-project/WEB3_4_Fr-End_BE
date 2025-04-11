@@ -1,6 +1,7 @@
 package com.frend.planit.domain.image.service;
 
 import com.frend.planit.domain.image.dto.response.ImageResponse;
+import com.frend.planit.domain.image.dto.response.ImagesResponse;
 import com.frend.planit.domain.image.dto.response.UploadResponse;
 import com.frend.planit.domain.image.entity.Image;
 import com.frend.planit.domain.image.repository.ImageRepository;
@@ -38,14 +39,13 @@ public class ImageService {
      * 3. 클라이언트는 POST URL을 통해 S3에 이미지를 업로드
      * 4. 업로드가 완료되면 클라이언트는 GET URL로 이미지에 접근
      */
+    @Transactional
     public UploadResponse uploadImage(String contentType) {
-        // 이미지 확장자 검증
-        if (!ImageMimeType.isSupported(contentType)) {
-            throw new ServiceException(ErrorType.MIME_NOT_SUPPORTED);
-        }
+        // 이미지 타입 검증 및 추출
+        String imageMimeType = getImageMimeType(contentType);
 
         // 이미지 GET URL 임시 생성
-        String fileName = RandomUtil.generateUid() + '.' + contentType.split("/")[1];
+        String fileName = RandomUtil.generateUid() + '.' + imageMimeType.split("/")[1];
         Image image = createImage(fileName);
 
         // Presigned POST URL 생성
@@ -78,13 +78,15 @@ public class ImageService {
     /*
      * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
      */
-    public ImageResponse getFirstImage(@NonNull HolderType holderType, long holderId) {
+    @Transactional(readOnly = true)
+    public ImageResponse getImage(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
-    public ImageResponse getAllImages(@NonNull HolderType holderType, long holderId) {
-        return ImageResponse.of(
+    @Transactional(readOnly = true)
+    public ImagesResponse getImages(@NonNull HolderType holderType, long holderId) {
+        return ImagesResponse.of(
                 imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
@@ -93,11 +95,13 @@ public class ImageService {
      * 1. 변경 전 이미지의 Holder를 초기화
      * 2. 변경 후 이미지의 Holder를 설정
      */
+    @Transactional
     public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
         deleteImage(holderType, holderId);
         saveImage(holderType, holderId, newImageId);
     }
 
+    @Transactional
     public void updateImages(
             @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
         deleteImages(holderType, holderId);
@@ -112,13 +116,14 @@ public class ImageService {
     public void deleteImage(@NonNull HolderType holderType, long holderId) {
         Optional<Image> oldImage = imageRepository
                 .findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
+        if (oldImage.isEmpty()) {
+            return;
+        }
 
-        if (oldImage.isPresent()) {
-            int deletedCount = imageRepository.updateHolderForImage(
-                    null, null, oldImage.get().getId());
-            if (deletedCount != 1) {
-                throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
-            }
+        int deletedCount = imageRepository.updateHolderForImage(
+                null, null, oldImage.get().getId());
+        if (deletedCount != 1) {
+            throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
         }
     }
 
@@ -126,6 +131,9 @@ public class ImageService {
     public void deleteImages(@NonNull HolderType holderType, long holderId) {
         List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
                 holderType, holderId);
+        if (oldImages.isEmpty()) {
+            return;
+        }
 
         int deletedCount = imageRepository.updateHolderForImages(
                 null, null, oldImages.stream().map(Image::getId).toList());
@@ -136,20 +144,35 @@ public class ImageService {
 
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
-    public void cleanImages() {
+    public long cleanImages() {
         try {
             List<Image> unusedImages = imageRepository.findAllByHolderTypeIsNullAndHolderIdIsNull();
+            if (unusedImages.isEmpty()) {
+                return 0;
+            }
             List<ObjectIdentifier> imageNames = unusedImages.stream()
                     .map(image -> ObjectIdentifier.builder().key(image.getFileName()).build())
                     .toList();
 
             imageRepository.deleteAllInBatch(unusedImages);
             s3Service.deleteFiles(imageNames);
+            return unusedImages.size();
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
             throw new ServiceException(ErrorType.IMAGE_CLEAN_FAILED, e);
         }
+    }
+
+    private String getImageMimeType(String contentType) {
+        for (String element : contentType.split(";")) {
+            element = element.trim();
+            if (ImageMimeType.isSupported(element)) {
+                return element;
+            }
+        }
+
+        throw new ServiceException(ErrorType.MIME_NOT_SUPPORTED);
     }
 
     @Transactional
@@ -158,18 +181,5 @@ public class ImageService {
         image.setUrl(imageDomain + fileName);
         image.setFileName(fileName);
         return imageRepository.save(image);
-    }
-
-    private Image findImageById(long imageId) {
-        return imageRepository.findById(imageId)
-                .orElseThrow(() -> new ServiceException(ErrorType.IMAGE_NOT_FOUND));
-    }
-
-    private List<Image> findAllImagesByIds(List<Long> imageIds) {
-        List<Image> images = imageRepository.findAllById(imageIds);
-        if (images.size() != imageIds.size()) {
-            throw new ServiceException(ErrorType.IMAGE_NOT_FOUND);
-        }
-        return images;
     }
 }

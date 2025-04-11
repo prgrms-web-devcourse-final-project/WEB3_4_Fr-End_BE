@@ -16,6 +16,7 @@ public class SharedCalendarService {
 
     private final SharedCalendarRepository sharedCalendarRepository;
 
+    // 캘린더 공유
     @Transactional
     public void registerShare(CalendarEntity calendar, User receiver) {
         boolean alreadyShared = sharedCalendarRepository.existsByCalendarAndSharedUser(calendar, receiver);
@@ -25,6 +26,7 @@ public class SharedCalendarService {
         sharedCalendarRepository.save(shared);
     }
 
+    //공유된 캘린더 조회
     @Transactional(readOnly = true)
     public List<CalendarEntity> getSharedCalendars(User user) {
         return sharedCalendarRepository.findAllBySharedUser(user).stream()

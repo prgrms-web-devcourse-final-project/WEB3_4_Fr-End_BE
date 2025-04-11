@@ -1,5 +1,6 @@
 package com.frend.planit.domain.user.controller;
 
+import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
@@ -78,5 +79,12 @@ public class UserController {
         // 사용자 서비스에서 활동 내역을 조회
         List<MateResponseDto> matePosts = userService.getUserActivity(userId);
         return ResponseEntity.ok(matePosts);
+    }
+
+    @GetMapping("/me/activity/mate-comments")
+    public ResponseEntity<List<MateCommentResponseDto>> getUserComments(
+            @AuthenticationPrincipal Long userId) {
+        List<MateCommentResponseDto> comments = userService.getUserComments(userId);
+        return ResponseEntity.ok(comments);
     }
 }

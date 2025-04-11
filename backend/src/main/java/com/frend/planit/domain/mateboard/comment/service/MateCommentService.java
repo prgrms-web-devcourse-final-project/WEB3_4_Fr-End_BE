@@ -15,6 +15,8 @@ import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.PageResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -167,5 +169,13 @@ public class MateCommentService {
         if (!comment.getUser().getId().equals(userId)) {
             throw new ServiceException(NOT_AUTHORIZED);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<MateCommentResponseDto> getUserMateComments(Long userId) {
+        List<MateComment> comments = mateCommentRepository.findByUserId(userId);
+        return comments.stream()
+                .map(MateCommentMapper::toResponseDto)
+                .collect(Collectors.toList());
     }
 }

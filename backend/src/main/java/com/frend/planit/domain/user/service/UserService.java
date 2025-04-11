@@ -1,5 +1,7 @@
 package com.frend.planit.domain.user.service;
 
+import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
+import com.frend.planit.domain.mateboard.comment.service.MateCommentService;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.service.MateService;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
@@ -21,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final MateService mateService;
+    private final MateCommentService mateCommentService;
 
     /**
      * 최초 로그인 시 추가 정보 등록
@@ -86,4 +89,10 @@ public class UserService {
         // MateService에서 사용자 활동 내역을 조회
         return mateService.getUserMatePosts(userId);
     }
+
+    @Transactional(readOnly = true)
+    public List<MateCommentResponseDto> getUserComments(Long userId) {
+        return mateCommentService.getUserMateComments(userId);
+    }
+
 }

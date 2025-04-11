@@ -102,7 +102,7 @@ public class TourApiClient {
             }
         }
 
-        log.info("TourAPI : 전국 숙소 데이터 조회 완료. 총 수신 건수: {}개", result.size());
+        log.info("TourAPI : 전국 숙소 데이터 조회 완료. 총 수신 건수: {}개 (DB에 저장중이니 기다려주세요.)", result.size());
         return result;
     }
 }

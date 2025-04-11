@@ -12,6 +12,7 @@ import com.frend.planit.global.aws.s3.S3Service;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.standard.util.RandomUtil;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.Optional;
 import lombok.NonNull;
@@ -20,9 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class ImageService {
 
@@ -60,7 +63,10 @@ public class ImageService {
      * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
-    public void saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
+    public void saveImage(
+            @NonNull HolderType holderType,
+            @Positive long holderId,
+            @Positive long imageId) {
         int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
         if (updatedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
@@ -68,7 +74,10 @@ public class ImageService {
     }
 
     @Transactional
-    public void saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
+    public void saveImages(
+            @NonNull HolderType holderType,
+            @Positive long holderId,
+            List<Long> imageIds) {
         int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
         if (updatedCount != imageIds.size()) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
@@ -79,13 +88,13 @@ public class ImageService {
      * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
      */
     @Transactional(readOnly = true)
-    public ImageResponse getImage(@NonNull HolderType holderType, long holderId) {
+    public ImageResponse getImage(@NonNull HolderType holderType, @Positive long holderId) {
         return ImageResponse.of(
                 imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
     @Transactional(readOnly = true)
-    public ImagesResponse getImages(@NonNull HolderType holderType, long holderId) {
+    public ImagesResponse getImages(@NonNull HolderType holderType, @Positive long holderId) {
         return ImagesResponse.of(
                 imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
@@ -96,14 +105,19 @@ public class ImageService {
      * 2. 변경 후 이미지의 Holder를 설정
      */
     @Transactional
-    public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
+    public void updateImage(
+            @NonNull HolderType holderType,
+            @Positive long holderId,
+            @Positive long newImageId) {
         deleteImage(holderType, holderId);
         saveImage(holderType, holderId, newImageId);
     }
 
     @Transactional
     public void updateImages(
-            @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
+            @NonNull HolderType holderType,
+            @Positive long holderId,
+            List<Long> newImageIds) {
         deleteImages(holderType, holderId);
         saveImages(holderType, holderId, newImageIds);
     }
@@ -113,7 +127,7 @@ public class ImageService {
      * 삭제는 주기적으로 이루어집니다.
      */
     @Transactional
-    public void deleteImage(@NonNull HolderType holderType, long holderId) {
+    public void deleteImage(@NonNull HolderType holderType, @Positive long holderId) {
         Optional<Image> oldImage = imageRepository
                 .findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
         if (oldImage.isEmpty()) {
@@ -128,7 +142,7 @@ public class ImageService {
     }
 
     @Transactional
-    public void deleteImages(@NonNull HolderType holderType, long holderId) {
+    public void deleteImages(@NonNull HolderType holderType, @Positive long holderId) {
         List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
                 holderType, holderId);
         if (oldImages.isEmpty()) {

@@ -50,6 +50,7 @@ public class CalendarEntity extends BaseTime {
 
     // 스케줄 엔티티와 연관 관계
     @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ScheduleEntity> schedules = new ArrayList<>();
 
     public static CalendarEntity fromDto(CalendarRequestDto requestDto, User user) {

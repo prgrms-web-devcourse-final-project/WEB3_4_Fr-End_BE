@@ -65,8 +65,8 @@ public class TravelEntity extends BaseTime {
                 .category(request.getCategory())
                 .lat(request.getLat())
                 .lng(request.getLng())
-                .visitHour(request.getHour())
-                .visitMinute(request.getMinute())
+                .visitHour(request.getIntHour())
+                .visitMinute(request.getIntMinute())
                 .build();
 
         // 편의 메서드로 연관관계 설정
@@ -86,7 +86,7 @@ public class TravelEntity extends BaseTime {
         this.category = travelRequest.getCategory();
         this.lat = travelRequest.getLat();
         this.lng = travelRequest.getLng();
-        this.visitHour = travelRequest.getHour();
-        this.visitMinute = travelRequest.getMinute();
+        this.visitHour = travelRequest.getIntHour();
+        this.visitMinute = travelRequest.getIntMinute();
     }
 }

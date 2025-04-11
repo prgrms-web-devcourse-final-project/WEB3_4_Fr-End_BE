@@ -1,5 +1,7 @@
 package com.frend.planit.domain.user.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,5 +9,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserUpdateProfileImageRequest {
 
-    private String profileImageUrl;
+    @Positive
+    private long imageId;
+
+    @NotBlank
+    private String imageUrl;
 }

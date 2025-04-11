@@ -91,7 +91,7 @@ class ImageIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$").value(1));
 
-        Assertions.assertThat(imageService.getAllImages(HolderType.TEST, 1).count()).isEqualTo(10);
+        Assertions.assertThat(imageService.getImages(HolderType.TEST, 1).count()).isEqualTo(10);
     }
 
     @Test
@@ -161,7 +161,7 @@ class ImageIntegrationTest {
                 .andExpect(jsonPath("$.imageData.imageIds").isArray())
                 .andExpect(jsonPath("$.imageData.imageUrls").isArray());
 
-        Assertions.assertThat(imageService.getAllImages(HolderType.TEST, 1).count()).isEqualTo(5);
+        Assertions.assertThat(imageService.getImages(HolderType.TEST, 1).count()).isEqualTo(5);
     }
 
     @Test
@@ -206,7 +206,7 @@ class ImageIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        Assertions.assertThat(imageService.getAllImages(HolderType.TEST, 1).count()).isEqualTo(0);
+        Assertions.assertThat(imageService.getImages(HolderType.TEST, 1).count()).isEqualTo(0);
     }
 
     @Test

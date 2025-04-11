@@ -9,9 +9,6 @@ import com.frend.planit.domain.mateboard.post.entity.MateGender;
 import com.frend.planit.domain.mateboard.post.entity.TravelRegion;
 import com.frend.planit.domain.mateboard.post.repository.MateRepository;
 import com.frend.planit.domain.user.entity.User;
-import com.frend.planit.domain.user.enums.Gender;
-import com.frend.planit.domain.user.enums.LoginType;
-import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,23 +30,6 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (userRepository.count() == 0) {
-            User user1 = User.builder()
-                    .socialId("test1")
-                    .socialType(SocialType.NAVER)
-                    .loginType(LoginType.SOCIAL)
-                    .build();
-
-            user1.updateFirstInfo(
-                    "test1@naver.com",
-                    "테스트유저1",
-                    "010-1234-5678",
-                    LocalDate.now(),
-                    Gender.MALE);
-
-            userRepository.save(user1);
-        }
-
         if (calendarRepository.count() == 0) {
             User user = userRepository.findById(1L).orElseThrow(); // 존재하는 테스트 유저
 

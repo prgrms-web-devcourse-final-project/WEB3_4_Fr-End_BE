@@ -1,5 +1,7 @@
 package com.frend.planit.domain.user.service;
 
+import com.frend.planit.domain.image.service.ImageService;
+import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.user.dto.request.UserUpdateBioRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateEmailRequest;
 import com.frend.planit.domain.user.dto.request.UserUpdateMailingTypeRequest;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserProfileUpdateService {
 
     private final UserRepository userRepository;
+    private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
 
     public void updateNickname(Long userId, UserUpdateNicknameRequest request) {
@@ -37,7 +40,13 @@ public class UserProfileUpdateService {
     }
 
     public void updateProfileImage(Long userId, UserUpdateProfileImageRequest request) {
-        getUser(userId).updateProfileImage(request.getProfileImageUrl());
+        imageService.updateImage(HolderType.USER, userId, request.getImageId());
+        getUser(userId).updateProfileImage(request.getImageUrl());
+    }
+
+    public void deleteProfileImage(Long userId) {
+        imageService.deleteImage(HolderType.USER, userId);
+        getUser(userId).updateProfileImage(null);
     }
 
     public void updateMailingType(Long userId, UserUpdateMailingTypeRequest request) {

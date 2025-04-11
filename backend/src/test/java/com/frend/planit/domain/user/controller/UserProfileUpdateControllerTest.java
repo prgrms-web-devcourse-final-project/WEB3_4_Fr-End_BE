@@ -93,7 +93,7 @@ class UserProfileUpdateControllerTest {
     @WithMockUser
     void updateProfileImage() throws Exception {
         UserUpdateProfileImageRequest request = new UserUpdateProfileImageRequest(
-                "https://new.image/url.png");
+                1, "https://new.image/url.png");
         doNothing().when(userProfileUpdateService).updateProfileImage(userId, request);
 
         mockMvc.perform(patch("/api/v1/user/me/profile-image")

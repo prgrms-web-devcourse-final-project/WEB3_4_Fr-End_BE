@@ -1,6 +1,7 @@
 package com.frend.planit.domain.image.service;
 
 import com.frend.planit.domain.image.dto.response.ImageResponse;
+import com.frend.planit.domain.image.dto.response.ImagesResponse;
 import com.frend.planit.domain.image.dto.response.UploadResponse;
 import com.frend.planit.domain.image.entity.Image;
 import com.frend.planit.domain.image.repository.ImageRepository;
@@ -59,35 +60,33 @@ public class ImageService {
      * 연결되지 않은 이미지는 주기적으로 삭제됩니다.
      */
     @Transactional
-    public long saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
+    public void saveImage(@NonNull HolderType holderType, long holderId, long imageId) {
         int updatedCount = imageRepository.updateHolderForImage(holderType, holderId, imageId);
         if (updatedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
         }
-        return updatedCount;
     }
 
     @Transactional
-    public long saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
+    public void saveImages(@NonNull HolderType holderType, long holderId, List<Long> imageIds) {
         int updatedCount = imageRepository.updateHolderForImages(holderType, holderId, imageIds);
         if (updatedCount != imageIds.size()) {
             throw new ServiceException(ErrorType.IMAGE_UPLOAD_FAILED);
         }
-        return updatedCount;
     }
 
     /*
      * 게시글에 연결된 이미지를 업로드 순으로 조회합니다.
      */
     @Transactional(readOnly = true)
-    public ImageResponse getFirstImage(@NonNull HolderType holderType, long holderId) {
+    public ImageResponse getImage(@NonNull HolderType holderType, long holderId) {
         return ImageResponse.of(
                 imageRepository.findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
     @Transactional(readOnly = true)
-    public ImageResponse getAllImages(@NonNull HolderType holderType, long holderId) {
-        return ImageResponse.of(
+    public ImagesResponse getImages(@NonNull HolderType holderType, long holderId) {
+        return ImagesResponse.of(
                 imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId));
     }
 
@@ -97,16 +96,16 @@ public class ImageService {
      * 2. 변경 후 이미지의 Holder를 설정
      */
     @Transactional
-    public long updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
+    public void updateImage(@NonNull HolderType holderType, long holderId, long newImageId) {
         deleteImage(holderType, holderId);
-        return saveImage(holderType, holderId, newImageId);
+        saveImage(holderType, holderId, newImageId);
     }
 
     @Transactional
-    public long updateImages(
+    public void updateImages(
             @NonNull HolderType holderType, long holderId, List<Long> newImageIds) {
         deleteImages(holderType, holderId);
-        return saveImages(holderType, holderId, newImageIds);
+        saveImages(holderType, holderId, newImageIds);
     }
 
     /*
@@ -114,11 +113,11 @@ public class ImageService {
      * 삭제는 주기적으로 이루어집니다.
      */
     @Transactional
-    public long deleteImage(@NonNull HolderType holderType, long holderId) {
+    public void deleteImage(@NonNull HolderType holderType, long holderId) {
         Optional<Image> oldImage = imageRepository
                 .findFirstByHolderTypeAndHolderIdOrderByIdAsc(holderType, holderId);
         if (oldImage.isEmpty()) {
-            return 0;
+            return;
         }
 
         int deletedCount = imageRepository.updateHolderForImage(
@@ -126,15 +125,14 @@ public class ImageService {
         if (deletedCount != 1) {
             throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
         }
-        return deletedCount;
     }
 
     @Transactional
-    public long deleteImages(@NonNull HolderType holderType, long holderId) {
+    public void deleteImages(@NonNull HolderType holderType, long holderId) {
         List<Image> oldImages = imageRepository.findAllByHolderTypeAndHolderIdOrderByIdAsc(
                 holderType, holderId);
         if (oldImages.isEmpty()) {
-            return 0;
+            return;
         }
 
         int deletedCount = imageRepository.updateHolderForImages(
@@ -142,7 +140,6 @@ public class ImageService {
         if (deletedCount != oldImages.size()) {
             throw new ServiceException(ErrorType.IMAGE_DELETE_FAILED);
         }
-        return deletedCount;
     }
 
     @Scheduled(cron = "0 0 0 * * *")

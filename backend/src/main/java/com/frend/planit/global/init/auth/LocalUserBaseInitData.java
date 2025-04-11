@@ -24,7 +24,7 @@ public class LocalUserBaseInitData implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.count() > 5) {
+        if (userRepository.count() > 0) {
             return;
         }
 

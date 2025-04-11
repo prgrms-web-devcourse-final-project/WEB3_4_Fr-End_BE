@@ -7,7 +7,7 @@ public record ImageTestResponse(
         String name,
         int age,
         String email,
-        ImageResponse imageData
+        ImagesResponse imageData
 ) {
 
 }

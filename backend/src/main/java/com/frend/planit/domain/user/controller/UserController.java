@@ -1,5 +1,6 @@
 package com.frend.planit.domain.user.controller;
 
+import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
@@ -86,5 +87,12 @@ public class UserController {
             @AuthenticationPrincipal Long userId) {
         List<MateCommentResponseDto> comments = userService.getUserCommentsActivity(userId);
         return ResponseEntity.ok(comments);
+    }
+
+    @GetMapping("/me/activity/calendars")
+    public ResponseEntity<List<CalendarActivityResponseDto>> getUserCalendars(
+            @AuthenticationPrincipal Long userId) {
+        List<CalendarActivityResponseDto> calendars = userService.getUserCalendarActivity(userId);
+        return ResponseEntity.ok(calendars);
     }
 }

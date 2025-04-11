@@ -16,6 +16,7 @@ public class MateCommentMapper {
 
     public static MateCommentResponseDto toResponseDto(MateComment comment) {
         return MateCommentResponseDto.builder()
+                .commentId(comment.getId())
                 .matePostId(comment.getMate().getId())
                 .userId(comment.getUser().getId())
                 .nickname(comment.getUser().getNickname())

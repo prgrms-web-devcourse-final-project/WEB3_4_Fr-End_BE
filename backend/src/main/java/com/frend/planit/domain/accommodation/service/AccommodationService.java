@@ -7,6 +7,8 @@ import com.frend.planit.domain.accommodation.entity.AccommodationEntity;
 import com.frend.planit.domain.accommodation.repository.AccommodationRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class AccommodationService {
 
     private final AccommodationRepository repository;
     private final TourApiClient tourApiClient;
+    private final Validator validator;
 
     @Transactional(readOnly = true)
     public AccommodationResponseDto findById(Long id) {
@@ -120,25 +124,33 @@ public class AccommodationService {
         int savedCount = 0;
 
         for (AccommodationRequestDto dto : dtos) {
-            boolean exists = repository.findByNameAndLocation(dto.name(), dto.location()).isPresent();
-            if (!exists) {
-                AccommodationEntity entity = AccommodationEntity.builder()
-                        .name(dto.name())
-                        .location(dto.location())
-                        .pricePerNight(dto.pricePerNight())
-                        .availableRooms(dto.availableRooms())
-                        .mainImage(dto.mainImage())
-                        .amenities(dto.amenities())
-                        .areaCode(dto.areaCode())
-                        .cat3(dto.cat3())
-                        .mapX(dto.mapX())
-                        .mapY(dto.mapY())
-                        .checkInTime(dto.checkInTime())
-                        .checkOutTime(dto.checkOutTime())
-                        .build();
+            try {
+                Set<ConstraintViolation<AccommodationRequestDto>> violations = validator.validate(dto);
+                if (!violations.isEmpty()) {
+                    continue;
+                }
+                boolean exists = repository.findByNameAndLocation(dto.name(), dto.location()).isPresent();
+                if (!exists) {
+                    AccommodationEntity entity = AccommodationEntity.builder()
+                            .name(dto.name())
+                            .location(dto.location())
+                            .pricePerNight(dto.pricePerNight())
+                            .availableRooms(dto.availableRooms())
+                            .mainImage(dto.mainImage())
+                            .amenities(dto.amenities())
+                            .areaCode(dto.areaCode())
+                            .cat3(dto.cat3())
+                            .mapX(dto.mapX())
+                            .mapY(dto.mapY())
+                            .checkInTime(dto.checkInTime())
+                            .checkOutTime(dto.checkOutTime())
+                            .build();
 
-                repository.save(entity);
-                savedCount++;
+                    repository.save(entity);
+                    savedCount++;
+                }
+            } catch (Exception ignore) {
+                // 예외 발생 시, 그것만 저장하지않고 넘어감
             }
         }
 

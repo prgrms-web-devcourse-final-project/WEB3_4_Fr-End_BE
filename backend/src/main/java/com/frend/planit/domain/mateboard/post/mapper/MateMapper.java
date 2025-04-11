@@ -24,6 +24,7 @@ public class MateMapper {
 
         return MateResponseDto.builder()
                 .matePostId(mate.getId())
+                .authorId(mate.getWriter().getId())
                 .nickname(mate.getWriter().getNickname())
                 .profileImage(mate.getWriter().getProfileImageUrl())
                 .authorGender(mate.getWriter().getGender())

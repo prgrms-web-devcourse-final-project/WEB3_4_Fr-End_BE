@@ -20,7 +20,7 @@ public class MateCommentResponseDto {
 
     private final Long matePostId;
 
-    private final Long userId;
+    private final Long authorId;
 
     private final String nickname;
 

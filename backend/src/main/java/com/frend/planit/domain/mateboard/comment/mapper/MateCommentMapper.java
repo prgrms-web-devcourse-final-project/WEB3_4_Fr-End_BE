@@ -18,7 +18,7 @@ public class MateCommentMapper {
         return MateCommentResponseDto.builder()
                 .commentId(comment.getId())
                 .matePostId(comment.getMate().getId())
-                .userId(comment.getUser().getId())
+                .authorId(comment.getUser().getId())
                 .nickname(comment.getUser().getNickname())
                 .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .content(comment.getContent())

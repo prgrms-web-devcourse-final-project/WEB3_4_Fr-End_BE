@@ -22,6 +22,7 @@ import lombok.Getter;
 public class MateResponseDto {
 
     private final Long matePostId;
+    private final Long authorId;
     private final String title;
     private final String content;
     private final TravelRegion travelRegion;
@@ -39,13 +40,14 @@ public class MateResponseDto {
     private LocalDateTime createdAt;
 
     @QueryProjection
-    public MateResponseDto(Long matePostId, String title, String content,
+    public MateResponseDto(Long matePostId, Long authorId, String title, String content,
             TravelRegion travelRegion, LocalDate travelStartDate, LocalDate travelEndDate,
             RecruitmentStatus recruitmentStatus, MateGender mateGender,
             int recruitCount, int appliedCount, String imageUrl,
             String nickname, String bio, String profileImage, Gender authorGender,
             LocalDateTime createdAt) {
         this.matePostId = matePostId;
+        this.authorId = authorId;
         this.title = title;
         this.content = content;
         this.travelRegion = travelRegion;

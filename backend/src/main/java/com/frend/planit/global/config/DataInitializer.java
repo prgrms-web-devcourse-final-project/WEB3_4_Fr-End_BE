@@ -22,12 +22,16 @@ import com.frend.planit.global.response.ErrorType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Profile({"dev", "local"})
@@ -44,9 +48,12 @@ public class DataInitializer implements ApplicationRunner {
     private final TravelRepository travelRepository;
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) {
         Optional<User> optionalUser = userRepository.findById(1L);
-        if (optionalUser.isEmpty()) return;
+        if (optionalUser.isEmpty()) {
+            return;
+        }
 
         User user = optionalUser.get();
 
@@ -100,6 +107,8 @@ public class DataInitializer implements ApplicationRunner {
             ScheduleEntity schedule = ScheduleEntity.of(calendar, request);
 
             scheduleRepository.save(schedule);
+
+            scheduleRepository.flush();
         }
 
         // 여행 일정 생성
@@ -108,23 +117,37 @@ public class DataInitializer implements ApplicationRunner {
             ScheduleEntity schedule = scheduleRepository.findById(1L)
                     .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
-            // 여행 일정 생성
+            // 여행 일정 시간, 분 랜덤 생성
             for (ScheduleDayEntity day : schedule.getScheduleDayList()) {
-                TravelRequest travelRequest = TravelRequest.builder()
-                        .scheduleDayId(day.getId()) // 생성 시점에 ID 없을 수 있음
-                        .kakaomapId("kakao-" + day.getDate())
-                        .location("서울역 " + day.getDate())
-                        .category("여행")
-                        .lat(37.5)
-                        .lng(126.97)
-                        .hour("10")
-                        .minute("00")
-                        .build();
+                List<TravelEntity> travels = generateTravel(day);
+                travelRepository.saveAll(travels);
 
-                TravelEntity travel = TravelEntity.of(travelRequest, day); // 연관관계 자동 설정
-
-                travelRepository.save(travel);
             }
         }
+    }
+
+    public List<TravelEntity> generateTravel(ScheduleDayEntity day) {
+        List<TravelEntity> travels = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            int randomHour = ThreadLocalRandom.current().nextInt(0, 24);      // 0 ~ 23
+            int randomMinute = ThreadLocalRandom.current().nextInt(0, 60);    // 0 ~ 59
+
+            // 여행 일정 생성
+            TravelRequest travelRequest = TravelRequest.builder()
+                    .scheduleDayId(day.getId()) // 생성 시점에 ID 없을 수 있음
+                    .kakaomapId("kakao-" + i)
+                    .location("서울역")
+                    .category("여행")
+                    .lat(37.5 + (i * 0.01))
+                    .lng(126.97 + (i * 0.01))
+                    .hour(String.format("%02d", randomHour))
+                    .minute(String.format("%02d", randomMinute))
+                    .build();
+
+            travels.add(TravelEntity.of(travelRequest, day)); // 연관관계 자동 설정
+        }
+
+        return travels;
     }
 }

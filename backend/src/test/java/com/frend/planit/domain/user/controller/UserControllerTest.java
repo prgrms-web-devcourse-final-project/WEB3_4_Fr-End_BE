@@ -11,7 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frend.planit.TestConfig;
-import com.frend.planit.domain.auth.controller.AuthController;
+import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
+import com.frend.planit.domain.mateboard.post.service.MateService;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.enums.Gender;
@@ -20,8 +21,10 @@ import com.frend.planit.domain.user.enums.SocialType;
 import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.service.UserService;
 import com.frend.planit.global.security.JwtAuthenticationFilter;
+import com.frend.planit.testsecurity.WithMockCustomUser;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +32,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = AuthController.class)
+@WebMvcTest(controllers = UserController.class)
 @ContextConfiguration(classes = {UserController.class, TestConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
@@ -51,16 +52,15 @@ class UserControllerTest {
     private UserService userService;
 
     @MockBean
+    private MateService mateService;
+
+    @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     @DisplayName("최초 로그인 추가 정보 입력 API")
     void updateFirstInfo() throws Exception {
         Long mockUserId = 1L;
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(mockUserId, null, null);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserFirstInfoRequest request = new UserFirstInfoRequest(
                 "test@email.com",
@@ -77,7 +77,6 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
     }
-
 
     @Test
     @DisplayName("닉네임 중복 확인 API")
@@ -113,13 +112,10 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockCustomUser(id = 1L, username = "사용자1")
     @DisplayName("내 정보 조회 API")
     void getMyInfo() throws Exception {
         Long mockUserId = 1L;
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(mockUserId, null, null);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserMeResponse response = UserMeResponse.builder()
                 .id(mockUserId)
@@ -155,5 +151,33 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.role").value("USER"));
     }
 
+    @Test
+    @WithMockCustomUser(id = 1L, username = "사용자1")
+    @DisplayName("나의 활동 내역 조회 API")
+    void getUserActivity() throws Exception {
+        Long mockUserId = 1L;
+
+        MateResponseDto mateResponseDto = MateResponseDto.builder()
+                .matePostId(1L)
+                .authorId(mockUserId)
+                .title("여행 동행 모집")
+                .content("같이 여행 갈 사람 구합니다.")
+                .createdAt(LocalDateTime.now())
+                .nickname("사용자1")
+                .imageUrl("https://image.test.com/post.png")
+                .build();
+
+        when(userService.getUserActivity(mockUserId)).thenReturn(List.of(mateResponseDto));
+
+        mockMvc.perform(get("/api/v1/user/me/activity/mate-post")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].matePostId").value(1L))
+                .andExpect(jsonPath("$[0].title").value("여행 동행 모집"))
+                .andExpect(jsonPath("$[0].content").value("같이 여행 갈 사람 구합니다."))
+                .andExpect(jsonPath("$[0].nickname").value("사용자1"))
+                .andExpect(jsonPath("$[0].imageUrl").value("https://image.test.com/post.png"))
+                .andExpect(jsonPath("$[0].createdAt").exists());
+    }
 
 }

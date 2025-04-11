@@ -62,9 +62,7 @@ public class CalendarEntity extends BaseTime {
                 .endDate(requestDto.endDate())
                 .alertTime(requestDto.alertTime())
                 .note(requestDto.note())
-                .labelColor(
-                        requestDto.labelColor() != null ? requestDto.labelColor() : "#3b82f6"
-                ) // 기본 색상 프론트랑 맞춤 특별히
+                .labelColor(requestDto.labelColor() != null ? requestDto.labelColor() : "#3b82f6")
                 .build();
     }
 

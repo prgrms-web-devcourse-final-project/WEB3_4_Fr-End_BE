@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frend.planit.TestConfig;
+import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.service.MateService;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
@@ -178,6 +179,42 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[0].nickname").value("사용자1"))
                 .andExpect(jsonPath("$[0].imageUrl").value("https://image.test.com/post.png"))
                 .andExpect(jsonPath("$[0].createdAt").exists());
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, username = "사용자1")
+    @DisplayName("내가 작성한 메이트 댓글 목록 조회 API")
+    void getUserMateComments() throws Exception {
+        Long mockUserId = 1L;
+
+        // mock 댓글 응답 DTO 생성
+        MateCommentResponseDto commentDto = MateCommentResponseDto.builder()
+                .mateCommentId(10L)
+                .matePostId(100L)
+                .authorId(mockUserId)
+                .nickname("사용자1")
+                .profileImageUrl("https://image.test.com/profile.png")
+                .content("같이 여행가요!")
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build();
+
+        // mock 설정
+        when(userService.getUserComments(mockUserId)).thenReturn(List.of(commentDto));
+
+        // API 호출 및 응답 검증
+        mockMvc.perform(get("/api/v1/user/me/activity/mate-comments")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].mateCommentId").value(10L))
+                .andExpect(jsonPath("$[0].matePostId").value(100L))
+                .andExpect(jsonPath("$[0].authorId").value(1L))
+                .andExpect(jsonPath("$[0].nickname").value("사용자1"))
+                .andExpect(jsonPath("$[0].profileImageUrl").value(
+                        "https://image.test.com/profile.png"))
+                .andExpect(jsonPath("$[0].content").value("같이 여행가요!"))
+                .andExpect(jsonPath("$[0].createdAt").exists())
+                .andExpect(jsonPath("$[0].modifiedAt").exists());
     }
 
 }

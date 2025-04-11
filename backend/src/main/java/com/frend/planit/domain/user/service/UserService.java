@@ -1,5 +1,7 @@
 package com.frend.planit.domain.user.service;
 
+import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
+import com.frend.planit.domain.mateboard.post.service.MateService;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.entity.User;
@@ -7,6 +9,7 @@ import com.frend.planit.domain.user.enums.UserStatus;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final MateService mateService;
 
     /**
      * 최초 로그인 시 추가 정보 등록
@@ -75,5 +79,11 @@ public class UserService {
                 .orElseThrow(() -> new ServiceException(ErrorType.COMMON_SERVER_ERROR));
 
         return UserMeResponse.from(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MateResponseDto> getUserActivity(Long userId) {
+        // MateService에서 사용자 활동 내역을 조회
+        return mateService.getUserMatePosts(userId);
     }
 }

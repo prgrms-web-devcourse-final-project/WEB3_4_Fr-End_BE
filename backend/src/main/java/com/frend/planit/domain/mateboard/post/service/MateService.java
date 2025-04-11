@@ -15,7 +15,10 @@ import com.frend.planit.domain.mateboard.post.repository.MateRepository;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
+import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.global.response.PageResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -212,5 +215,28 @@ public class MateService {
         mate.setMateGender(mateRequestDto.getMateGender());
         mate.setRecruitCount(mateRequestDto.getRecruitCount());
         return mate;
+    }
+
+    /**
+     * 로그인한 사용자가 작성한 게시글을 조회합니다. (활동 내역 조회용)
+     */
+    public List<MateResponseDto> getUserMatePosts(Long userId) {
+        // userId로 User 객체를 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.USER_NOT_FOUND));
+
+        // 로그인한 사용자가 작성한 게시글 조회
+        List<Mate> matePosts = mateRepository.findByWriter(user);
+
+        // Mate 엔티티를 MateResponseDto로 변환하여 반환
+        return matePosts.stream()
+                .map(mate -> {
+                    // 이미지 URL 가져오기
+                    String imageUrl = imageService.getImage(HolderType.MATEBOARD, mate.getId())
+                            .imageUrl();
+                    // MateMapper의 toResponseDto 사용하여 변환
+                    return MateMapper.toResponseDto(mate, imageUrl);
+                })
+                .collect(Collectors.toList());
     }
 }

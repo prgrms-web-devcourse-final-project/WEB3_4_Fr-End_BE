@@ -61,7 +61,8 @@ public class TravelService {
     }
 
     // 행선지 삭제
-    public void deleteTravel(Long scheduleId, Long travelId) {
+    @Transactional
+    public TravelResponse deleteTravel(Long scheduleId, Long travelId) {
         // 스케줄 존재 여부 확인
         scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
@@ -77,9 +78,12 @@ public class TravelService {
 
         // 행선지 삭제
         travelRepository.delete(travel);
+
+        return TravelResponse.from(travel);
     }
 
     // 행선지 수정
+    @Transactional
     public TravelResponse modifyTravel(Long scheduleId, Long travelId,
             TravelRequest travelRequest) {
         // 스케줄 존재 여부 확인

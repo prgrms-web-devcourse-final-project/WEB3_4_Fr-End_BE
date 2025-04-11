@@ -11,6 +11,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TravelResponse {
 
+    @JsonProperty("travel_id")
+    private Long id;
+
     @JsonProperty("id")
     private String kakaomapId;
 
@@ -32,6 +35,7 @@ public class TravelResponse {
 
     public static TravelResponse from(TravelEntity travelEntity) {
         return TravelResponse.builder()
+                .id(travelEntity.getId())
                 .kakaomapId(travelEntity.getKakaomapId())
                 .location(travelEntity.getLocation())
                 .category(travelEntity.getCategory())

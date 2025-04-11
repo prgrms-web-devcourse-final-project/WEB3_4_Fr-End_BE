@@ -50,11 +50,11 @@ public class TravelController {
     @DeleteMapping("/{travelId}")
     @Operation(summary = "행선지 삭제")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteTravel(
+    public TravelResponse deleteTravel(
             @PathVariable Long scheduleId,
             @PathVariable Long travelId
     ) {
-        travelService.deleteTravel(scheduleId, travelId);
+        return travelService.deleteTravel(scheduleId, travelId);
     }
 
     @PatchMapping("/{travelId}")

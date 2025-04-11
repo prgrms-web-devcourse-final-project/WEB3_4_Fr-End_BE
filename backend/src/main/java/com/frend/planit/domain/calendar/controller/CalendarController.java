@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -39,9 +40,9 @@ public class CalendarController {
         this.userRepository = userRepository;
     }
 
-   // 캘린더 생성 (유저ID조회)
+    // 캘린더 생성 (유저ID조회)
     @PostMapping
-    public ResponseEntity<CalendarResponseDto> createCalendar(@RequestParam Long userId,
+    public ResponseEntity<CalendarResponseDto> createCalendar(@AuthenticationPrincipal Long userId,
                                                               @Valid @RequestBody CalendarRequestDto requestDto) {
         User user = orThrow(userRepository.findById(userId), USER_NOT_FOUND);
         CalendarResponseDto responseDto = calendarService.createCalendar(requestDto, user);
@@ -49,7 +50,7 @@ public class CalendarController {
         return ResponseEntity.created(location).body(responseDto);
     }
 
-   // 캘린더 단건 조회
+    // 캘린더 단건 조회
     @GetMapping("/{id}")
     public ResponseEntity<CalendarResponseDto> getCalendar(@PathVariable Long id) {
         return ResponseEntity.ok(calendarService.getCalendar(id));
@@ -65,7 +66,7 @@ public class CalendarController {
     // 캘린더 수정 (생성자, 공유자 가능)
     @PutMapping("/{id}")
     public ResponseEntity<CalendarResponseDto> updateCalendar(@PathVariable Long id,
-                                                              @RequestParam Long userId,
+                                                              @AuthenticationPrincipal Long userId,
                                                               @Valid @RequestBody CalendarRequestDto requestDto) {
         User user = orThrow(userRepository.findById(userId), USER_NOT_FOUND);
         return ResponseEntity.ok(calendarService.updateCalendar(id, requestDto, user));
@@ -74,15 +75,15 @@ public class CalendarController {
     // 캘린더 삭제 (생성자만 가능)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCalendar(@PathVariable Long id,
-                                               @RequestParam Long userId) {
+                                               @AuthenticationPrincipal Long userId) {
         User user = orThrow(userRepository.findById(userId), USER_NOT_FOUND);
         calendarService.deleteCalendar(id, user);
         return ResponseEntity.noContent().build();
     }
 
-   // 공유된 캘린더 목록 조회
+    // 공유된 캘린더 목록 조회
     @GetMapping("/shared")
-    public ResponseEntity<List<CalendarResponseDto>> getSharedCalendars(@RequestParam Long userId) {
+    public ResponseEntity<List<CalendarResponseDto>> getSharedCalendars(@AuthenticationPrincipal Long userId) {
         User user = orThrow(userRepository.findById(userId), USER_NOT_FOUND);
         List<CalendarResponseDto> result = sharedCalendarService.getSharedCalendars(user).stream()
                 .map(CalendarResponseDto::new)

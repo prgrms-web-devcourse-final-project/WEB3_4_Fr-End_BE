@@ -6,7 +6,11 @@ import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.response.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
@@ -27,7 +31,7 @@ public class InviteController {
     // 초대 링크 ( 링크 클릭 시, 캘린더 공유)
     @PostMapping("/accept/{inviteCode}")
     public ResponseEntity<Void> acceptInvite(@PathVariable String inviteCode,
-                                             @RequestParam Long userId) {
+                                             @AuthenticationPrincipal Long userId) {
         User user = orThrow(userRepository.findById(userId), USER_NOT_FOUND);
         inviteService.shareCalendarByInvite(inviteCode, user);
         return ResponseEntity.ok().build();
@@ -40,7 +44,7 @@ public class InviteController {
         return ResponseEntity.status(201).body(inviteCode); // 201 Created
     }
 
-   // 초대 링크 무효화
+    // 초대 링크 무효화
     @PostMapping("/invalidate/{inviteCode}")
     public ResponseEntity<Void> invalidateInvitation(@PathVariable String inviteCode) {
         inviteService.invalidate(inviteCode);

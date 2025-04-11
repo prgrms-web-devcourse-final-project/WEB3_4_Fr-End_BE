@@ -4,7 +4,6 @@ import static com.frend.planit.global.response.ErrorType.MATE_POST_NOT_FOUND;
 import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
 import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
 
-import com.frend.planit.domain.image.dto.response.ImagesResponse;
 import com.frend.planit.domain.image.service.ImageService;
 import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
@@ -68,12 +67,15 @@ public class MateService {
 
         // 1. 메이트 엔티티 생성
         Mate mate = createMateEntity(writer, mateRequestDto);
+
         // 2. 생성된 게시글 저장
         mateRepository.save(mate);
+
         // 3. 이미지 연결(선택)
         if (mateRequestDto.getImageId() != null) {
             imageService.saveImage(HolderType.MATEBOARD, mate.getId(), mateRequestDto.getImageId());
         }
+
         // 4. 생성된 게시글 ID 반환
         return mate.getId();
     }
@@ -89,12 +91,7 @@ public class MateService {
         Mate mate = findMateOrThrow(id);
 
         // 게시글 이미지 조회
-        ImagesResponse imagesResponse = imageService.getImages(HolderType.MATEBOARD,
-                mate.getId());
-        String imageUrl = (imagesResponse != null && imagesResponse.imageUrls() != null
-                && !imagesResponse.imageUrls().isEmpty())
-                ? imagesResponse.imageUrls().get(0)
-                : null;
+        String imageUrl = imageService.getImage(HolderType.MATEBOARD, mate.getId()).imageUrl();
 
         // DTO 변환 시 이미지 URL 포함
         return MateMapper.toResponseDto(mate, imageUrl);
@@ -150,19 +147,19 @@ public class MateService {
 
         // 5. 이미지 수정 시 반영(선택)
         if (mateRequestDto.getImageId() != null) {
-            imageService.saveImage(HolderType.MATEBOARD, updateMate.getId(),
-                    mateRequestDto.getImageId());
-        }
+            if (mateRequestDto.getImageId() == 0) { // 0이면 삭제
+                imageService.deleteImage(HolderType.MATEBOARD, updateMate.getId());
+            } else { // 0이 아니면 변경
+                imageService.updateImage(HolderType.MATEBOARD, updateMate.getId(),
+                        mateRequestDto.getImageId());
+            }
+        } // null이면 유지
 
-        ImagesResponse imagesResponse = imageService.getImages(HolderType.MATEBOARD,
-                updateMate.getId());
+        String imageUrl = imageService.getImage(HolderType.MATEBOARD, updateMate.getId())
+                .imageUrl();
 
-        String imageUrl = (imagesResponse != null && imagesResponse.imageUrls() != null
-                && !imagesResponse.imageUrls().isEmpty())
-                ? imagesResponse.imageUrls().get(0)
-                : null;
-
-        // 6. 수정한 게시글 id 전달
+        // 6. 수정한 게시글 전달
+        updateMate = findMateOrThrow(id);
         return MateMapper.toResponseDto(updateMate, imageUrl);
     }
 
@@ -182,18 +179,19 @@ public class MateService {
             throw new ServiceException(NOT_AUTHORIZED);
         }
 
-        ImagesResponse imagesResponse = imageService.getImages(HolderType.MATEBOARD,
-                deleteMate.getId());
-        String imageUrl = (imagesResponse != null && imagesResponse.imageUrls() != null
-                && !imagesResponse.imageUrls().isEmpty())
-                ? imagesResponse.imageUrls().get(0)
-                : null;
+        // 3. 게시글 백업
+        String imageUrl = imageService.getImage(HolderType.MATEBOARD, deleteMate.getId())
+                .imageUrl();
+        MateResponseDto mateResponseDto = MateMapper.toResponseDto(deleteMate, imageUrl);
 
-        // 3. 게시글 삭제
+        // 4. 이미지 삭제
+        imageService.deleteImage(HolderType.MATEBOARD, deleteMate.getId());
+
+        // 5. 게시글 삭제
         mateRepository.delete(deleteMate);
 
-        // 4. 삭제된 게시글 정보 리턴
-        return MateMapper.toResponseDto(deleteMate, imageUrl);
+        // 6. 삭제된 게시글 정보 리턴
+        return mateResponseDto;
     }
 
     /**

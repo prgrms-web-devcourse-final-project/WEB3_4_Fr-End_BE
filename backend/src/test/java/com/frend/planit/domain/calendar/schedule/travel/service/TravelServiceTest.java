@@ -32,7 +32,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -67,9 +66,6 @@ public class TravelServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        MockitoAnnotations.openMocks(this);
 
         // Calendar 엔티티 생성
         calendar = CalendarEntity.builder()
@@ -292,6 +288,6 @@ public class TravelServiceTest {
         assertThatThrownBy(() ->
                 travelService.modifyTravel(schedule.getId(), travel.getId(), request))
                 .isInstanceOf(ServiceException.class)
-                .hasMessage(ErrorType.SCHEDULE_NOT_FOUND.getMessage());
+                .hasMessage(ErrorType.SCHEDULE_DAY_NOT_FOUND.getMessage());
     }
 }

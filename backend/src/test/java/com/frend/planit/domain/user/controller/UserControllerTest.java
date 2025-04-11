@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frend.planit.TestConfig;
+import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.service.MateService;
@@ -215,6 +216,48 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[0].content").value("같이 여행가요!"))
                 .andExpect(jsonPath("$[0].createdAt").exists())
                 .andExpect(jsonPath("$[0].modifiedAt").exists());
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, username = "사용자1")
+    @DisplayName("내가 참여한 캘린더 목록 조회 API")
+    void getUserCalendars() throws Exception {
+        Long mockUserId = 1L;
+
+        CalendarActivityResponseDto calendar1 = CalendarActivityResponseDto.builder()
+                .calendarId(1L)
+                .calendarTitle("제주 여행")
+                .startDate(LocalDateTime.of(2025, 5, 1, 10, 0))
+                .endDate(LocalDateTime.of(2025, 5, 3, 18, 0))
+                .note("친구랑 제주도")
+                .sharedUserNicknames(List.of("사용자1", "친구1"))
+                .build();
+
+        CalendarActivityResponseDto calendar2 = CalendarActivityResponseDto.builder()
+                .calendarId(2L)
+                .calendarTitle("부산 여행")
+                .startDate(LocalDateTime.of(2025, 6, 1, 10, 0))
+                .endDate(LocalDateTime.of(2025, 6, 3, 18, 0))
+                .note("해운대에서 놀자")
+                .sharedUserNicknames(List.of("사용자1", "친구2"))
+                .build();
+
+        when(userService.getUserCalendarActivity(mockUserId)).thenReturn(
+                List.of(calendar1, calendar2));
+
+        mockMvc.perform(get("/api/v1/user/me/activity/calendars")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].calendarId").value(1L))
+                .andExpect(jsonPath("$[0].calendarTitle").value("제주 여행"))
+                .andExpect(jsonPath("$[0].note").value("친구랑 제주도"))
+                .andExpect(jsonPath("$[0].sharedUserNicknames[0]").value("사용자1"))
+                .andExpect(jsonPath("$[0].sharedUserNicknames[1]").value("친구1"))
+                .andExpect(jsonPath("$[1].calendarId").value(2L))
+                .andExpect(jsonPath("$[1].calendarTitle").value("부산 여행"))
+                .andExpect(jsonPath("$[1].note").value("해운대에서 놀자"))
+                .andExpect(jsonPath("$[1].sharedUserNicknames[0]").value("사용자1"))
+                .andExpect(jsonPath("$[1].sharedUserNicknames[1]").value("친구2"));
     }
 
 }

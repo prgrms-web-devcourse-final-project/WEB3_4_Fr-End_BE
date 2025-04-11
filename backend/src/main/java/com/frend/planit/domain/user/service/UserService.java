@@ -1,5 +1,7 @@
 package com.frend.planit.domain.user.service;
 
+import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
+import com.frend.planit.domain.calendar.service.CalendarService;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.service.MateCommentService;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
@@ -24,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final MateService mateService;
     private final MateCommentService mateCommentService;
+    private final CalendarService calendarService;
 
     /**
      * 최초 로그인 시 추가 정보 등록
@@ -93,6 +96,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<MateCommentResponseDto> getUserCommentsActivity(Long userId) {
         return mateCommentService.getUserMateComments(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CalendarActivityResponseDto> getUserCalendarActivity(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.USER_NOT_FOUND));
+        return calendarService.getUserCalendarActivity(user);
     }
 
 }

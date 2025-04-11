@@ -1,9 +1,13 @@
 package com.frend.planit.domain.user.controller;
 
+import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
+import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
+import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
 import com.frend.planit.domain.user.dto.response.UserMeResponse;
 import com.frend.planit.domain.user.service.UserService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -68,5 +72,27 @@ public class UserController {
     public ResponseEntity<UserMeResponse> getMyInfo(@AuthenticationPrincipal Long userId) {
         UserMeResponse response = userService.getMyInfo(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me/activity/mate-post")
+    public ResponseEntity<List<MateResponseDto>> getUserActivity(
+            @AuthenticationPrincipal Long userId) {
+        // 사용자 서비스에서 활동 내역을 조회
+        List<MateResponseDto> matePosts = userService.getUserActivity(userId);
+        return ResponseEntity.ok(matePosts);
+    }
+
+    @GetMapping("/me/activity/mate-comments")
+    public ResponseEntity<List<MateCommentResponseDto>> getUserComments(
+            @AuthenticationPrincipal Long userId) {
+        List<MateCommentResponseDto> comments = userService.getUserCommentsActivity(userId);
+        return ResponseEntity.ok(comments);
+    }
+
+    @GetMapping("/me/activity/calendars")
+    public ResponseEntity<List<CalendarActivityResponseDto>> getUserCalendars(
+            @AuthenticationPrincipal Long userId) {
+        List<CalendarActivityResponseDto> calendars = userService.getUserCalendarActivity(userId);
+        return ResponseEntity.ok(calendars);
     }
 }

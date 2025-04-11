@@ -64,4 +64,26 @@ public class MateResponseDto {
         this.authorGender = authorGender;
         this.createdAt = createdAt;
     }
+
+    //테스트용 생성자
+    public MateResponseDto(Long matePostId, Long authorId, String title, String content,
+            String nickname, String imageUrl, LocalDateTime createdAt) {
+        this.matePostId = matePostId;
+        this.authorId = authorId;
+        this.title = title;
+        this.content = content;
+        this.nickname = nickname;
+        this.imageUrl = imageUrl;
+        this.createdAt = createdAt;
+        this.travelRegion = null;
+        this.travelStartDate = null;
+        this.travelEndDate = null;
+        this.recruitmentStatus = null;
+        this.mateGender = null;
+        this.recruitCount = 0;
+        this.appliedCount = 0;
+        this.bio = null;
+        this.profileImage = null;
+        this.authorGender = null;
+    }
 }

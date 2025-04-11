@@ -1,6 +1,7 @@
 package com.frend.planit.domain.mateboard.post.repository;
 
 import com.frend.planit.domain.mateboard.post.entity.Mate;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -14,4 +15,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface MateRepository extends JpaRepository<Mate, Long> {
 
+    // 로그인한 사용자의 게시글을 조회 (활동 내역 조회용)
+    List<Mate> findByWriterId(Long userId);
 }

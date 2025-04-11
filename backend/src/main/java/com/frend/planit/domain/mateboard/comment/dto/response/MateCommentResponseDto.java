@@ -16,7 +16,7 @@ import lombok.Getter;
 @Builder
 public class MateCommentResponseDto {
 
-    private final Long commentId;
+    private final Long mateCommentId;
 
     private final Long matePostId;
 

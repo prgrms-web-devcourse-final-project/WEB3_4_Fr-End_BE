@@ -76,6 +76,22 @@ public class AccommodationController {
         return ResponseEntity.noContent().build();
     }
 
+    // 필터링 조회 (지역, 이름, 유형 기준)
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<AccommodationResponseDto>> search(
+            @RequestParam(required = false) String areaCode,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String cat3,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PageResponse<AccommodationResponseDto> response =
+                new PageResponse<>(accommodationService.searchWithFilters(areaCode, title, cat3, sortBy, direction, page, size));
+        return ResponseEntity.ok(response);
+    }
+
     private void validateAdmin(User user) {
         if (user == null || user.getRole() != Role.ADMIN) {
             throw new ServiceException(ErrorType.ACCOMMODATION_DELETE_UNAUTHORIZED);

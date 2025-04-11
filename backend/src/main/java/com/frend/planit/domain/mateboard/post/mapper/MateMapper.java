@@ -23,7 +23,8 @@ public class MateMapper {
     public static MateResponseDto toResponseDto(Mate mate, String imageUrl) {
 
         return MateResponseDto.builder()
-                .id(mate.getId())
+                .matePostId(mate.getId())
+                .authorId(mate.getWriter().getId())
                 .nickname(mate.getWriter().getNickname())
                 .profileImage(mate.getWriter().getProfileImageUrl())
                 .authorGender(mate.getWriter().getGender())

@@ -16,6 +16,8 @@ import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.PageResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -212,5 +214,23 @@ public class MateService {
         mate.setMateGender(mateRequestDto.getMateGender());
         mate.setRecruitCount(mateRequestDto.getRecruitCount());
         return mate;
+    }
+
+    /**
+     * 로그인한 사용자가 작성한 게시글을 조회합니다. (활동 내역 조회용)
+     */
+    public List<MateResponseDto> getUserMatePosts(Long userId) {
+        // writer 객체 조회 로직 제거
+
+        // writerId로 직접 조회
+        List<Mate> matePosts = mateRepository.findByWriterId(userId);
+
+        return matePosts.stream()
+                .map(mate -> {
+                    String imageUrl = imageService.getImage(HolderType.MATEBOARD, mate.getId())
+                            .imageUrl();
+                    return MateMapper.toResponseDto(mate, imageUrl);
+                })
+                .collect(Collectors.toList());
     }
 }

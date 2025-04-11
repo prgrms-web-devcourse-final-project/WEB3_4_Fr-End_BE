@@ -98,7 +98,8 @@ class AuthControllerTest {
                 "https://www.example.com/image.jpg",
                 Gender.FEMALE,
                 LocalDate.of(2001, 9, 9),
-                false
+                false,
+                null
         );
         LocalRegisterResponse response = new LocalRegisterResponse(1L, "ricky50", "Mark",
                 "william51@hotmail.com");

@@ -52,6 +52,8 @@ public class ScheduleControllerTest {
 
     private Long scheduleId;
 
+    private Long userId;
+
     private List<ScheduleResponse> scheduleResponseList;
 
     private ScheduleResponse scheduleResponse;
@@ -63,6 +65,7 @@ public class ScheduleControllerTest {
     void setUp() {
         calendarId = 1L;
         scheduleId = 10L;
+        userId = 99L;
 
         ScheduleRequest request1 = ScheduleRequest.builder()
                 .scheduleTitle("후쿠오카 여행")
@@ -115,7 +118,7 @@ public class ScheduleControllerTest {
     @DisplayName("전체 여행 일정 조회 - 성공")
     void getAllSchedulesSuccess() throws Exception {
         // given
-        given(scheduleService.getAllSchedules(calendarId))
+        given(scheduleService.getAllSchedules(calendarId, userId))
                 .willReturn(scheduleResponseList);
 
         // when & then
@@ -128,25 +131,25 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$[0].endDate").value("2025-06-03"))
                 .andExpect(jsonPath("$[0].alertTime").value("08:00:00"))
                 .andExpect(jsonPath("$[0].note").value("여행은 역시 먹방"))
-                .andExpect(jsonPath("$[0].scheduleTitle").value("제주도 여행"))
-                .andExpect(jsonPath("$[0].startDate").value("2025-05-09"))
-                .andExpect(jsonPath("$[0].endDate").value("2025-05-11"))
-                .andExpect(jsonPath("$[0].alertTime").value("08:00:00"))
-                .andExpect(jsonPath("$[0].note").value("폭삭속았수다"));
+                .andExpect(jsonPath("$[1].scheduleTitle").value("제주도 여행"))
+                .andExpect(jsonPath("$[1].startDate").value("2025-05-09"))
+                .andExpect(jsonPath("$[1].endDate").value("2025-05-11"))
+                .andExpect(jsonPath("$[1].alertTime").value("08:00:00"))
+                .andExpect(jsonPath("$[1].note").value("폭삭속았수다"));
 
-        verify(scheduleService, times(1)).getAllSchedules(calendarId);
+        verify(scheduleService, times(1)).getAllSchedules(calendarId, userId);
     }
 
     @Test
     @DisplayName("여행 일정 조회 - 성공")
     void getScheduleSuccess() throws Exception {
         // given
-        given(scheduleService.getSchedule(calendarId, scheduleId))
+        given(scheduleService.getSchedule(calendarId, scheduleId, userId))
                 .willReturn(scheduleResponse);
 
         // when & then
         mockMvc.perform(
-                        get("/api/v1/calendars/{calendarId}/schedules", calendarId, scheduleId)
+                        get("/api/v1/calendars/{calendarId}/schedules/{scheduleId}", calendarId, scheduleId)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.scheduleTitle").value("후쿠오카 여행"))
@@ -155,14 +158,14 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.alertTime").value("08:00:00"))
                 .andExpect(jsonPath("$.note").value("여행은 역시 먹방"));
 
-        verify(scheduleService, times(1)).getSchedule(calendarId, scheduleId);
+        verify(scheduleService, times(1)).getSchedule(calendarId, scheduleId, userId);
     }
 
     @Test
     @DisplayName("여행 일정 조회 - 실패 (스케줄이 존재하지 않음)")
     void getSchedulesFail() throws Exception {
         // given
-        given(scheduleService.getSchedule(calendarId, scheduleId))
+        given(scheduleService.getSchedule(calendarId, scheduleId, userId))
                 .willThrow(new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // when & then
@@ -172,14 +175,14 @@ public class ScheduleControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("해당 스케줄이 존재하지 않습니다."));
 
-        verify(scheduleService, times(1)).getSchedule(calendarId, scheduleId);
+        verify(scheduleService, times(1)).getSchedule(calendarId, scheduleId, userId);
     }
 
     @Test
     @DisplayName("여행 일정 생성 - 성공")
     void createScheduleSuccess() throws Exception {
         // given
-        given(scheduleService.createSchedule(calendarId, scheduleRequest))
+        given(scheduleService.createSchedule(calendarId, scheduleRequest, userId))
                 .willReturn(scheduleResponse);
 
         // when & then
@@ -195,7 +198,7 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.note").value("여행은 역시 먹방"));
 
         verify(scheduleService, times(1)).createSchedule(calendarId,
-                scheduleRequest);
+                scheduleRequest, userId);
     }
 
     @Test
@@ -205,7 +208,7 @@ public class ScheduleControllerTest {
         Long wrongCalendarId = 888L;
 
         given(scheduleService.createSchedule(wrongCalendarId,
-                scheduleRequest))
+                scheduleRequest, userId))
                 .willThrow(new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
 
         // when & then
@@ -217,7 +220,7 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.message").value("해당 캘린더가 존재하지 않습니다."));
 
         verify(scheduleService, times(1)).createSchedule(wrongCalendarId,
-                scheduleRequest);
+                scheduleRequest, userId);
     }
 
     @Test
@@ -251,7 +254,7 @@ public class ScheduleControllerTest {
                 .note("수정된 노트")
                 .build();
 
-        given(scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest))
+        given(scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest, userId))
                 .willReturn(updatedResponse);
 
         // when & then
@@ -268,14 +271,14 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.note").value("수정된 노트"));
 
         verify(scheduleService, times(1)).modifySchedule(calendarId, scheduleId,
-                scheduleRequest);
+                scheduleRequest, userId);
     }
 
     @Test
     @DisplayName("여행 일정 수정 - 실패 (존재하지 않는 스케줄)")
     void modifyScheduleFail_scheduleNotFound() throws Exception {
         // given
-        given(scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest))
+        given(scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest, userId))
                 .willThrow(new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // when & then
@@ -288,14 +291,14 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.message").value("해당 스케줄이 존재하지 않습니다."));
 
         verify(scheduleService, times(1)).modifySchedule(calendarId, scheduleId,
-                scheduleRequest);
+                scheduleRequest, userId);
     }
 
     @Test
     @DisplayName("여행 일정 수정 - 실패 (캘린더 ID 불일치)")
     void modifyScheduleFail_calendarMismatch() throws Exception {
         // given
-        given(scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest))
+        given(scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest, userId))
                 .willThrow(new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
 
         // when & then
@@ -308,7 +311,7 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.message").value("해당 캘린더가 존재하지 않습니다."));
 
         verify(scheduleService, times(1)).modifySchedule(calendarId, scheduleId,
-                scheduleRequest);
+                scheduleRequest, userId);
     }
 
     @Test

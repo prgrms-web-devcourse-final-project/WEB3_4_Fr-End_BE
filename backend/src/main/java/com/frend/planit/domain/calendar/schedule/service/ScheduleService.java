@@ -21,7 +21,7 @@ public class ScheduleService {
     private final CalendarRepository calendarRepository;
 
     // 전체 여행 일정 조회(readOnly = true)
-    public List<ScheduleResponse> getAllSchedules(Long calendarId) {
+    public List<ScheduleResponse> getAllSchedules(Long calendarId, Long userId) {
         // 여행 일정 존재 여부 확인
         List<ScheduleEntity> scheduleEntities = scheduleRepository.findAllByCalendarId(calendarId);
 
@@ -31,9 +31,9 @@ public class ScheduleService {
 
     // 단일 여행 일정 조회
     @Transactional(readOnly = true)
-    public ScheduleResponse getSchedule(Long calendarId, Long scheduleId) {
+    public ScheduleResponse getSchedule(Long calendarId, Long scheduleId, Long userId) {
         // 여행 일정 존재 여부 확인
-        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId);
+        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId, userId);
 
         return ScheduleResponse.from(scheduleEntity);
     }
@@ -42,7 +42,8 @@ public class ScheduleService {
     @Transactional
     public ScheduleResponse createSchedule(
             Long calendarId,
-            ScheduleRequest scheduleRequest
+            ScheduleRequest scheduleRequest,
+            Long userId
     ) {
         // calendar 존재 여부 확인 및 조회
         CalendarEntity calendar = calendarRepository.findById(calendarId)
@@ -59,10 +60,14 @@ public class ScheduleService {
 
     // 여행 일정 수정
     @Transactional
-    public ScheduleResponse modifySchedule(Long calendarId, Long scheduleId,
-            ScheduleRequest scheduleRequest) {
+    public ScheduleResponse modifySchedule(
+            Long calendarId,
+            Long scheduleId,
+            ScheduleRequest scheduleRequest,
+            Long userId
+    ) {
         // 여행 일정 존재 여부 확인
-        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId);
+        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId, userId);
 
         // scheduleEntity 수정
         scheduleEntity.updateSchedule(scheduleRequest);
@@ -72,9 +77,9 @@ public class ScheduleService {
 
     // 여행 일정 삭제
     @Transactional
-    public ScheduleResponse deleteSchedule(Long calendarId, Long scheduleId) {
+    public ScheduleResponse deleteSchedule(Long calendarId, Long scheduleId, Long userId) {
         // 여행 일정 존재 여부 확인
-        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId);
+        ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId, userId);
 
         // scheduleEntity 삭제
         scheduleRepository.delete(scheduleEntity);
@@ -83,10 +88,17 @@ public class ScheduleService {
     }
 
     // 여행 일정 존재 여부 확인
-    public ScheduleEntity findScheduleById(Long scheduleId, Long calendarId) {
+    public ScheduleEntity findScheduleById(Long scheduleId, Long calendarId, Long userId) {
 
         // 스케줄 존재 여부 확인
-        return scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)
+        ScheduleEntity schedules = scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
+
+        // 인증된 사용자 여부 확인
+        if (!schedules.getCalendar().getUser().getId().equals(userId)) {
+            throw new ServiceException(ErrorType.FORBIDDEN);
+        }
+
+        return schedules;
     }
 }

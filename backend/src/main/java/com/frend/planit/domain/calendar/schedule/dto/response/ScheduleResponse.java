@@ -23,6 +23,9 @@ public class ScheduleResponse {
     private LocalTime alertTime;
     private String note;
 
+    @JsonProperty("label_color")
+    private String labelColor;
+
     public static ScheduleResponse from(ScheduleEntity scheduleEntity) {
         return ScheduleResponse.builder()
                 .id(scheduleEntity.getId())
@@ -31,6 +34,7 @@ public class ScheduleResponse {
                 .endDate(scheduleEntity.getEndDate())
                 .alertTime(scheduleEntity.getAlertTime())
                 .note(scheduleEntity.getNote())
+                .labelColor(scheduleEntity.getCalendar().getLabelColor())
                 .build();
     }
 

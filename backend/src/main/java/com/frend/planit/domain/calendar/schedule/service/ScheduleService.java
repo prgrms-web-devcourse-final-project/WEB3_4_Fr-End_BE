@@ -8,6 +8,7 @@ import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +20,18 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final CalendarRepository calendarRepository;
 
-    // 여행 일정 조회
+    // 전체 여행 일정 조회(readOnly = true)
+    public List<ScheduleResponse> getAllSchedules(Long calendarId) {
+        // 여행 일정 존재 여부 확인
+        List<ScheduleEntity> scheduleEntities = scheduleRepository.findAllByCalendarId(calendarId);
+
+        return ScheduleResponse.fronList(scheduleEntities);
+
+    }
+
+    // 단일 여행 일정 조회
     @Transactional(readOnly = true)
-    public ScheduleResponse getSchedules(Long calendarId, Long scheduleId) {
+    public ScheduleResponse getSchedule(Long calendarId, Long scheduleId) {
         // 여행 일정 존재 여부 확인
         ScheduleEntity scheduleEntity = findScheduleById(calendarId, scheduleId);
 

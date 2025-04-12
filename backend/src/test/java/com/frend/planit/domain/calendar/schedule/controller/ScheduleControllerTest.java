@@ -19,6 +19,7 @@ import com.frend.planit.global.response.ErrorType;
 import com.frend.planit.global.security.JwtTokenProvider;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,16 +52,19 @@ public class ScheduleControllerTest {
 
     private Long scheduleId;
 
+    private List<ScheduleResponse> scheduleResponseList;
+
     private ScheduleResponse scheduleResponse;
 
     private ScheduleRequest scheduleRequest;
+
 
     @BeforeEach
     void setUp() {
         calendarId = 1L;
         scheduleId = 10L;
 
-        scheduleRequest = ScheduleRequest.builder()
+        ScheduleRequest request1 = ScheduleRequest.builder()
                 .scheduleTitle("후쿠오카 여행")
                 .startDate(LocalDate.of(2025, 6, 1))
                 .endDate(LocalDate.of(2025, 6, 3))
@@ -68,20 +72,76 @@ public class ScheduleControllerTest {
                 .note("여행은 역시 먹방")
                 .build();
 
-        scheduleResponse = ScheduleResponse.builder()
-                .scheduleTitle(scheduleRequest.getScheduleTitle())
-                .startDate(scheduleRequest.getStartDate())
-                .endDate(scheduleRequest.getEndDate())
-                .alertTime(scheduleRequest.getAlertTime())
-                .note(scheduleRequest.getNote())
+        ScheduleRequest request2 = ScheduleRequest.builder()
+                .scheduleTitle("제주도 여행")
+                .startDate(LocalDate.of(2025, 5, 9))
+                .endDate(LocalDate.of(2025, 5, 11))
+                .alertTime(LocalTime.of(8, 0))
+                .note("폭삭속았수다")
                 .build();
+
+        // 전체 조회용 응답
+        scheduleResponseList = List.of(
+                ScheduleResponse.builder()
+                        .id(1L)
+                        .scheduleTitle(request1.getScheduleTitle())
+                        .startDate(request1.getStartDate())
+                        .endDate(request1.getEndDate())
+                        .alertTime(request1.getAlertTime())
+                        .note(request1.getNote())
+                        .build(),
+                ScheduleResponse.builder()
+                        .id(2L)
+                        .scheduleTitle(request2.getScheduleTitle())
+                        .startDate(request2.getStartDate())
+                        .endDate(request2.getEndDate())
+                        .alertTime(request2.getAlertTime())
+                        .note(request2.getNote())
+                        .build());
+
+        // 단일 조회용 응답
+        scheduleResponse = ScheduleResponse.builder()
+                .id(scheduleId)
+                .scheduleTitle("후쿠오카 여행")
+                .startDate(LocalDate.of(2025, 6, 1))
+                .endDate(LocalDate.of(2025, 6, 3))
+                .alertTime(LocalTime.of(8, 0))
+                .note("여행은 역시 먹방")
+                .build();
+    }
+
+
+    @Test
+    @DisplayName("전체 여행 일정 조회 - 성공")
+    void getAllSchedulesSuccess() throws Exception {
+        // given
+        given(scheduleService.getAllSchedules(calendarId))
+                .willReturn(scheduleResponseList);
+
+        // when & then
+        mockMvc.perform(
+                        get("/api/v1/calendars/{calendarId}/schedules", calendarId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].scheduleTitle").value("후쿠오카 여행"))
+                .andExpect(jsonPath("$[0].startDate").value("2025-06-01"))
+                .andExpect(jsonPath("$[0].endDate").value("2025-06-03"))
+                .andExpect(jsonPath("$[0].alertTime").value("08:00:00"))
+                .andExpect(jsonPath("$[0].note").value("여행은 역시 먹방"))
+                .andExpect(jsonPath("$[0].scheduleTitle").value("제주도 여행"))
+                .andExpect(jsonPath("$[0].startDate").value("2025-05-09"))
+                .andExpect(jsonPath("$[0].endDate").value("2025-05-11"))
+                .andExpect(jsonPath("$[0].alertTime").value("08:00:00"))
+                .andExpect(jsonPath("$[0].note").value("폭삭속았수다"));
+
+        verify(scheduleService, times(1)).getAllSchedules(calendarId);
     }
 
     @Test
     @DisplayName("여행 일정 조회 - 성공")
-    void getSchedulesSuccess() throws Exception {
+    void getScheduleSuccess() throws Exception {
         // given
-        given(scheduleService.getSchedules(calendarId, scheduleId))
+        given(scheduleService.getSchedule(calendarId, scheduleId))
                 .willReturn(scheduleResponse);
 
         // when & then
@@ -95,14 +155,14 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.alertTime").value("08:00:00"))
                 .andExpect(jsonPath("$.note").value("여행은 역시 먹방"));
 
-        verify(scheduleService, times(1)).getSchedules(calendarId, scheduleId);
+        verify(scheduleService, times(1)).getSchedule(calendarId, scheduleId);
     }
 
     @Test
     @DisplayName("여행 일정 조회 - 실패 (스케줄이 존재하지 않음)")
     void getSchedulesFail() throws Exception {
         // given
-        given(scheduleService.getSchedules(calendarId, scheduleId))
+        given(scheduleService.getSchedule(calendarId, scheduleId))
                 .willThrow(new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // when & then
@@ -112,7 +172,7 @@ public class ScheduleControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("해당 스케줄이 존재하지 않습니다."));
 
-        verify(scheduleService, times(1)).getSchedules(calendarId, scheduleId);
+        verify(scheduleService, times(1)).getSchedule(calendarId, scheduleId);
     }
 
     @Test

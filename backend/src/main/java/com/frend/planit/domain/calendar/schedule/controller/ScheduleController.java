@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,14 +29,23 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    @GetMapping("/{scheduleId}")
-    @Operation(summary = "여행 일정 조회")
+    @GetMapping
+    @Operation(summary = "전체 여행 일정 조회")
     @ResponseStatus(HttpStatus.OK)
-    public ScheduleResponse getSchedules(
+    public List<ScheduleResponse> getAllSchedules(
+            @PathVariable Long calendarId
+    ) {
+        return scheduleService.getAllSchedules(calendarId);
+    }
+
+    @GetMapping("/{scheduleId}")
+    @Operation(summary = "단일 여행 일정 조회")
+    @ResponseStatus(HttpStatus.OK)
+    public ScheduleResponse getSchedule(
             @PathVariable Long calendarId,
             @PathVariable Long scheduleId
     ) {
-        return scheduleService.getSchedules(calendarId, scheduleId);
+        return scheduleService.getSchedule(calendarId, scheduleId);
     }
 
     @PostMapping

@@ -92,6 +92,7 @@ public class ScheduleControllerTest {
                         .endDate(request1.getEndDate())
                         .alertTime(request1.getAlertTime())
                         .note(request1.getNote())
+                        .labelColor("#3b82f6")
                         .build(),
                 ScheduleResponse.builder()
                         .id(2L)
@@ -100,6 +101,7 @@ public class ScheduleControllerTest {
                         .endDate(request2.getEndDate())
                         .alertTime(request2.getAlertTime())
                         .note(request2.getNote())
+                        .labelColor("#ffcc00")
                         .build());
 
         // 단일 조회용 응답
@@ -156,7 +158,8 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$.startDate").value("2025-06-01"))
                 .andExpect(jsonPath("$.endDate").value("2025-06-03"))
                 .andExpect(jsonPath("$.alertTime").value("08:00:00"))
-                .andExpect(jsonPath("$.note").value("여행은 역시 먹방"));
+                .andExpect(jsonPath("$.note").value("여행은 역시 먹방"))
+                .andExpect(jsonPath("$.label_color").value("#3b82f6"));
 
         verify(scheduleService, times(1)).getSchedule(calendarId, scheduleId, userId);
     }

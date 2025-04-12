@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,5 +32,11 @@ public class ScheduleResponse {
                 .alertTime(scheduleEntity.getAlertTime())
                 .note(scheduleEntity.getNote())
                 .build();
+    }
+
+    public static List<ScheduleResponse> fronList(List<ScheduleEntity> scheduleEntities) {
+        return scheduleEntities.stream()
+                .map(ScheduleResponse::from)
+                .toList();
     }
 }

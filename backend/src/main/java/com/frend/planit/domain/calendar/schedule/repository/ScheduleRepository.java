@@ -9,7 +9,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> {
 
-    // 스케줄 존재 여부 확인
+    // 전체 스케줄 조회
+    @Query("SELECT s FROM ScheduleEntity s WHERE s.calendar.id = :calendarId")
+    List<ScheduleEntity> findAllByCalendarId(@Param("calendarId") Long calendarId);
+
+    // 전체 스케줄 조회
     @Query("SELECT s FROM ScheduleEntity s WHERE s.id = :scheduleId AND s.calendar.id = :calendarId")
     Optional<ScheduleEntity> findByIdAndCalendarId(
             @Param("calendarId") Long calendarId,

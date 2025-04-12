@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,11 +57,15 @@ public class Booking extends BaseEntity {
     /**
      * 체크인 날짜
      */
-    private LocalDate checkIn;
+    private LocalDate checkInDate;
     /**
      * 체크아웃 날짜
      */
-    private LocalDate checkOut;
+    private LocalDate checkOutDate;
+    /**
+     * 체크인 시간
+     */
+    private LocalTime checkInTime;
     /**
      * 투숙 인원 수
      */
@@ -95,5 +100,11 @@ public class Booking extends BaseEntity {
      * 예약 생성 시간 (결제 완료 시점)
      */
     private LocalDateTime reservedAt;
-
+    
+    /**
+     * 예약 상태를 취소로 변경합니다.
+     */
+    public void cancel() {
+        this.bookingStatus = BookingStatus.CANCELED;
+    }
 }

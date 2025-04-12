@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -86,12 +87,16 @@ public class PaymentCompleteRequest {
         private String accommodationImage;
 
         @Schema(description = "체크인 날짜")
-        @JsonProperty("checkIn")
+        @JsonProperty("checkInDate")
         private LocalDate checkIn;
 
         @Schema(description = "체크아웃 날짜")
-        @JsonProperty("checkOut")
+        @JsonProperty("checkOutDate")
         private LocalDate checkOut;
+
+        @Schema(description = "체크인 시간")
+        @JsonProperty("checkInTime")
+        private LocalTime checkInTime;
 
         @Schema(description = "투숙 인원 수")
         @JsonProperty("guestCount")

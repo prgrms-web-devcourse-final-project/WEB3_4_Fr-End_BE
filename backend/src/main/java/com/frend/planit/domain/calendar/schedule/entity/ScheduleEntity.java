@@ -43,6 +43,9 @@ public class ScheduleEntity extends BaseTime {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    @Column(name = "block_color")
+    private String blockColor;
+
     @Column(name = "note")
     private String note;
 

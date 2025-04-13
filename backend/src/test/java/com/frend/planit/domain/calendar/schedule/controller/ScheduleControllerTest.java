@@ -92,7 +92,7 @@ public class ScheduleControllerTest {
                         .endDate(request1.getEndDate())
                         .alertTime(request1.getAlertTime())
                         .note(request1.getNote())
-                        .labelColor("#3b82f6")
+                        .blockColor("#3b82f6")
                         .build(),
                 ScheduleResponse.builder()
                         .id(2L)
@@ -101,7 +101,7 @@ public class ScheduleControllerTest {
                         .endDate(request2.getEndDate())
                         .alertTime(request2.getAlertTime())
                         .note(request2.getNote())
-                        .labelColor("#ffcc00")
+                        .blockColor("#ffcc00")
                         .build());
 
         // 단일 조회용 응답

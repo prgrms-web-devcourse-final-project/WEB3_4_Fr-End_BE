@@ -30,56 +30,57 @@ public class MateApplicationController {
     /**
      * 메이트 모집 게시글에 신청합니다.
      *
-     * @param mateId 신청할 게시글 ID
-     * @param userId 현재 로그인한 사용자
+     * @param matePostId 신청할 게시글 ID
+     * @param userId     현재 로그인한 사용자
      */
-    @PostMapping("/{mateId}")
+    @PostMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void applyToMate(@PathVariable Long mateId, @AuthenticationPrincipal Long userId) {
-        mateApplicationService.applyToMate(userId, mateId);
+    public void applyToMate(@PathVariable Long matePostId, @AuthenticationPrincipal Long userId) {
+        mateApplicationService.applyToMate(userId, matePostId);
     }
 
     /**
      * 메이트 모집 게시글에 대한 신청을 취소합니다.
      *
-     * @param mateId 신청을 취소할 게시글 ID
-     * @param userId 현재 로그인한 사용자 (신청자 본인)
+     * @param matePostId 신청을 취소할 게시글 ID
+     * @param userId     현재 로그인한 사용자 (신청자 본인)
      */
-    @DeleteMapping("/{mateId}")
+    @DeleteMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelApplication(@PathVariable Long mateId, @AuthenticationPrincipal Long userId) {
-        mateApplicationService.cancelApplication(userId, mateId);
+    public void cancelApplication(@PathVariable Long matePostId,
+            @AuthenticationPrincipal Long userId) {
+        mateApplicationService.cancelApplication(userId, matePostId);
     }
 
     /**
      * 게시글 작성자가 특정 신청자의 신청을 수락합니다.
      *
-     * @param mateId      게시글 ID
+     * @param matePostId  게시글 ID
      * @param applicantId 수락할 신청자 ID
      * @param userId      현재 로그인한 사용자 (게시글 작성자)
      */
-    @PutMapping("/{mateId}/accept/{applicantId}")
+    @PutMapping("/{matePostId}/accept/{applicantId}")
     @ResponseStatus(HttpStatus.OK)
     public void acceptApplication(
-            @PathVariable Long mateId,
+            @PathVariable Long matePostId,
             @PathVariable Long applicantId,
             @AuthenticationPrincipal Long userId) {
-        mateApplicationService.acceptApplication(mateId, applicantId, userId);
+        mateApplicationService.acceptApplication(matePostId, applicantId, userId);
     }
 
     /**
      * 게시글 작성자가 특정 신청자의 신청을 거절합니다.
      *
-     * @param mateId      게시글 ID
+     * @param matePostId  게시글 ID
      * @param applicantId 거절할 신청자 ID
      * @param userId      현재 로그인한 사용자 (게시글 작성자)
      */
-    @PutMapping("/{mateId}/reject/{applicantId}")
+    @PutMapping("/{matePostId}/reject/{applicantId}")
     @ResponseStatus(HttpStatus.OK)
     public void rejectApplication(
-            @PathVariable Long mateId,
+            @PathVariable Long matePostId,
             @PathVariable Long applicantId,
             @AuthenticationPrincipal Long userId) {
-        mateApplicationService.rejectApplication(mateId, applicantId, userId);
+        mateApplicationService.rejectApplication(matePostId, applicantId, userId);
     }
 }

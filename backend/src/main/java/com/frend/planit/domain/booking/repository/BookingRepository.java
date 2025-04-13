@@ -1,6 +1,7 @@
 package com.frend.planit.domain.booking.repository;
 
 import com.frend.planit.domain.booking.entity.Booking;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -12,4 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
+    Optional<Booking> findByIdAndUserId(Long id, Long userId);
+    
 }

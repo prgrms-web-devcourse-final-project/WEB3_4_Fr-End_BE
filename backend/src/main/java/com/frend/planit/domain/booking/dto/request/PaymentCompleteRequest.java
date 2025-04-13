@@ -30,18 +30,18 @@ public class PaymentCompleteRequest {
     private String merchantUid;
 
     @Schema(description = "결제 수단 (예: kakaopay, card)")
-    @JsonProperty("pay_method")
+    @JsonProperty("payMethod")
     private String payMethod;
 
-    @JsonProperty("pg_provider")
+    @JsonProperty("pgProvider")
     @Schema(description = "PG사 이름 (예: kakaopay, tosspay)")
     private String pgProvider;
 
-    @JsonProperty("pg_tid")
+    @JsonProperty("pgTid")
     @Schema(description = "PG사 거래 번호")
     private String pgTid;
 
-    @JsonProperty("paid_amount")
+    @JsonProperty("paidAmount")
     @Schema(description = "결제 금액 (원)")
     private Integer paidAmount;
 
@@ -55,7 +55,7 @@ public class PaymentCompleteRequest {
     @JsonProperty("paid_at")
     private Long paidAt;
 
-    @JsonProperty("receipt_url")
+    @JsonProperty("receiptUrl")
     @Schema(description = "영수증 URL")
     private String receiptUrl;
 
@@ -72,43 +72,37 @@ public class PaymentCompleteRequest {
     public static class CustomData {
 
         @Schema(description = "사용자 ID")
-        @JsonProperty("user_id")
         private Long userId;
 
         @Schema(description = "숙소 ID (TOUR API 기준)")
-        @JsonProperty("accommodation_id")
+        @JsonProperty("accomodationId")
         private Long accommodationId;
 
         @Schema(description = "숙소 이름")
-        @JsonProperty("accommodation_name")
+        @JsonProperty("accomodationName")
         private String accommodationName;
 
         @Schema(description = "숙소 주소")
-        @JsonProperty("accommodation_address")
+        @JsonProperty("accomodationAddress")
         private String accommodationAddress;
 
         @Schema(description = "숙소 이미지 URL")
-        @JsonProperty("accommodation_image")
+        @JsonProperty("accomodationImage")
         private String accommodationImage;
 
         @Schema(description = "체크인 날짜")
-        @JsonProperty("check_in_date")
         private LocalDate checkInDate;
 
         @Schema(description = "체크아웃 날짜")
-        @JsonProperty("check_out_date")
         private LocalDate checkOutDate;
 
         @Schema(description = "체크인 시간")
-        @JsonProperty("check_in_time")
         private LocalTime checkInTime;
 
         @Schema(description = "투숙 인원 수")
-        @JsonProperty("guest_count")
         private Integer guestCount;
 
         @Schema(description = "총 결제 금액")
-        @JsonProperty("total_price")
         private BigDecimal totalPrice;
     }
 }

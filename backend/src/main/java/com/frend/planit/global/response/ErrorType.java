@@ -75,6 +75,9 @@ public enum ErrorType {
     INVALID_CALENDAR_DATE(HttpStatus.BAD_REQUEST, "종료 시간은 시작 시간보다 빠를 수 없습니다."),
     INVALID_ALERT_TIME(HttpStatus.BAD_REQUEST, "알람 시간은 시작 시간보다 늦을 수 없습니다."),
 
+    // LIKE
+    ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요가 눌려 있습니다."),
+    LIKE_NOT_FOUND(HttpStatus.BAD_REQUEST, "좋아요가 존재하지 않습니다"),
 
     // AI Chat
     AI_CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 채팅방이 존재하지 않습니다."),

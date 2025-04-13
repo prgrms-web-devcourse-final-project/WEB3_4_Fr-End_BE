@@ -31,6 +31,8 @@ public class ScheduleRequest {
     @FutureOrPresent
     private LocalDate endDate;
 
+    private String blockColor;
+
     @Size(max = 200)
     private String note;
 

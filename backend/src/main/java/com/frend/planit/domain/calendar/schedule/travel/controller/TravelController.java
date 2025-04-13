@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,8 +34,11 @@ public class TravelController {
     @GetMapping
     @Operation(summary = "행선지 조회")
     @ResponseStatus(HttpStatus.OK)
-    public List<DailyTravelResponse> getAllTravels(@PathVariable Long scheduleId) {
-        return travelService.getAllTravels(scheduleId);
+    public List<DailyTravelResponse> getAllTravels(
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return travelService.getAllTravels(scheduleId, userId);
     }
 
     @PostMapping
@@ -42,9 +46,10 @@ public class TravelController {
     @ResponseStatus(HttpStatus.CREATED)
     public TravelResponse createTravel(
             @PathVariable Long scheduleId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody TravelRequest travelRequest
     ) {
-        return travelService.createTravel(scheduleId, travelRequest);
+        return travelService.createTravel(scheduleId, userId, travelRequest);
     }
 
     @DeleteMapping("/{travelId}")
@@ -52,9 +57,10 @@ public class TravelController {
     @ResponseStatus(HttpStatus.OK)
     public TravelResponse deleteTravel(
             @PathVariable Long scheduleId,
-            @PathVariable Long travelId
+            @PathVariable Long travelId,
+            @AuthenticationPrincipal Long userId
     ) {
-        return travelService.deleteTravel(scheduleId, travelId);
+        return travelService.deleteTravel(scheduleId, travelId, userId);
     }
 
     @PatchMapping("/{travelId}")
@@ -63,8 +69,9 @@ public class TravelController {
     public TravelResponse modifyTravel(
             @PathVariable Long scheduleId,
             @PathVariable Long travelId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody TravelRequest travelRequest
     ) {
-        return travelService.modifyTravel(scheduleId, travelId, travelRequest);
+        return travelService.modifyTravel(scheduleId, travelId, userId, travelRequest);
     }
 }

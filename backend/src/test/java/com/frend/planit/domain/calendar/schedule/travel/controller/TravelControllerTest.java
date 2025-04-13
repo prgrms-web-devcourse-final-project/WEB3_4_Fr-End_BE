@@ -2,8 +2,11 @@ package com.frend.planit.domain.calendar.schedule.travel.controller;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -16,8 +19,10 @@ import com.frend.planit.domain.calendar.schedule.travel.dto.request.TravelReques
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.service.TravelService;
+import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
+import com.frend.planit.global.security.JwtTokenProvider;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -28,9 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -56,6 +66,14 @@ public class TravelControllerTest {
     private TravelResponse travelResponse;
 
     private TravelRequest travelRequest;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private WebApplicationContext context;
+
+    private User mockUser;
 
     @BeforeEach
     void setUp() {
@@ -117,13 +135,27 @@ public class TravelControllerTest {
         );
 
         dailyTravelResponses = Arrays.asList(day1, day2);
+
+        // Mock 유저 및 SecurityContext 설정
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .addFilter(new CharacterEncodingFilter("utf-8", true))
+                .apply(springSecurity())
+                .build();
+
+        // Mock 유저 및 SecurityContext 설정
+        mockUser = mock(User.class);
+        when(mockUser.getId()).thenReturn(1L);
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(mockUser.getId(), null, null);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
     @DisplayName("행선지 조회 - 성공")
     void getAllTravelsSuccess() throws Exception {
         // given
-        given(travelService.getAllTravels(scheduleId)).willReturn(
+        given(travelService.getAllTravels(scheduleId, mockUser.getId())).willReturn(
                 dailyTravelResponses); // 서비스 메소드가 호출될 때 반환할 값 설정
 
         // when & then
@@ -151,7 +183,7 @@ public class TravelControllerTest {
                 .andExpect(jsonPath("$[1].travels[0].minute").value(30));
 
         // 서비스 메소드가 정확히 한 번 호출되었는지 검증
-        verify(travelService, times(1)).getAllTravels(scheduleId);
+        verify(travelService, times(1)).getAllTravels(scheduleId, mockUser.getId());
     }
 
     @Test
@@ -160,7 +192,7 @@ public class TravelControllerTest {
         // given
         Long wrongScheduleId = 999L; // 존재하지 않는 일정 ID
 
-        given(travelService.getAllTravels(wrongScheduleId))
+        given(travelService.getAllTravels(wrongScheduleId, mockUser.getId()))
                 .willThrow(new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // when & then
@@ -170,14 +202,15 @@ public class TravelControllerTest {
                 .andExpect(jsonPath("$.message").value("해당 스케줄이 존재하지 않습니다."));
 
         // 서비스 메소드가 정확히 한 번 호출되었는지 검증
-        verify(travelService, times(1)).getAllTravels(wrongScheduleId);
+        verify(travelService, times(1)).getAllTravels(wrongScheduleId, mockUser.getId());
     }
 
     @Test
     @DisplayName("행선지 생성 - 성공")
     void createTravelSuccess() throws Exception {
         // given
-        given(travelService.createTravel(scheduleId, travelRequest)).willReturn(travelResponse);
+        given(travelService.createTravel(scheduleId, mockUser.getId(), travelRequest)).willReturn(
+                travelResponse);
 
         // when & then
         mockMvc.perform(post("/api/v1/schedules/{scheduleId}/travels", scheduleId)
@@ -192,7 +225,7 @@ public class TravelControllerTest {
                 .andExpect(jsonPath("$.hour").value(14))
                 .andExpect(jsonPath("$.minute").value(30));
 
-        verify(travelService, times(1)).createTravel(scheduleId, travelRequest);
+        verify(travelService, times(1)).createTravel(scheduleId, mockUser.getId(), travelRequest);
     }
 
     @Test
@@ -206,7 +239,7 @@ public class TravelControllerTest {
                 .andExpect(jsonPath("$.data").doesNotExist());
 
         verify(travelService, times(1))
-                .deleteTravel(eq(scheduleId), eq(travelId));
+                .deleteTravel(eq(scheduleId), eq(mockUser.getId()), eq(travelId));
 
     }
 
@@ -235,7 +268,7 @@ public class TravelControllerTest {
                 .minute(45)
                 .build();
 
-        given(travelService.modifyTravel(scheduleId, travelId, modifiedRequest))
+        given(travelService.modifyTravel(scheduleId, mockUser.getId(), travelId, modifiedRequest))
                 .willReturn(modifiedResponse);
 
         // when & then
@@ -251,13 +284,14 @@ public class TravelControllerTest {
                 .andExpect(jsonPath("$.hour").value(16))
                 .andExpect(jsonPath("$.minute").value(45));
 
-        verify(travelService, times(1)).modifyTravel(scheduleId, travelId, modifiedRequest);
+        verify(travelService, times(1)).modifyTravel(scheduleId, travelId, mockUser.getId(),
+                modifiedRequest);
     }
 
     @Test
     @DisplayName("행선지 수정 - 실패 (존재하지 않는 행선지)")
     void modifyTravelFail() throws Exception {
-        given(travelService.modifyTravel(scheduleId, travelId, travelRequest))
+        given(travelService.modifyTravel(scheduleId, travelId, mockUser.getId(), travelRequest))
                 .willThrow(new ServiceException(ErrorType.TRAVEL_NOT_FOUND));
 
         mockMvc.perform(

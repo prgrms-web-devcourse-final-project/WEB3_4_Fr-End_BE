@@ -22,9 +22,7 @@ public class ScheduleResponse {
     private LocalDate endDate;
     private LocalTime alertTime;
     private String note;
-
-    @JsonProperty("label_color")
-    private String labelColor;
+    private String blockColor;
 
     public static ScheduleResponse from(ScheduleEntity scheduleEntity) {
         return ScheduleResponse.builder()
@@ -34,11 +32,11 @@ public class ScheduleResponse {
                 .endDate(scheduleEntity.getEndDate())
                 .alertTime(scheduleEntity.getAlertTime())
                 .note(scheduleEntity.getNote())
-                .labelColor(scheduleEntity.getCalendar().getLabelColor())
+                .blockColor(scheduleEntity.getBlockColor())
                 .build();
     }
 
-    public static List<ScheduleResponse> fronList(List<ScheduleEntity> scheduleEntities) {
+    public static List<ScheduleResponse> fromList(List<ScheduleEntity> scheduleEntities) {
         return scheduleEntities.stream()
                 .map(ScheduleResponse::from)
                 .toList();

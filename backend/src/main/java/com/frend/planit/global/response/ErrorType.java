@@ -84,7 +84,14 @@ public enum ErrorType {
 
     // Invite
     INVITE_NOT_FOUND(HttpStatus.NOT_FOUND, "초대 정보를 찾을 수 없습니다."),
-    INVITE_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 초대 코드입니다.");
+    INVITE_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 초대 코드입니다."),
+
+    // Booking
+    BOOKING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예약을 찾을 수 없습니다."),
+    BOOKING_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "해당 예약을 삭제할 수 없습니다."),
+    INVALID_BOOKING_CANCEL(HttpStatus.BAD_REQUEST, "해당 예약은 취소할 수 없습니다."),
+    IAMPORT_TOKEN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "아임포트 액세스 토큰 발급 실패"),
+    IAMPORT_CANCEL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "결제 취소 요청 실패");
 
     private final int code;
     private final String message;

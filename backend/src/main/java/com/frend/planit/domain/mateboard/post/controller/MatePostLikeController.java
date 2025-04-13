@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/mates")
+@RequestMapping("api/v1/mateposts")
 public class MatePostLikeController {
 
     private final MatePostLikeService matePostLikeService;

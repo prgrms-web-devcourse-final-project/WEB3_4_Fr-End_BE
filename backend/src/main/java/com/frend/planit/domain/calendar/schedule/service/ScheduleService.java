@@ -6,6 +6,7 @@ import com.frend.planit.domain.calendar.schedule.dto.request.ScheduleRequest;
 import com.frend.planit.domain.calendar.schedule.dto.response.ScheduleResponse;
 import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
+import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
 import java.util.List;
@@ -19,11 +20,12 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final CalendarRepository calendarRepository;
+    private final UserRepository userRepository;
 
     // 전체 여행 일정 조회(readOnly = true)
     public List<ScheduleResponse> getAllSchedules(Long calendarId, Long userId) {
         // 여행 일정 존재 여부 확인
-        List<ScheduleEntity> scheduleEntities = scheduleRepository.findAllByCalendarId(calendarId);
+        List<ScheduleEntity> scheduleEntities = findAllByCalendarId(calendarId, userId);
 
         return ScheduleResponse.fronList(scheduleEntities);
 
@@ -95,10 +97,21 @@ public class ScheduleService {
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         // 인증된 사용자 여부 확인
-        if (!schedules.getCalendar().getUser().getId().equals(userId)) {
-            throw new ServiceException(ErrorType.FORBIDDEN);
-        }
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.USER_NOT_FOUND));
 
         return schedules;
+    }
+
+    // 전체 여행 일정 조회 및 스케줄 존재 여부 확인
+    public List<ScheduleEntity> findAllByCalendarId(Long calendarId, Long userId) {
+        // 여행 일정 존재 여부 확인
+        List<ScheduleEntity> scheduleEntities = scheduleRepository.findAllByCalendarId(calendarId);
+
+        // 인증된 사용자 여부 확인
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.USER_NOT_FOUND));
+
+        return scheduleEntities;
     }
 }

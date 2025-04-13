@@ -39,7 +39,7 @@ public class MateResponseDto {
     private final Gender authorGender;
     private final int commentCount;
     private final int likeCount;
-    private LocalDateTime createdAt;
+    private final LocalDateTime createdAt;
 
     @QueryProjection
     public MateResponseDto(Long matePostId, Long authorId, String title, String content,

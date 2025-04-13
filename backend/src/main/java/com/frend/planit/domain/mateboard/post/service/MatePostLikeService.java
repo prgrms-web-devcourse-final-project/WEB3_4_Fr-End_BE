@@ -35,8 +35,8 @@ public class MatePostLikeService {
         }
 
         // 3. 좋아요 안 눌렀으면 저장
-        MatePostLike like = new MatePostLike(mate, user);
-        matePostLikeRepository.save(like);
+        MatePostLike matePostlike = new MatePostLike(mate, user);
+        matePostLikeRepository.save(matePostlike);
 
     }
 

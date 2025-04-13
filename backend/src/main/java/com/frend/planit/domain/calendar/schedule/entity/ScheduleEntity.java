@@ -63,6 +63,7 @@ public class ScheduleEntity extends BaseTime {
                 .scheduleTitle(scheduleRequest.getScheduleTitle())
                 .startDate(scheduleRequest.getStartDate())
                 .endDate(scheduleRequest.getEndDate())
+                .blockColor(scheduleRequest.getBlockColor())
                 .note(scheduleRequest.getNote())
                 .alertTime(scheduleRequest.getAlertTime())
                 .build();
@@ -87,6 +88,7 @@ public class ScheduleEntity extends BaseTime {
         this.scheduleTitle = scheduleRequest.getScheduleTitle();
         this.startDate = scheduleRequest.getStartDate();
         this.endDate = scheduleRequest.getEndDate();
+        this.blockColor = scheduleRequest.getBlockColor();
         this.note = scheduleRequest.getNote();
         this.alertTime = scheduleRequest.getAlertTime();
 

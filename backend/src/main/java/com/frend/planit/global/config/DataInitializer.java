@@ -100,6 +100,7 @@ public class DataInitializer implements ApplicationRunner {
                     .scheduleTitle("테스트 일정 제목")
                     .startDate(LocalDate.now())
                     .endDate(LocalDate.now().plusDays(2))
+                    .blockColor("#FF5733")
                     .note("테스트 일정 노트")
                     .alertTime(LocalTime.now())
                     .build();

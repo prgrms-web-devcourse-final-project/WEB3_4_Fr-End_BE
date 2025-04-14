@@ -17,9 +17,6 @@ public class NaverUserInfoResponse {
     public OAuthUserInfoResponse toOAuthUserInfo() {
         return OAuthUserInfoResponse.builder()
                 .socialId(response.getId())
-                .email(null)
-                .nickname(response.getName())
-                .profileImage(null)
                 .build();
     }
 }

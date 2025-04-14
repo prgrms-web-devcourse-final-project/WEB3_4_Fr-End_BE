@@ -91,12 +91,13 @@ public class User extends BaseTime {
     private LoginType loginType;
 
     public void updateFirstInfo(String email, String nickname, String phone, LocalDate birthDate,
-            Gender gender) {
+            Gender gender, Boolean mailingType) {
         this.email = email;
         this.nickname = nickname;
         this.phone = phone;
         this.birthDate = birthDate;
         this.gender = gender;
+        this.mailingType = mailingType;
         this.status = UserStatus.REGISTERED;
     }
 

@@ -1,15 +1,17 @@
 package com.frend.planit.domain.mateboard.post.repository;
 
-import static com.frend.planit.domain.mateboard.comment.entity.QMateComment.mateComment;
-import static com.frend.planit.domain.mateboard.post.entity.QMatePostLike.matePostLike;
+import static com.frend.planit.domain.mateboard.post.entity.QMate.mate;
 
 import com.frend.planit.domain.image.entity.QImage;
 import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
 import com.frend.planit.domain.mateboard.application.entity.QMateApplication;
+import com.frend.planit.domain.mateboard.comment.entity.QMateComment;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.QMateResponseDto;
+import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.mateboard.post.entity.QMate;
+import com.frend.planit.domain.mateboard.post.entity.QMatePostLike;
 import com.frend.planit.domain.mateboard.post.entity.RecruitmentStatus;
 import com.frend.planit.domain.mateboard.post.entity.TravelRegion;
 import com.frend.planit.domain.user.entity.QUser;
@@ -46,6 +48,17 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
+    public Mate findMateWithDetails(Long id) {
+        return queryFactory
+                .selectFrom(mate)
+                .leftJoin(mate.writer).fetchJoin()
+                .leftJoin(mate.applications).fetchJoin()
+                .leftJoin(mate.postLikes).fetchJoin()
+                .where(mate.id.eq(id))
+                .fetchOne();
+    }
+
+    @Override
     public Page<MateResponseDto> searchMatePosts(String keyword, String status, String region,
             Pageable pageable) {
 
@@ -53,6 +66,8 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
         QUser user = QUser.user;
         QImage image = QImage.image;
         QMateApplication application = QMateApplication.mateApplication;
+        QMateComment comment = QMateComment.mateComment;
+        QMatePostLike like = QMatePostLike.matePostLike;
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -75,7 +90,6 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
             builder.and(mate.travelRegion.eq(travelRegion));
         }
 
-        // 데이터 조회 쿼리
         var results = queryFactory
                 .select(new QMateResponseDto(
                         mate.id,
@@ -88,36 +102,56 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         mate.recruitmentStatus,
                         mate.mateGender,
                         mate.recruitCount,
+
+                        // 지원자 수 (ACCEPTED만)
                         Expressions.numberTemplate(
                                 Integer.class,
                                 "({0})",
-                                JPAExpressions
-                                        .select(application.count())
+                                JPAExpressions.select(application.count())
                                         .from(application)
                                         .where(application.mate.eq(mate)
                                                 .and(application.status.eq(
                                                         MateApplicationStatus.ACCEPTED)))
                         ),
-                        JPAExpressions
-                                .select(image.url)
+
+                        // 이미지 URL (최소 1장)
+                        JPAExpressions.select(image.url)
                                 .from(image)
                                 .where(image.holderType.eq(HolderType.MATEBOARD)
                                         .and(image.holderId.eq(mate.id)))
                                 .orderBy(image.id.asc())
                                 .limit(1),
+
                         user.nickname,
                         user.bio,
                         user.profileImageUrl,
                         user.gender,
-                        mateComment.countDistinct().intValue(),
-                        matePostLike.countDistinct().intValue(),
+
+                        // 댓글 수
+                        Expressions.numberTemplate(
+                                Integer.class,
+                                "({0})",
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.mate.eq(mate))
+                        ),
+
+                        // 좋아요 수
+                        Expressions.numberTemplate(
+                                Integer.class,
+                                "({0})",
+                                JPAExpressions.select(like.count())
+                                        .from(like)
+                                        .where(like.matePost.eq(mate))
+                        ),
+
                         mate.createdAt,
+
+                        // isApplied: 전체 조회에서는 false로 고정
                         Expressions.constant(false)
                 ))
                 .from(mate)
                 .leftJoin(mate.writer, user)
-                .leftJoin(mateComment).on(mateComment.mate.eq(mate))
-                .leftJoin(matePostLike).on(matePostLike.matePost.eq(mate))
                 .where(builder)
                 .groupBy(mate.id)
                 .orderBy(mate.createdAt.desc())
@@ -125,7 +159,6 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // 카운트 쿼리
         JPAQuery<Long> countQuery = queryFactory
                 .select(mate.count())
                 .from(mate)

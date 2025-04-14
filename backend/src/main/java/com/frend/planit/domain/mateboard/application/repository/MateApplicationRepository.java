@@ -1,6 +1,7 @@
 package com.frend.planit.domain.mateboard.application.repository;
 
 import com.frend.planit.domain.mateboard.application.entity.MateApplication;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -27,6 +28,8 @@ public interface MateApplicationRepository extends JpaRepository<MateApplication
      * @return
      */
     Optional<MateApplication> findByMateIdAndApplicantId(Long mateId, Long userId);
+
+    List<MateApplication> findByMateId(Long mateId);
 
     boolean existsByMateIdAndApplicantId(Long mateId, Long applicantId);
 }

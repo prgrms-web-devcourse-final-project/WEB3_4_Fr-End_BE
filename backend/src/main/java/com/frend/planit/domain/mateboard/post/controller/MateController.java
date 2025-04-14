@@ -79,9 +79,9 @@ public class MateController {
      */
     @GetMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.OK)
-    public MateResponseDto getMate(@PathVariable Long id,
+    public MateResponseDto getMate(@PathVariable Long matePostId,
             @AuthenticationPrincipal Long userId) {
-        return mateService.getMate(id, userId);
+        return mateService.getMate(matePostId, userId);
     }
 
     /**
@@ -94,10 +94,10 @@ public class MateController {
      */
     @PutMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.OK)
-    public MateResponseDto updateMate(@PathVariable Long id,
+    public MateResponseDto updateMate(@PathVariable Long matePostId,
             @RequestBody @Valid MateRequestDto mateRequestDto,
             @AuthenticationPrincipal Long userId) {
-        return mateService.updateMate(id, mateRequestDto, userId);
+        return mateService.updateMate(matePostId, mateRequestDto, userId);
     }
 
     /**
@@ -109,7 +109,7 @@ public class MateController {
      */
     @DeleteMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteMate(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
-        mateService.deleteMate(id, userId);
+    public void deleteMate(@PathVariable Long matePostId, @AuthenticationPrincipal Long userId) {
+        mateService.deleteMate(matePostId, userId);
     }
 }

@@ -111,7 +111,8 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         user.gender,
                         mateComment.countDistinct().intValue(),
                         matePostLike.countDistinct().intValue(),
-                        mate.createdAt
+                        mate.createdAt,
+                        Expressions.constant(false)
                 ))
                 .from(mate)
                 .leftJoin(mate.writer, user)

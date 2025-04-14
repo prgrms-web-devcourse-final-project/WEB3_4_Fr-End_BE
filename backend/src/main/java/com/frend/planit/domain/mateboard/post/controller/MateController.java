@@ -79,8 +79,9 @@ public class MateController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public MateResponseDto getMate(@PathVariable Long id) {
-        return mateService.getMate(id);
+    public MateResponseDto getMate(@PathVariable Long id,
+            @AuthenticationPrincipal Long userId) {
+        return mateService.getMate(id, userId);
     }
 
     /**

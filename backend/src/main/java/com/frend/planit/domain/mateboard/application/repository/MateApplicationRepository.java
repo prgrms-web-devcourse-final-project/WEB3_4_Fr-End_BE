@@ -27,4 +27,6 @@ public interface MateApplicationRepository extends JpaRepository<MateApplication
      * @return
      */
     Optional<MateApplication> findByMateIdAndApplicantId(Long mateId, Long userId);
+
+    boolean existsByMateIdAndApplicantId(Long mateId, Long applicantId);
 }

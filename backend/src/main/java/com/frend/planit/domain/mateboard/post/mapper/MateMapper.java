@@ -20,7 +20,7 @@ public class MateMapper {
      * @param mate 변환할 Mate 엔티티
      * @return MateResponseDto 변환 결과
      */
-    public static MateResponseDto toResponseDto(Mate mate, String imageUrl) {
+    public static MateResponseDto toResponseDto(Mate mate, String imageUrl, boolean isApplied) {
 
         return MateResponseDto.builder()
                 .matePostId(mate.getId())
@@ -42,6 +42,11 @@ public class MateMapper {
                         .count())
                 .imageUrl(imageUrl)
                 .createdAt(mate.getCreatedAt())
+                .isApplied(isApplied)
                 .build();
+    }
+
+    public static MateResponseDto toResponseDto(Mate mate, String imageUrl) {
+        return toResponseDto(mate, imageUrl, false);
     }
 }

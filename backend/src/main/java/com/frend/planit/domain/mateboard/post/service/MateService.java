@@ -6,6 +6,7 @@ import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
 
 import com.frend.planit.domain.image.service.ImageService;
 import com.frend.planit.domain.image.type.HolderType;
+import com.frend.planit.domain.mateboard.application.repository.MateApplicationRepository;
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
@@ -41,6 +42,7 @@ public class MateService {
     private final MateRepository mateRepository;
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final MateApplicationRepository mateApplicationRepository;
 
     /**
      * ID로 게시글을 조회하고, 존재하지 않으면 예외를 던집니다.
@@ -89,14 +91,16 @@ public class MateService {
      * @return 조회된 게시글의 응답 DTO
      * @throws RuntimeException 해당 ID의 게시글이 존재하지 않을 경우 예외 발생
      */
-    public MateResponseDto getMate(Long id) {
+    public MateResponseDto getMate(Long id, Long userId) {
         Mate mate = findMateOrThrow(id);
 
         // 게시글 이미지 조회
         String imageUrl = imageService.getImage(HolderType.MATEBOARD, mate.getId()).imageUrl();
 
+        boolean isApplied = mateApplicationRepository.existsByMateIdAndApplicantId(id, userId);
+
         // DTO 변환 시 이미지 URL 포함
-        return MateMapper.toResponseDto(mate, imageUrl);
+        return MateMapper.toResponseDto(mate, imageUrl, isApplied);
     }
 
     /**

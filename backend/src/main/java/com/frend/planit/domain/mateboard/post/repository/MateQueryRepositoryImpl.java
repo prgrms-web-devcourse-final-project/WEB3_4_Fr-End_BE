@@ -100,8 +100,6 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         JPAExpressions
                                 .select(image.url)
                                 .from(image)
-//                                .where(image.holderType.eq(HolderType.MATEBOARD)
-//                                        .and(image.holderId.eq(mate.id)))
                                 .orderBy(image.id.asc())
                                 .limit(1),
                         user.nickname,
@@ -117,6 +115,7 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                 .leftJoin(mateComment).on(mateComment.mate.eq(mate))
                 .leftJoin(matePostLike).on(matePostLike.matePost.eq(mate))
                 .where(builder)
+                .groupBy(mate.id)
                 .orderBy(mate.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

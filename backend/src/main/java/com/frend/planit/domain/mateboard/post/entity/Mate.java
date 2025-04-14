@@ -124,6 +124,9 @@ public class Mate extends BaseTime {
     @OneToMany(mappedBy = "mate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MateApplication> applications = new ArrayList<>();
 
+    @OneToMany(mappedBy = "matePost", fetch = FetchType.LAZY)
+    private List<MatePostLike> postLikes;
+
     /**
      * 게시글 생성 날짜(createdAt), 게시글 수정 날짜(modifiedAt) BaseTime 상속
      */

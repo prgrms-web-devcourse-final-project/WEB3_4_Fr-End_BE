@@ -4,12 +4,16 @@ import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.global.base.BaseTime;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,4 +51,6 @@ public class MateComment extends BaseTime {
     @Column(nullable = false)
     private String content;
 
+    @OneToMany(mappedBy = "mateComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MateCommentLike> commentLikes = new ArrayList<>();
 }

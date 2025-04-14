@@ -8,7 +8,9 @@ import com.frend.planit.domain.image.service.ImageService;
 import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.application.repository.MateApplicationRepository;
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
+import com.frend.planit.domain.mateboard.post.dto.response.MateApplicationInfo;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
+import com.frend.planit.domain.mateboard.post.dto.response.PostLikeInfo;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.mateboard.post.mapper.MateMapper;
 import com.frend.planit.domain.mateboard.post.repository.MateQueryRepository;
@@ -99,8 +101,18 @@ public class MateService {
 
         boolean isApplied = mateApplicationRepository.existsByMateIdAndApplicantId(id, userId);
 
+        // 1. 게시글 좋아요 정보 → PostLikeInfo 리스트 생성
+        List<PostLikeInfo> postLike = mate.getPostLikes().stream()
+                .map(like -> new PostLikeInfo(like.getUser().getId(), mate.getId()))
+                .toList();
+
+        // 2. 동행 신청 정보 → MateApplicationInfo 리스트 생성
+        List<MateApplicationInfo> mateApplications = mate.getApplications().stream()
+                .map(app -> new MateApplicationInfo(app.getApplicant().getId(), app.getId()))
+                .toList();
+
         // DTO 변환 시 이미지 URL 포함
-        return MateMapper.toResponseDto(mate, imageUrl, isApplied);
+        return MateMapper.toResponseDto(mate, imageUrl, isApplied, postLike, mateApplications);
     }
 
     /**

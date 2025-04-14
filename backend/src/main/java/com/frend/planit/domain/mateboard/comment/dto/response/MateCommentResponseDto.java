@@ -1,6 +1,7 @@
 package com.frend.planit.domain.mateboard.comment.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -29,6 +30,8 @@ public class MateCommentResponseDto {
     private final String profileImageUrl;
 
     private final String content;
+
+    private final List<CommentLikeInfo> commentLike;
 
     private final LocalDateTime createdAt;
 

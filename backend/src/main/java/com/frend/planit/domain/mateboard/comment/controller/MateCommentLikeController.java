@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/mates/comments")
+@RequestMapping("/api/v1/mateposts/comments")
 public class MateCommentLikeController {
 
     private final MateCommentLikeService mateCommentLikeService;

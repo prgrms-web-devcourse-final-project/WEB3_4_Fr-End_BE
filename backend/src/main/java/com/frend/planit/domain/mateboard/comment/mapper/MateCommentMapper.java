@@ -1,7 +1,9 @@
 package com.frend.planit.domain.mateboard.comment.mapper;
 
+import com.frend.planit.domain.mateboard.comment.dto.response.CommentLikeInfo;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.entity.MateComment;
+import java.util.List;
 
 /**
  * MateComment 엔티티를 MateCommentResponseDto로 변환하는 매퍼 클래스입니다.
@@ -14,7 +16,8 @@ import com.frend.planit.domain.mateboard.comment.entity.MateComment;
  */
 public class MateCommentMapper {
 
-    public static MateCommentResponseDto toResponseDto(MateComment comment) {
+    public static MateCommentResponseDto toResponseDto(MateComment comment,
+            List<CommentLikeInfo> commentLike) {
         return MateCommentResponseDto.builder()
                 .mateCommentId(comment.getId())
                 .matePostId(comment.getMate().getId())
@@ -23,9 +26,13 @@ public class MateCommentMapper {
                 .nickname(comment.getUser().getNickname())
                 .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .content(comment.getContent())
+                .commentLike(commentLike)
                 .createdAt(comment.getCreatedAt())
                 .modifiedAt(comment.getModifiedAt())
-                // TODO: 좋아요 수 추가
                 .build();
+    }
+
+    public static MateCommentResponseDto toResponseDto(MateComment comment) {
+        return toResponseDto(comment, List.of());
     }
 }

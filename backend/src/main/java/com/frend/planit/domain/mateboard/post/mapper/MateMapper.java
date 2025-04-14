@@ -1,7 +1,10 @@
 package com.frend.planit.domain.mateboard.post.mapper;
 
+import com.frend.planit.domain.mateboard.post.dto.response.MateApplicationInfo;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
+import com.frend.planit.domain.mateboard.post.dto.response.PostLikeInfo;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
+import java.util.List;
 
 /**
  * Mate 엔티티를 MateResponseDto로 변환하는 매퍼 클래스입니다.
@@ -20,8 +23,11 @@ public class MateMapper {
      * @param mate 변환할 Mate 엔티티
      * @return MateResponseDto 변환 결과
      */
-    public static MateResponseDto toResponseDto(Mate mate, String imageUrl, boolean isApplied) {
+    public static MateResponseDto toResponseDto(Mate mate, String imageUrl) {
+        return toResponseDto(mate, imageUrl, false);
+    }
 
+    public static MateResponseDto toResponseDto(Mate mate, String imageUrl, boolean isApplied) {
         return MateResponseDto.builder()
                 .matePostId(mate.getId())
                 .authorId(mate.getWriter().getId())
@@ -46,7 +52,36 @@ public class MateMapper {
                 .build();
     }
 
-    public static MateResponseDto toResponseDto(Mate mate, String imageUrl) {
-        return toResponseDto(mate, imageUrl, false);
+    public static MateResponseDto toResponseDto(
+            Mate mate,
+            String imageUrl,
+            boolean isApplied,
+            List<PostLikeInfo> postLike,
+            List<MateApplicationInfo> mateApplications
+    ) {
+        return MateResponseDto.builder()
+                .matePostId(mate.getId())
+                .authorId(mate.getWriter().getId())
+                .nickname(mate.getWriter().getNickname())
+                .profileImage(mate.getWriter().getProfileImageUrl())
+                .authorGender(mate.getWriter().getGender())
+                .bio(mate.getWriter().getBio())
+                .title(mate.getTitle())
+                .content(mate.getContent())
+                .recruitCount(mate.getRecruitCount())
+                .travelRegion(mate.getTravelRegion())
+                .travelStartDate(mate.getTravelStartDate())
+                .travelEndDate(mate.getTravelEndDate())
+                .recruitmentStatus(mate.getRecruitmentStatus())
+                .mateGender(mate.getMateGender())
+                .appliedCount((int) mate.getApplications().stream()
+                        .filter(a -> a.getStatus().isAccepted())
+                        .count())
+                .imageUrl(imageUrl)
+                .createdAt(mate.getCreatedAt())
+                .isApplied(isApplied)
+                .postLike(postLike)
+                .mateApplications(mateApplications)
+                .build();
     }
 }

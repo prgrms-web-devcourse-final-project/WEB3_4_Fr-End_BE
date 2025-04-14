@@ -5,6 +5,7 @@ import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
 import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
 
 import com.frend.planit.domain.mateboard.comment.dto.request.MateCommentRequestDto;
+import com.frend.planit.domain.mateboard.comment.dto.response.CommentLikeInfo;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.entity.MateComment;
 import com.frend.planit.domain.mateboard.comment.mapper.MateCommentMapper;
@@ -95,8 +96,17 @@ public class MateCommentService {
         Mate mate = mateService.findMateOrThrow(mateId);
         // 2. 해당 게시글에 달린 댓글을 페이징하여 조회
         Page<MateComment> comments = mateCommentRepository.findAllByMate(mate, pageable);
-        // 3. Entity -> DTO 변환
-        Page<MateCommentResponseDto> dtoPage = comments.map(MateCommentMapper::toResponseDto);
+        // 3. Entity -> DTO 변환 (commentLike 포함)
+        Page<MateCommentResponseDto> dtoPage = comments.map(comment -> {
+            List<CommentLikeInfo> commentLikes = comment.getCommentLikes().stream()
+                    .map(like -> new CommentLikeInfo(
+                            like.getUser().getId(),
+                            like.getMateComment().getId()
+                    )).toList();
+
+            return MateCommentMapper.toResponseDto(comment, commentLikes);
+        });
+
         // 4. PageResponse로 감싸서 반환
         return new PageResponse<>(dtoPage);
     }

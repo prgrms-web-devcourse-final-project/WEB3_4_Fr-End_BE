@@ -4,7 +4,6 @@ import static com.frend.planit.domain.mateboard.comment.entity.QMateComment.mate
 import static com.frend.planit.domain.mateboard.post.entity.QMatePostLike.matePostLike;
 
 import com.frend.planit.domain.image.entity.QImage;
-import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
 import com.frend.planit.domain.mateboard.application.entity.QMateApplication;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
@@ -101,8 +100,8 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         JPAExpressions
                                 .select(image.url)
                                 .from(image)
-                                .where(image.holderType.eq(HolderType.MATEBOARD)
-                                        .and(image.holderId.eq(mate.id)))
+//                                .where(image.holderType.eq(HolderType.MATEBOARD)
+//                                        .and(image.holderId.eq(mate.id)))
                                 .orderBy(image.id.asc())
                                 .limit(1),
                         user.nickname,
@@ -114,7 +113,7 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         mate.createdAt
                 ))
                 .from(mate)
-                .leftJoin(mate.writer, user).fetchJoin()
+                .leftJoin(mate.writer, user)
                 .leftJoin(mateComment).on(mateComment.mate.eq(mate))
                 .leftJoin(matePostLike).on(matePostLike.matePost.eq(mate))
                 .where(builder)

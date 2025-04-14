@@ -28,6 +28,7 @@ public class MateMapper {
                 .nickname(mate.getWriter().getNickname())
                 .profileImage(mate.getWriter().getProfileImageUrl())
                 .authorGender(mate.getWriter().getGender())
+                .bio(mate.getWriter().getBio())
                 .title(mate.getTitle())
                 .content(mate.getContent())
                 .recruitCount(mate.getRecruitCount())

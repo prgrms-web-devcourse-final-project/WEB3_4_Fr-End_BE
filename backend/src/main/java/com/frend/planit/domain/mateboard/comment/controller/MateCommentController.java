@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/mate-board/posts/{mateId}/comments")
+@RequestMapping("/api/v1/mate-board/posts/{matePostId}/comments")
 public class MateCommentController {
 
     private final MateCommentService mateCommentService;
@@ -59,7 +59,7 @@ public class MateCommentController {
      * @param id 조회할 댓글 ID
      * @return 조회된 댓글 ID
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public MateCommentResponseDto getComment(@PathVariable Long id) {
         return mateCommentService.getComment(id);
@@ -87,7 +87,7 @@ public class MateCommentController {
      * @param mateCommentRequestDto 수정할 댓글 요청 본문
      * @return 수정된 댓글 ID
      */
-    @PutMapping("/{id}")
+    @PutMapping("/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public MateCommentResponseDto updateComment(@PathVariable Long id,
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
@@ -102,7 +102,7 @@ public class MateCommentController {
      * @param userId
      * @return
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public MateCommentResponseDto deleteComment(@PathVariable Long id,
             @AuthenticationPrincipal Long userId) {

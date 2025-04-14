@@ -54,7 +54,7 @@ public class BookingQueryService {
 
     private boolean canCancel(Booking booking, LocalDate today) {
         return booking.getBookingStatus().equals(BookingStatus.RESERVED)
-                && booking.getPaymentStatus().equals("PAID")
+                && booking.getPaymentStatus().equals("paid")
                 && booking.getCheckInDate().isAfter(today);
     }
 }

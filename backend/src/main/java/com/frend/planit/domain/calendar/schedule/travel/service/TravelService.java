@@ -2,8 +2,10 @@ package com.frend.planit.domain.calendar.schedule.travel.service;
 
 import com.frend.planit.domain.calendar.schedule.day.entity.ScheduleDayEntity;
 import com.frend.planit.domain.calendar.schedule.day.repository.ScheduleDayRepository;
+import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
 import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
 import com.frend.planit.domain.calendar.schedule.travel.dto.request.TravelRequest;
+import com.frend.planit.domain.calendar.schedule.travel.dto.response.AllTravelsResponse;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.entity.TravelEntity;
@@ -28,18 +30,27 @@ public class TravelService {
 
     // 행선지 조회
     @Transactional(readOnly = true)
-    public List<DailyTravelResponse> getAllTravels(Long scheduleId, Long userId) {
+    public AllTravelsResponse getAllTravels(Long scheduleId, Long userId) {
 
         // 로그인 사용자 확인
         checkUser(userId);
 
         // 스케줄 존재 여부 확인
-        checkSchedule(scheduleId);
+        ScheduleEntity schedule = checkSchedule(scheduleId);
 
         // 행선지 조회
         List<TravelEntity> travels = findTravelByScheduleId(scheduleId);
 
-        return TravelGroupingUtils.groupTravelsByDate(travels);
+        // 일일 행선지 조회
+        List<DailyTravelResponse> dailyTravels = TravelGroupingUtils.groupTravelsByDate(travels);
+
+        // 일자 별 ID 조회
+        List<Long> scheduleDayIds = scheduleDayRepository.findAllByScheduleId(scheduleId)
+                .stream()
+                .map(ScheduleDayEntity::getId)
+                .toList();
+
+        return AllTravelsResponse.of(schedule, scheduleDayIds, dailyTravels);
     }
 
     // 행선지 생성
@@ -113,8 +124,8 @@ public class TravelService {
     // 공통 메서드
 
     // 스케줄 존재 여부 확인
-    public void checkSchedule(Long scheduleId) {
-        scheduleRepository.findById(scheduleId)
+    public ScheduleEntity checkSchedule(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
     }
 
@@ -129,10 +140,6 @@ public class TravelService {
     public List<TravelEntity> findTravelByScheduleId(Long scheduleId) {
         // 행선지 조회
         List<TravelEntity> travels = travelRepository.findAllByScheduleId(scheduleId);
-
-        if (travels.isEmpty()) {
-            throw new ServiceException(ErrorType.TRAVEL_NOT_FOUND);
-        }
 
         return travels;
     }

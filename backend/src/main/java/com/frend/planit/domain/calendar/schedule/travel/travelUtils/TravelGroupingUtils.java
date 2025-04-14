@@ -19,6 +19,11 @@ public class TravelGroupingUtils {
      */
     public static List<DailyTravelResponse> groupTravelsByDate(List<TravelEntity> travels) {
 
+        // 빈 리스트 반환
+        if (travels.isEmpty()) {
+            return List.of();
+        }
+
         // 날짜 기준으로 그룹핑
         Map<LocalDate, List<TravelEntity>> travelsByDate = travels.stream()
                 .collect(Collectors.groupingBy(travel -> travel.getScheduleDay().getDate()));

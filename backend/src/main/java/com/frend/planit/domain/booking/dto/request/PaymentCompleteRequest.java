@@ -75,19 +75,19 @@ public class PaymentCompleteRequest {
         private Long userId;
 
         @Schema(description = "숙소 ID (TOUR API 기준)")
-        @JsonProperty("accomodationId")
+        @JsonProperty("accommodationId")
         private Long accommodationId;
 
         @Schema(description = "숙소 이름")
-        @JsonProperty("accomodationName")
+        @JsonProperty("accommodationName")
         private String accommodationName;
 
         @Schema(description = "숙소 주소")
-        @JsonProperty("accomodationAddress")
+        @JsonProperty("accommodationAddress")
         private String accommodationAddress;
 
         @Schema(description = "숙소 이미지 URL")
-        @JsonProperty("accomodationImage")
+        @JsonProperty("accommodationImage")
         private String accommodationImage;
 
         @Schema(description = "체크인 날짜")

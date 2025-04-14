@@ -14,6 +14,9 @@ public class TravelResponse {
     @JsonProperty("travel_id")
     private Long id;
 
+    @JsonProperty("schedule_day_id")
+    private Long scheduleDayId;
+
     @JsonProperty("id")
     private String kakaomapId;
 
@@ -36,6 +39,7 @@ public class TravelResponse {
     public static TravelResponse from(TravelEntity travelEntity) {
         return TravelResponse.builder()
                 .id(travelEntity.getId())
+                .scheduleDayId(travelEntity.getScheduleDay().getId())
                 .kakaomapId(travelEntity.getKakaomapId())
                 .location(travelEntity.getLocation())
                 .category(travelEntity.getCategory())

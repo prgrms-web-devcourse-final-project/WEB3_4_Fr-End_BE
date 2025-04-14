@@ -77,7 +77,7 @@ public class MateController {
      * @param id 조회할 게시글 ID
      * @return 조회된 된 게시글 id
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.OK)
     public MateResponseDto getMate(@PathVariable Long id,
             @AuthenticationPrincipal Long userId) {
@@ -92,7 +92,7 @@ public class MateController {
      * @param userId         로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
      * @return 수정된 게시글 응답 DTO
      */
-    @PutMapping("/{id}")
+    @PutMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.OK)
     public MateResponseDto updateMate(@PathVariable Long id,
             @RequestBody @Valid MateRequestDto mateRequestDto,
@@ -107,7 +107,7 @@ public class MateController {
      * @param userId 로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
      * @return 삭제한 게시글 응답 DTO
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{matePostId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMate(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
         mateService.deleteMate(id, userId);

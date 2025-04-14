@@ -9,6 +9,7 @@ import com.frend.planit.domain.chatbot.chatRoom.entity.AIChatRoomEntity;
 import com.frend.planit.domain.chatbot.chatRoom.repository.AIChatRoomRepository;
 import com.frend.planit.domain.chatbot.chatRoom.service.AIChatRoomService;
 import com.frend.planit.domain.chatbot.chatbotUtils.AIUserContextHelper;
+import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
@@ -40,6 +41,9 @@ public class AIChatMessageService {
             Long userId,
             Long chatRoomId,
             AIChatMessageRequest request) {
+
+        // 로그인 인증 사용자 여부 확인
+        checkUser(userId);
 
         // 채팅방 조회
         AIChatRoomEntity chatRoom = aiChatRoomRepository.findById(chatRoomId)
@@ -74,5 +78,11 @@ public class AIChatMessageService {
         aiChatRoomRepository.save(chatRoom);
 
         return AIChatMessageResponse.from(savedMessage);
+    }
+
+    // 사용자 조회
+    public User checkUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(ErrorType.USER_NOT_FOUND));
     }
 }

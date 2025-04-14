@@ -1,5 +1,8 @@
 package com.frend.planit.domain.mateboard.post.repository;
 
+import static com.frend.planit.domain.mateboard.comment.entity.QMateComment.mateComment;
+import static com.frend.planit.domain.mateboard.post.entity.QMatePostLike.matePostLike;
+
 import com.frend.planit.domain.image.entity.QImage;
 import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
@@ -106,11 +109,18 @@ public class MateQueryRepositoryImpl implements MateQueryRepository {
                         user.bio,
                         user.profileImageUrl,
                         user.gender,
-                        mate.createdAt
+                        mateComment.countDistinct().intValue(),
+                        matePostLike.countDistinct().intValue(),
+                        mate.createdAt,
+                        Expressions.constant(false)
                 ))
                 .from(mate)
                 .leftJoin(mate.writer, user)
+                .leftJoin(mateComment).on(mateComment.mate.eq(mate))
+                .leftJoin(matePostLike).on(matePostLike.matePost.eq(mate))
                 .where(builder)
+                .groupBy(mate.id)
+                .orderBy(mate.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

@@ -48,11 +48,11 @@ public class TravelRequest {
     @Pattern(regexp = "^[0-5][0-9]$")
     private String minute;
 
-    public int getIntHour() {
+    public int parseIntHour() {
         return Integer.parseInt(hour);
     }
 
-    public int getIntMinute() {
+    public int parseIntMinute() {
         return Integer.parseInt(minute);
     }
 }

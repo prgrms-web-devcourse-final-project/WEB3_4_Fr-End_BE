@@ -2,6 +2,13 @@ package com.frend.planit.global.config;
 
 import com.frend.planit.domain.calendar.entity.CalendarEntity;
 import com.frend.planit.domain.calendar.repository.CalendarRepository;
+import com.frend.planit.domain.calendar.schedule.day.entity.ScheduleDayEntity;
+import com.frend.planit.domain.calendar.schedule.dto.request.ScheduleRequest;
+import com.frend.planit.domain.calendar.schedule.entity.ScheduleEntity;
+import com.frend.planit.domain.calendar.schedule.repository.ScheduleRepository;
+import com.frend.planit.domain.calendar.schedule.travel.dto.request.TravelRequest;
+import com.frend.planit.domain.calendar.schedule.travel.entity.TravelEntity;
+import com.frend.planit.domain.calendar.schedule.travel.repository.TravelRepository;
 import com.frend.planit.domain.mateboard.comment.entity.MateComment;
 import com.frend.planit.domain.mateboard.comment.repository.MateCommentRepository;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
@@ -10,15 +17,21 @@ import com.frend.planit.domain.mateboard.post.entity.TravelRegion;
 import com.frend.planit.domain.mateboard.post.repository.MateRepository;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.repository.UserRepository;
+import com.frend.planit.global.exception.ServiceException;
+import com.frend.planit.global.response.ErrorType;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Profile({"dev", "local"})
@@ -30,10 +43,17 @@ public class DataInitializer implements ApplicationRunner {
     private final MateRepository mateRepository;
     private final MateCommentRepository mateCommentRepository;
 
+    // 여행 일정
+    private final ScheduleRepository scheduleRepository;
+    private final TravelRepository travelRepository;
+
     @Override
+    @Transactional
     public void run(ApplicationArguments args) {
         Optional<User> optionalUser = userRepository.findById(1L);
-        if (optionalUser.isEmpty()) return;
+        if (optionalUser.isEmpty()) {
+            return;
+        }
 
         User user = optionalUser.get();
 
@@ -69,5 +89,66 @@ public class DataInitializer implements ApplicationRunner {
             mateComment.setUser(user);
             mateComment.setContent("테스트 댓글 내용1");
         }
+
+        // 스케줄 생성
+        if (scheduleRepository.count() == 0) {
+            // 캘린더 가져오기
+            CalendarEntity calendar = calendarRepository.findById(1L)
+                    .orElseThrow(() -> new ServiceException(ErrorType.CALENDAR_NOT_FOUND));
+            // 스케줄 생성
+            ScheduleRequest request = ScheduleRequest.builder()
+                    .scheduleTitle("테스트 일정 제목")
+                    .startDate(LocalDate.now())
+                    .endDate(LocalDate.now().plusDays(2))
+                    .blockColor("#FF5733")
+                    .note("테스트 일정 노트")
+                    .alertTime(LocalTime.now())
+                    .build();
+
+            ScheduleEntity schedule = ScheduleEntity.of(calendar, request);
+
+            scheduleRepository.save(schedule);
+
+            scheduleRepository.flush();
+        }
+
+        // 여행 일정 생성
+        if (travelRepository.count() == 0) {
+            // 스케줄 가져오기
+            ScheduleEntity schedule = scheduleRepository.findById(1L)
+                    .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
+
+            // 여행 일정 시간, 분 랜덤 생성
+            for (ScheduleDayEntity day : schedule.getScheduleDayList()) {
+                List<TravelEntity> travels = generateTravel(day);
+                travelRepository.saveAll(travels);
+
+            }
+        }
+    }
+
+    public List<TravelEntity> generateTravel(ScheduleDayEntity day) {
+        List<TravelEntity> travels = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            int randomHour = ThreadLocalRandom.current().nextInt(0, 24);      // 0 ~ 23
+            int randomMinute = ThreadLocalRandom.current().nextInt(0, 60);    // 0 ~ 59
+
+            // 여행 일정 생성
+            TravelRequest travelRequest = TravelRequest.builder()
+                    .scheduleDayId(day.getId()) // 생성 시점에 ID 없을 수 있음
+                    .kakaomapId("kakao-" + i)
+                    .location("서울역")
+                    .category("여행")
+                    .lat(37.5 + (i * 0.01))
+                    .lng(126.97 + (i * 0.01))
+                    .hour(String.format("%02d", randomHour))
+                    .minute(String.format("%02d", randomMinute))
+                    .build();
+
+            travels.add(TravelEntity.of(travelRequest, day)); // 연관관계 자동 설정
+        }
+
+        return travels;
     }
 }

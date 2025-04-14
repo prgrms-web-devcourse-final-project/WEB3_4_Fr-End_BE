@@ -1,5 +1,14 @@
 package com.frend.planit.domain.calendar.schedule.travel.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.frend.planit.domain.calendar.entity.CalendarEntity;
 import com.frend.planit.domain.calendar.schedule.day.entity.ScheduleDayEntity;
 import com.frend.planit.domain.calendar.schedule.day.repository.ScheduleDayRepository;
@@ -14,6 +23,10 @@ import com.frend.planit.domain.calendar.schedule.travel.repository.TravelReposit
 import com.frend.planit.domain.calendar.schedule.travel.travelUtils.TravelGroupingUtils;
 import com.frend.planit.global.exception.ServiceException;
 import com.frend.planit.global.response.ErrorType;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,16 +37,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -62,10 +65,10 @@ public class TravelServiceTest {
 
     private CalendarEntity calendar;
 
+    private Long userId = 1L;
+
     @BeforeEach
     void setUp() {
-
-
 
         // Calendar 엔티티 생성
         calendar = CalendarEntity.builder()
@@ -129,7 +132,7 @@ public class TravelServiceTest {
         ).thenReturn(dummyResponse);
 
         // when
-        List<DailyTravelResponse> result = travelService.getAllTravels(schedule.getId());
+        List<DailyTravelResponse> result = travelService.getAllTravels(schedule.getId(), userId);
 
         // then
         assertThat(result).isNotEmpty();
@@ -144,7 +147,7 @@ public class TravelServiceTest {
                 .thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> travelService.getAllTravels(schedule.getId()))
+        assertThatThrownBy(() -> travelService.getAllTravels(schedule.getId(), userId))
                 .isInstanceOf(ServiceException.class)
                 .hasMessage(ErrorType.SCHEDULE_NOT_FOUND.getMessage());
     }
@@ -160,7 +163,7 @@ public class TravelServiceTest {
                 .thenReturn(List.of());
 
         // when & then
-        assertThatThrownBy(() -> travelService.getAllTravels(schedule.getId()))
+        assertThatThrownBy(() -> travelService.getAllTravels(schedule.getId(), userId))
                 .isInstanceOf(ServiceException.class)
                 .hasMessage(ErrorType.TRAVEL_NOT_FOUND.getMessage());
     }
@@ -176,7 +179,7 @@ public class TravelServiceTest {
         when(travelRepository.save(any(TravelEntity.class))).thenReturn(travel);
 
         // when
-        TravelResponse response = travelService.createTravel(schedule.getId(), request);
+        TravelResponse response = travelService.createTravel(schedule.getId(), userId, request);
 
         // then
         assertThat(response).isNotNull();
@@ -191,7 +194,7 @@ public class TravelServiceTest {
         when(scheduleRepository.findById(schedule.getId())).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> travelService.createTravel(schedule.getId(), request))
+        assertThatThrownBy(() -> travelService.createTravel(schedule.getId(), userId, request))
                 .isInstanceOf(ServiceException.class)
                 .hasMessage(ErrorType.SCHEDULE_NOT_FOUND.getMessage());
     }
@@ -204,7 +207,7 @@ public class TravelServiceTest {
         when(travelRepository.findById(travel.getId())).thenReturn(Optional.of(travel));
 
         // when
-        travelService.deleteTravel(schedule.getId(), travel.getId());
+        travelService.deleteTravel(schedule.getId(), userId, travel.getId());
 
         // then
         verify(travelRepository, times(1)).delete(travel);
@@ -234,7 +237,8 @@ public class TravelServiceTest {
         when(travelRepository.findById(travel.getId())).thenReturn(Optional.of(travel));
 
         // when & then
-        assertThatThrownBy(() -> travelService.deleteTravel(schedule.getId(), travel.getId()))
+        assertThatThrownBy(
+                () -> travelService.deleteTravel(schedule.getId(), userId, travel.getId()))
                 .isInstanceOf(ServiceException.class)
                 .hasMessage(ErrorType.SCHEDULE_DAY_NOT_FOUND.getMessage());
     }
@@ -251,6 +255,7 @@ public class TravelServiceTest {
 
         // when
         TravelResponse response = travelService.modifyTravel(schedule.getId(), travel.getId(),
+                userId,
                 request);
 
         // then
@@ -286,7 +291,7 @@ public class TravelServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                travelService.modifyTravel(schedule.getId(), travel.getId(), request))
+                travelService.modifyTravel(schedule.getId(), travel.getId(), userId, request))
                 .isInstanceOf(ServiceException.class)
                 .hasMessage(ErrorType.SCHEDULE_NOT_FOUND.getMessage());
     }

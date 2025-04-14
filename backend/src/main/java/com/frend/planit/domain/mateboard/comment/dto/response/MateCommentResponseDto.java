@@ -20,6 +20,8 @@ public class MateCommentResponseDto {
 
     private final Long matePostId;
 
+    private final String matePostTitle;
+
     private final Long authorId;
 
     private final String nickname;

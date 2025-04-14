@@ -37,7 +37,11 @@ public class MateResponseDto {
     private final String bio;
     private final String profileImage;
     private final Gender authorGender;
-    private LocalDateTime createdAt;
+    private final int commentCount;
+    private final int likeCount;
+    private final LocalDateTime createdAt;
+    private boolean isApplied;
+
 
     @QueryProjection
     public MateResponseDto(Long matePostId, Long authorId, String title, String content,
@@ -45,7 +49,7 @@ public class MateResponseDto {
             RecruitmentStatus recruitmentStatus, MateGender mateGender,
             int recruitCount, int appliedCount, String imageUrl,
             String nickname, String bio, String profileImage, Gender authorGender,
-            LocalDateTime createdAt) {
+            int commentCount, int likeCount, LocalDateTime createdAt, boolean isApplied) {
         this.matePostId = matePostId;
         this.authorId = authorId;
         this.title = title;
@@ -62,6 +66,9 @@ public class MateResponseDto {
         this.bio = bio;
         this.profileImage = profileImage;
         this.authorGender = authorGender;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
         this.createdAt = createdAt;
+        this.isApplied = isApplied;
     }
 }

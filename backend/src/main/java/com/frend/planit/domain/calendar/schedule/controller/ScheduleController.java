@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,14 +30,25 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    @GetMapping("/{scheduleId}")
-    @Operation(summary = "여행 일정 조회")
+    @GetMapping
+    @Operation(summary = "전체 여행 일정 조회")
     @ResponseStatus(HttpStatus.OK)
-    public ScheduleResponse getSchedules(
+    public List<ScheduleResponse> getAllSchedules(
             @PathVariable Long calendarId,
-            @PathVariable Long scheduleId
+            @AuthenticationPrincipal Long userId
     ) {
-        return scheduleService.getSchedules(calendarId, scheduleId);
+        return scheduleService.getAllSchedules(calendarId, userId);
+    }
+
+    @GetMapping("/{scheduleId}")
+    @Operation(summary = "단일 여행 일정 조회")
+    @ResponseStatus(HttpStatus.OK)
+    public ScheduleResponse getSchedule(
+            @PathVariable Long calendarId,
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return scheduleService.getSchedule(calendarId, scheduleId, userId);
     }
 
     @PostMapping
@@ -43,9 +56,10 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.CREATED)
     public ScheduleResponse createSchedule(
             @PathVariable Long calendarId,
-            @Valid @RequestBody ScheduleRequest scheduleRequest
+            @Valid @RequestBody ScheduleRequest scheduleRequest,
+            @AuthenticationPrincipal Long userId
     ) {
-        return scheduleService.createSchedule(calendarId, scheduleRequest);
+        return scheduleService.createSchedule(calendarId, scheduleRequest, userId);
     }
 
     @PatchMapping("/{scheduleId}")
@@ -54,9 +68,10 @@ public class ScheduleController {
     public ScheduleResponse modifySchedule(
             @PathVariable Long calendarId,
             @PathVariable Long scheduleId,
-            @Valid @RequestBody ScheduleRequest scheduleRequest
+            @Valid @RequestBody ScheduleRequest scheduleRequest,
+            @AuthenticationPrincipal Long userId
     ) {
-        return scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest);
+        return scheduleService.modifySchedule(calendarId, scheduleId, scheduleRequest, userId);
     }
 
     @DeleteMapping("/{scheduleId}")
@@ -64,8 +79,9 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.OK)
     public ScheduleResponse deleteSchedule(
             @PathVariable Long calendarId,
-            @PathVariable Long scheduleId
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal Long userId
     ) {
-        return scheduleService.deleteSchedule(calendarId, scheduleId);
+        return scheduleService.deleteSchedule(calendarId, scheduleId, userId);
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,14 +30,18 @@ public class PaymentCompleteRequest {
     private String merchantUid;
 
     @Schema(description = "결제 수단 (예: kakaopay, card)")
+    @JsonProperty("payMethod")
     private String payMethod;
 
+    @JsonProperty("pgProvider")
     @Schema(description = "PG사 이름 (예: kakaopay, tosspay)")
     private String pgProvider;
 
+    @JsonProperty("pgTid")
     @Schema(description = "PG사 거래 번호")
     private String pgTid;
 
+    @JsonProperty("paidAmount")
     @Schema(description = "결제 금액 (원)")
     private Integer paidAmount;
 
@@ -50,6 +55,7 @@ public class PaymentCompleteRequest {
     @JsonProperty("paid_at")
     private Long paidAt;
 
+    @JsonProperty("receiptUrl")
     @Schema(description = "영수증 URL")
     private String receiptUrl;
 
@@ -66,7 +72,6 @@ public class PaymentCompleteRequest {
     public static class CustomData {
 
         @Schema(description = "사용자 ID")
-        @JsonProperty("userId")
         private Long userId;
 
         @Schema(description = "숙소 ID (TOUR API 기준)")
@@ -86,19 +91,18 @@ public class PaymentCompleteRequest {
         private String accommodationImage;
 
         @Schema(description = "체크인 날짜")
-        @JsonProperty("checkIn")
-        private LocalDate checkIn;
+        private LocalDate checkInDate;
 
         @Schema(description = "체크아웃 날짜")
-        @JsonProperty("checkOut")
-        private LocalDate checkOut;
+        private LocalDate checkOutDate;
+
+        @Schema(description = "체크인 시간")
+        private LocalTime checkInTime;
 
         @Schema(description = "투숙 인원 수")
-        @JsonProperty("guestCount")
         private Integer guestCount;
 
         @Schema(description = "총 결제 금액")
-        @JsonProperty("totalPrice")
         private BigDecimal totalPrice;
     }
 }

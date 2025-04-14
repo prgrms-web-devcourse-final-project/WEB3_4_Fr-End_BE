@@ -75,13 +75,23 @@ public enum ErrorType {
     INVALID_CALENDAR_DATE(HttpStatus.BAD_REQUEST, "종료 시간은 시작 시간보다 빠를 수 없습니다."),
     INVALID_ALERT_TIME(HttpStatus.BAD_REQUEST, "알람 시간은 시작 시간보다 늦을 수 없습니다."),
 
+    // LIKE
+    ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요가 눌려 있습니다."),
+    LIKE_NOT_FOUND(HttpStatus.BAD_REQUEST, "좋아요가 존재하지 않습니다"),
 
     // AI Chat
     AI_CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 채팅방이 존재하지 않습니다."),
 
     // Invite
     INVITE_NOT_FOUND(HttpStatus.NOT_FOUND, "초대 정보를 찾을 수 없습니다."),
-    INVITE_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 초대 코드입니다.");
+    INVITE_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 초대 코드입니다."),
+
+    // Booking
+    BOOKING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예약을 찾을 수 없습니다."),
+    BOOKING_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "해당 예약을 삭제할 수 없습니다."),
+    INVALID_BOOKING_CANCEL(HttpStatus.BAD_REQUEST, "해당 예약은 취소할 수 없습니다."),
+    IAMPORT_TOKEN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "아임포트 액세스 토큰 발급 실패"),
+    IAMPORT_CANCEL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "결제 취소 요청 실패");
 
     private final int code;
     private final String message;

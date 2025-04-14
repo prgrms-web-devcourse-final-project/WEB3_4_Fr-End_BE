@@ -1,7 +1,13 @@
 package com.frend.planit.domain.mateboard.post.repository;
 
 import com.frend.planit.domain.mateboard.post.entity.Mate;
+import io.lettuce.core.dynamic.annotation.Param;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 메이트 모집 게시글에 대한 데이터베이스 접근을 처리하는 Repository 인터페이스입니다.
@@ -14,4 +20,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface MateRepository extends JpaRepository<Mate, Long> {
 
+    // 로그인한 사용자의 게시글을 조회 (활동 내역 조회용)
+    List<Mate> findByWriterId(Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Mate m SET m.recruitmentStatus = com.frend.planit.domain.mateboard.post.entity.RecruitmentStatus.CLOSED "
+            +
+            "WHERE m.recruitmentStatus <= :today AND m.recruitmentStatus = com.frend.planit.domain.mateboard.post.entity.RecruitmentStatus.OPEN")
+    int updateRecruitmentStatusToClosed(@Param("today") LocalDate today);
 }

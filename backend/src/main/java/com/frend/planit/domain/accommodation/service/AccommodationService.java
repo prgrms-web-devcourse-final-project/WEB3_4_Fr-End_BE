@@ -44,8 +44,8 @@ public class AccommodationService {
     @Transactional(readOnly = true)
     public Page<AccommodationResponseDto> findAllPaged(String sortBy, String direction, int page, int size) {
         Sort sort = direction.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+                ? Sort.by(sortBy).descending() //삼항 연사자 (개인용)
+                : Sort.by(sortBy).ascending(); // ? 참 : 거짓
 
         Pageable pageable = PageRequest.of(page, size, sort);
         return repository.findAll(pageable)
@@ -155,5 +155,17 @@ public class AccommodationService {
         }
 
         log.info("TourAPI: 숙소 동기화 완료 - 신규 저장 {}건", savedCount);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AccommodationResponseDto> searchWithFilters(String areaCode, String title, String cat3,
+                                                            String sortBy, String direction, int page, int size) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<AccommodationEntity> result = repository.findByFilters(areaCode, title, cat3, pageable);
+        return result.map(AccommodationResponseDto::new);
     }
 }

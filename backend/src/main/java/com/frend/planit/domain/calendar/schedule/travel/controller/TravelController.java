@@ -1,14 +1,13 @@
 package com.frend.planit.domain.calendar.schedule.travel.controller;
 
 import com.frend.planit.domain.calendar.schedule.travel.dto.request.TravelRequest;
-import com.frend.planit.domain.calendar.schedule.travel.dto.response.DailyTravelResponse;
+import com.frend.planit.domain.calendar.schedule.travel.dto.response.AllTravelsResponse;
 import com.frend.planit.domain.calendar.schedule.travel.dto.response.TravelResponse;
 import com.frend.planit.domain.calendar.schedule.travel.service.TravelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,7 +33,7 @@ public class TravelController {
     @GetMapping
     @Operation(summary = "행선지 조회")
     @ResponseStatus(HttpStatus.OK)
-    public List<DailyTravelResponse> getAllTravels(
+    public AllTravelsResponse getAllTravels(
             @PathVariable Long scheduleId,
             @AuthenticationPrincipal Long userId
     ) {

@@ -36,4 +36,7 @@ public class MateCommentResponseDto {
     private final LocalDateTime createdAt;
 
     private final LocalDateTime modifiedAt;
+
+    private final int likeCount;
+
 }

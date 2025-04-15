@@ -104,7 +104,8 @@ public class MateCommentService {
                             like.getMateComment().getId()
                     )).toList();
 
-            return MateCommentMapper.toResponseDto(comment, commentLikes);
+            int likeCount = commentLikes.size();
+            return MateCommentMapper.toResponseDto(comment, likeCount, commentLikes);
         });
 
         // 4. PageResponse로 감싸서 반환

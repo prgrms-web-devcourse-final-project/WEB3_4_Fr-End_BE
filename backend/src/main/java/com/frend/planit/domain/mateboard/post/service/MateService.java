@@ -13,6 +13,7 @@ import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.PostLikeInfo;
 import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.mateboard.post.mapper.MateMapper;
+import com.frend.planit.domain.mateboard.post.repository.MatePostLikeRepository;
 import com.frend.planit.domain.mateboard.post.repository.MateQueryRepository;
 import com.frend.planit.domain.mateboard.post.repository.MateRepository;
 import com.frend.planit.domain.user.entity.User;
@@ -45,6 +46,7 @@ public class MateService {
     private final UserRepository userRepository;
     private final ImageService imageService;
     private final MateApplicationRepository mateApplicationRepository;
+    private final MatePostLikeRepository matePostLikeRepository;
 
     /**
      * ID로 게시글을 조회하고, 존재하지 않으면 예외를 던집니다.
@@ -89,30 +91,38 @@ public class MateService {
     /**
      * 메이트 게시글을 단건 조회합니다.
      *
-     * @param id 조회할 게시글 ID
+     * @param matePostId 조회할 게시글 ID
      * @return 조회된 게시글의 응답 DTO
      * @throws RuntimeException 해당 ID의 게시글이 존재하지 않을 경우 예외 발생
      */
-    public MateResponseDto getMate(Long id, Long userId) {
-        Mate mate = findMateOrThrow(id);
+    @Transactional(readOnly = true)
+    public MateResponseDto getMate(Long matePostId, Long userId) {
+        Mate mate = mateRepository.findById(matePostId)
+                .orElseThrow(() -> new ServiceException(MATE_POST_NOT_FOUND));
 
-        // 게시글 이미지 조회
         String imageUrl = imageService.getImage(HolderType.MATEBOARD, mate.getId()).imageUrl();
 
-        boolean isApplied = mateApplicationRepository.existsByMateIdAndApplicantId(id, userId);
-
-        // 1. 게시글 좋아요 정보 → PostLikeInfo 리스트 생성
-        List<PostLikeInfo> postLike = mate.getPostLikes().stream()
+        List<PostLikeInfo> postLikeInfos = matePostLikeRepository.findByMatePostId(matePostId)
+                .stream()
                 .map(like -> new PostLikeInfo(like.getUser().getId(), mate.getId()))
                 .toList();
 
-        // 2. 동행 신청 정보 → MateApplicationInfo 리스트 생성
-        List<MateApplicationInfo> mateApplications = mate.getApplications().stream()
+        List<MateApplicationInfo> applicationInfos = mateApplicationRepository.findByMateId(
+                        matePostId)
+                .stream()
                 .map(app -> new MateApplicationInfo(app.getApplicant().getId(), app.getId()))
                 .toList();
 
-        // DTO 변환 시 이미지 URL 포함
-        return MateMapper.toResponseDto(mate, imageUrl, isApplied, postLike, mateApplications);
+        boolean isApplied = applicationInfos.stream()
+                .anyMatch(app -> app.getAuthorId().equals(userId));
+
+        return MateMapper.toResponseDto(
+                mate,
+                imageUrl,
+                isApplied,
+                postLikeInfos,
+                applicationInfos
+        );
     }
 
     /**
@@ -137,14 +147,14 @@ public class MateService {
     /**
      * 메이트 모집 게시글을 수정합니다.
      *
-     * @param id             수정할 게시글 ID
+     * @param matePostId     수정할 게시글 ID
      * @param mateRequestDto 클라이언트로부터 전달 받은 수정 요청 데이터
      * @param userId         로그인한 사용자 ID (작성자 확인용)
      * @return 수정된 게시글의 응답 DTO
      */
-    public MateResponseDto updateMate(Long id, MateRequestDto mateRequestDto, Long userId) {
+    public MateResponseDto updateMate(Long matePostId, MateRequestDto mateRequestDto, Long userId) {
         // 1. 수정할 게시글 찾기
-        Mate updateMate = findMateOrThrow(id);
+        Mate updateMate = findMateOrThrow(matePostId);
 
         // 2. 작성자 확인
         if (!updateMate.getWriter().getId().equals(userId)) {
@@ -177,7 +187,7 @@ public class MateService {
                 .imageUrl();
 
         // 6. 수정한 게시글 전달
-        updateMate = findMateOrThrow(id);
+        updateMate = findMateOrThrow(matePostId);
         return MateMapper.toResponseDto(updateMate, imageUrl);
     }
 
@@ -188,9 +198,9 @@ public class MateService {
      * @param userId 로그인한 사용자 ID (작성자 확인용)
      * @return 삭제된 게시글 응답 DTO
      */
-    public MateResponseDto deleteMate(Long id, Long userId) {
+    public MateResponseDto deleteMate(Long matePostId, Long userId) {
         // 1. 게시글 조회 -> 없을 시 예외
-        Mate deleteMate = findMateOrThrow(id);
+        Mate deleteMate = findMateOrThrow(matePostId);
 
         // 2. 작성자 확인
         if (!deleteMate.getWriter().getId().equals(userId)) {

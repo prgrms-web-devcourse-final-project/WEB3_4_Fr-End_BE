@@ -48,9 +48,9 @@ public class MateCommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long createComment(
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
-            @PathVariable Long mateId,
+            @PathVariable Long matePostId,
             @AuthenticationPrincipal Long userId) {
-        return mateCommentService.createComment(userId, mateId, mateCommentRequestDto);
+        return mateCommentService.createComment(userId, matePostId, mateCommentRequestDto);
     }
 
     /**
@@ -61,8 +61,8 @@ public class MateCommentController {
      */
     @GetMapping("/{commentId}")
     @ResponseStatus(HttpStatus.OK)
-    public MateCommentResponseDto getComment(@PathVariable Long id) {
-        return mateCommentService.getComment(id);
+    public MateCommentResponseDto getComment(@PathVariable Long commentId) {
+        return mateCommentService.getComment(commentId);
     }
 
     /**
@@ -76,8 +76,8 @@ public class MateCommentController {
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<MateCommentResponseDto> getAllComments(
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
-            @PathVariable Long mateId, Pageable pageable) {
-        return mateCommentService.findAllByMateIdWithPaging(mateId, pageable);
+            @PathVariable Long matePostId, Pageable pageable) {
+        return mateCommentService.findAllByMateIdWithPaging(matePostId, pageable);
     }
 
     /**
@@ -89,10 +89,10 @@ public class MateCommentController {
      */
     @PutMapping("/{commentId}")
     @ResponseStatus(HttpStatus.OK)
-    public MateCommentResponseDto updateComment(@PathVariable Long id,
+    public MateCommentResponseDto updateComment(@PathVariable Long commentId,
             @RequestBody @Valid MateCommentRequestDto mateCommentRequestDto,
             @AuthenticationPrincipal Long userId) {
-        return mateCommentService.updateComment(id, mateCommentRequestDto, userId);
+        return mateCommentService.updateComment(commentId, mateCommentRequestDto, userId);
     }
 
     /**
@@ -104,8 +104,8 @@ public class MateCommentController {
      */
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public MateCommentResponseDto deleteComment(@PathVariable Long id,
+    public MateCommentResponseDto deleteComment(@PathVariable Long commentId,
             @AuthenticationPrincipal Long userId) {
-        return mateCommentService.deleteComment(id, userId);
+        return mateCommentService.deleteComment(commentId, userId);
     }
 }

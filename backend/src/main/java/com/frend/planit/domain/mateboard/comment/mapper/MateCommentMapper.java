@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class MateCommentMapper {
 
-    public static MateCommentResponseDto toResponseDto(MateComment comment,
+    public static MateCommentResponseDto toResponseDto(MateComment comment, int likeCount,
             List<CommentLikeInfo> commentLike) {
         return MateCommentResponseDto.builder()
                 .mateCommentId(comment.getId())
@@ -29,10 +29,11 @@ public class MateCommentMapper {
                 .commentLike(commentLike)
                 .createdAt(comment.getCreatedAt())
                 .modifiedAt(comment.getModifiedAt())
+                .likeCount(likeCount)
                 .build();
     }
 
     public static MateCommentResponseDto toResponseDto(MateComment comment) {
-        return toResponseDto(comment, List.of());
+        return toResponseDto(comment, 0, List.of());
     }
 }

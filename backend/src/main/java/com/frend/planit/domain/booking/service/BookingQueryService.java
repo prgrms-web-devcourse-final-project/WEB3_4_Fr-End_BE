@@ -39,6 +39,7 @@ public class BookingQueryService {
                     .paymentStatus(booking.getPaymentStatus())
                     .reservedAt(booking.getReservedAt())
                     .canCancel(canCancel(booking, today))
+                    .bookingStatus(booking.getBookingStatus())
                     .build();
 
             if (booking.getBookingStatus().equals(BookingStatus.RESERVED)

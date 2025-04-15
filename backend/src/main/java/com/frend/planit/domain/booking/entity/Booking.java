@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
  * @since 2025-04-10
  */
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Builder
 @Entity
@@ -86,8 +86,10 @@ public class Booking extends BaseEntity {
     /**
      * 예약 상태 (예: RESERVED, CANCELLED 등)
      */
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private BookingStatus bookingStatus;
+    @Column(columnDefinition = "VARCHAR(20)")
+    private BookingStatus bookingStatus = BookingStatus.RESERVED;
     /**
      * 결제 상태 (예: paid, failed 등)
      */
@@ -100,7 +102,7 @@ public class Booking extends BaseEntity {
      * 예약 생성 시간 (결제 완료 시점)
      */
     private LocalDateTime reservedAt;
-    
+
     /**
      * 예약 상태를 취소로 변경합니다.
      */

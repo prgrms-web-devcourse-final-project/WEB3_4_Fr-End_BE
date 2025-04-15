@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AIChatMessageService {
 
-    private final AIChatRoomService aiChatRoomService;
     private final AIChatRoomRepository aiChatRoomRepository;
     private final OpenAiChatModel chatClient;
     private final UserRepository userRepository;

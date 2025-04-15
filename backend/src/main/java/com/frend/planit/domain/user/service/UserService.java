@@ -2,6 +2,8 @@ package com.frend.planit.domain.user.service;
 
 import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
 import com.frend.planit.domain.calendar.service.CalendarService;
+import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationReceivedResponseDto;
+import com.frend.planit.domain.mateboard.application.service.MateApplicationService;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.service.MateCommentService;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
@@ -27,6 +29,7 @@ public class UserService {
     private final MateService mateService;
     private final MateCommentService mateCommentService;
     private final CalendarService calendarService;
+    private final MateApplicationService mateApplicationService;
 
     /**
      * 최초 로그인 시 추가 정보 등록
@@ -104,6 +107,11 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException(ErrorType.USER_NOT_FOUND));
         return calendarService.getUserCalendarActivity(user);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<MateApplicationReceivedResponseDto> getApplicationsForMyPosts(Long writerId) {
+        return mateApplicationService.getApplicationsForMyPosts(writerId);
     }
 
 }

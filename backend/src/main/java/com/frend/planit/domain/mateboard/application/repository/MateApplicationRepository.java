@@ -1,9 +1,11 @@
 package com.frend.planit.domain.mateboard.application.repository;
 
 import com.frend.planit.domain.mateboard.application.entity.MateApplication;
+import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * 메이트 신청(MateApplication)에 대한 데이터베이스 접근을 처리하는 Repository 인터페이스입니다.
@@ -32,4 +34,14 @@ public interface MateApplicationRepository extends JpaRepository<MateApplication
     List<MateApplication> findByMateId(Long mateId);
 
     boolean existsByMateIdAndApplicantId(Long mateId, Long applicantId);
+
+
+    @Query("""
+                SELECT a FROM MateApplication a
+                JOIN FETCH a.mate m
+                JOIN FETCH a.applicant u
+                WHERE m.writer.id = :writerId
+                ORDER BY a.createdAt DESC
+            """)
+    List<MateApplication> findAllByWriterId(@Param("writerId") Long writerId);
 }

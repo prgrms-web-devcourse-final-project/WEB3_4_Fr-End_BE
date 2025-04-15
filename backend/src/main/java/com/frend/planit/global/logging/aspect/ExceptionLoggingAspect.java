@@ -42,7 +42,7 @@ public class ExceptionLoggingAspect {
                 .appendRequestParameter();
 
         log.error(logBuilder.appendExecutionTime().appendClientIP().toString());
-        log.trace("원인: ", ex);
+        log.debug("원인: ", ex);
 
         return logBuilder.getResult();
     }

@@ -167,7 +167,7 @@ public class ScheduleServiceTest {
     void getScheduleSuccess() {
         // given
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId))
+        when(scheduleRepository.findByIdAndCalendarId(calendarId, scheduleId))
                 .thenReturn(Optional.of(scheduleEntity1));
 
         // when
@@ -177,5 +177,149 @@ public class ScheduleServiceTest {
         assertThat(actual)
                 .usingRecursiveComparison()
                 .isEqualTo(ScheduleResponse.from(scheduleEntity1));
+    }
+
+    @Test
+    @DisplayName("단일 여행 일정 조회 - 실패 (인증되지 않은 사용자")
+    void getScheduleFail_UnauthorizedUser() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.getSchedule(calendarId, scheduleId, userId);
+        });
+    }
+
+    @Test
+    @DisplayName("단일 여행 일정 조회 - 실패 (존재하지 않는 스케줄 ID")
+    void getScheduleFail_ScheduleNotFound() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(scheduleRepository.findByIdAndCalendarId(calendarId, scheduleId)).thenReturn(
+                Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.getSchedule(calendarId, scheduleId, userId);
+        });
+    }
+
+    @Test
+    @DisplayName("여행 일정 생성 - 실패 (인증되지 않은 사용자)")
+    void createScheduleFail_UnauthorizedUser() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.createSchedule(calendarId, schedule1, userId);
+        });
+    }
+
+    @Test
+    @DisplayName("여행 일정 생성 - 실패 (존재하지 않는 캘린더)")
+    void createScheduleFail_CalendarNotFound() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(calendarRepository.findById(calendarId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.createSchedule(calendarId, schedule1, userId);
+        });
+    }
+
+    @Test
+    @DisplayName("여행 일정 수정 - 성공")
+    void modifyScheduleSuccess() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId))
+                .thenReturn(Optional.of(scheduleEntity1));
+
+        // when
+        ScheduleResponse actual = scheduleService.modifySchedule(calendarId, scheduleId, schedule2,
+                userId);
+
+        // then
+        assertThat(scheduleEntity1.getScheduleTitle()).isEqualTo(schedule2.getScheduleTitle());
+        assertThat(scheduleEntity1.getStartDate()).isEqualTo(schedule2.getStartDate());
+        assertThat(scheduleEntity1.getEndDate()).isEqualTo(schedule2.getEndDate());
+        assertThat(scheduleEntity1.getBlockColor()).isEqualTo(schedule2.getBlockColor());
+        assertThat(scheduleEntity1.getNote()).isEqualTo(schedule2.getNote());
+        assertThat(scheduleEntity1.getAlertTime()).isEqualTo(schedule2.getAlertTime());
+        assertThat(actual)
+                .usingRecursiveComparison()
+                .isEqualTo(ScheduleResponse.from(scheduleEntity1));
+    }
+
+    @Test
+    @DisplayName("여행 일정 수정 - 실패 (인증되지 않은 사용자)")
+    void modifyScheduleFail_UnauthorizedUser() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.modifySchedule(calendarId, scheduleId, schedule2, userId);
+        });
+    }
+
+    @Test
+    @DisplayName("여행 일정 수정 - 실패 (존재하지 않는 일정)")
+    void modifyScheduleFail_ScheduleNotFound() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)).thenReturn(
+                Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.modifySchedule(calendarId, scheduleId, schedule2, userId);
+        });
+    }
+
+    @Test
+    @DisplayName("여행 일정 삭제 - 성공")
+    void deleteScheduleSuccess() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)).thenReturn(
+                Optional.of(scheduleEntity1));
+
+        // when
+        ScheduleResponse actual = scheduleService.deleteSchedule(calendarId, scheduleId, userId);
+
+        // then
+        assertThat(actual)
+                .usingRecursiveComparison()
+                .isEqualTo(ScheduleResponse.from(scheduleEntity1));
+    }
+
+    @Test
+    @DisplayName("여행 일정 삭제 - 실패 (인증되지 않은 사용자)")
+    void deleteScheduleFail_UnauthorizedUser() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.deleteSchedule(calendarId, scheduleId, userId);
+        });
+    }
+
+    @Test
+    @DisplayName("여행 일정 삭제 - 실패 (존재하지 않는 일정)")
+    void deleteScheduleFail_ScheduleNotFound() {
+        // given
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)).thenReturn(
+                Optional.empty());
+
+        // when & then
+        assertThrows(ServiceException.class, () -> {
+            scheduleService.deleteSchedule(calendarId, scheduleId, userId);
+        });
     }
 }

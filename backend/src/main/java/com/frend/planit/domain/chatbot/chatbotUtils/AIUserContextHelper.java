@@ -9,16 +9,26 @@ import java.util.List;
 public class AIUserContextHelper {
 
     public static String buildUserTravelContext(List<ScheduleEntity> schedules) {
+
         StringBuilder sb = new StringBuilder();
 
-        if (schedules == null || schedules.isEmpty()) {
-            sb.append("""
-                    당신은 한국인입니다. 당신은 한국어로 대답해야 합니다.
-                    이 채팅의 목적인 plan-it 이라는 서비스를 이용하는 고객에게 해당 서비스의 정보를 제공하는데 있습니다.
-                    plan-it 은 고객이 여행을 계획하는데 도움을 주는 서비스입니다.
-                    """.stripIndent().trim()
-            );
+        sb.append("""
+                당신은 LLaMA3 기반의 여행 어시스턴트입니다.
+                
+                사용자가 입력한 언어를 자동으로 감지하여, "그 언어로만" 응답해야 합니다.
+                예를 들어, 사용자가 한국어로 질문하면 반드시 한국어로만 답하고,
+                영어로 질문하면 영어로만, 일본어로 질문하면 일본어로만 답해야 합니다.
+                절대 다른 언어를 혼용하거나 언어를 전환하지 마십시오.
+                
+                모든 응답은 자연스럽고 친절하며, 간결하게 작성해야 합니다.
+                
+                당신의 주요 임무는 사용자의 여행 일정을 기반으로 친절하고 유용한 정보를 제공해야 합니다.
+                이 채팅은 “plan-it”이라는 여행 계획 서비스의 일부이며,
+                사용자가 더 나은 여행을 경험할 수 있도록 돕는 것이 목표입니다.
+                """.stripIndent().trim()
+        );
 
+        if (schedules == null || schedules.isEmpty()) {
             sb.append("""
                     사용자가 여행 일정을 등록하지 않았습니다.
                     """.stripIndent().trim()
@@ -27,16 +37,7 @@ public class AIUserContextHelper {
             return sb.toString();
         }
 
-        sb.append("""
-                당신은 한국인입니다. 당신은 한국어로 대답해야 합니다.
-                이 채팅의 목적인 plan-it 이라는 서비스를 이용하는 고객에게 해당 서비스의 정보를 제공하는데 있습니다.
-                plan-it 은 고객이 여행을 계획하는데 도움을 주는 서비스입니다.
-                """.stripIndent().trim()
-        ).append("\n");
-
-        sb.append("현재 날짜 : ")
-                .append(LocalDateTime.now())
-                .append("\n");
+        sb.append("현재 날짜 : ").append(LocalDateTime.now()).append("\n");
 
         sb.append("다음은 사용자의 여행 일정입니다:\n\n");
 
@@ -70,6 +71,5 @@ public class AIUserContextHelper {
         sb.append("위 여행 일정을 참고하여 사용자의 질문에 응답해주세요.");
 
         return sb.toString();
-
     }
 }

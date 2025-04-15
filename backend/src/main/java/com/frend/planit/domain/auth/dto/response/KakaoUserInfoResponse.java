@@ -29,9 +29,6 @@ public class KakaoUserInfoResponse {
     public OAuthUserInfoResponse toOAuthUserInfo() {
         return OAuthUserInfoResponse.builder()
                 .socialId(this.id)
-                .email(null)
-                .nickname(kakaoAccount.getProfile().getNickname())
-                .profileImage(kakaoAccount.getProfile().getProfileImageUrl())
                 .build();
     }
 }

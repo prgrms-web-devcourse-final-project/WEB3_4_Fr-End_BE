@@ -48,7 +48,8 @@ public class UserService {
                 request.getNickname(),
                 request.getPhone(),
                 request.getBirthDate(),
-                request.getGender()
+                request.getGender(),
+                request.getMailingType()
         );
     }
 

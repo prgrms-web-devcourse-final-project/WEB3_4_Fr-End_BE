@@ -67,7 +67,13 @@ public class AuthService {
 
         boolean needAdditionalInfo = (user.getStatus() == UserStatus.UNREGISTERED);
 
-        return new AuthResponse(accessToken, refreshToken, needAdditionalInfo, user.getEmail());
+        return new AuthResponse(
+                accessToken,
+                refreshToken,
+                needAdditionalInfo,
+                null
+        );
+
     }
 
     /**

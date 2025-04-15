@@ -122,6 +122,10 @@ public class ScheduleService {
         // 여행 일정 존재 여부 확인
         List<ScheduleEntity> scheduleEntities = scheduleRepository.findAllByCalendarId(calendarId);
 
+        if (scheduleEntities.isEmpty()) {
+            throw new ServiceException(ErrorType.SCHEDULE_NOT_FOUND);
+        }
+
         return scheduleEntities;
     }
 

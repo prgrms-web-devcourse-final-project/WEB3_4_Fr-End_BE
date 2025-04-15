@@ -35,7 +35,6 @@ public interface MateApplicationRepository extends JpaRepository<MateApplication
 
     boolean existsByMateIdAndApplicantId(Long mateId, Long applicantId);
 
-
     @Query("""
                 SELECT a FROM MateApplication a
                 JOIN FETCH a.mate m
@@ -44,4 +43,13 @@ public interface MateApplicationRepository extends JpaRepository<MateApplication
                 ORDER BY a.createdAt DESC
             """)
     List<MateApplication> findAllByWriterId(@Param("writerId") Long writerId);
+
+    @Query("""
+    SELECT a FROM MateApplication a
+    JOIN FETCH a.mate m
+    JOIN FETCH m.writer w
+    WHERE a.applicant.id = :userId
+    ORDER BY a.createdAt DESC
+""")
+    List<MateApplication> findAllByApplicantId(@Param("userId") Long userId);
 }

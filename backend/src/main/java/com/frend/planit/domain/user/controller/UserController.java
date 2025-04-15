@@ -2,6 +2,7 @@ package com.frend.planit.domain.user.controller;
 
 import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
 import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationReceivedResponseDto;
+import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationSentResponseDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.user.dto.request.UserFirstInfoRequest;
@@ -103,6 +104,14 @@ public class UserController {
     ) {
         List<MateApplicationReceivedResponseDto> responses = userService.getApplicationsForMyPosts(
                 userId);
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/me/activity/mate-applications/sent")
+    public ResponseEntity<List<MateApplicationSentResponseDto>> getMyApplications(
+            @AuthenticationPrincipal Long userId
+    ) {
+        List<MateApplicationSentResponseDto> responses = userService.getMyApplications(userId);
         return ResponseEntity.ok(responses);
     }
 }

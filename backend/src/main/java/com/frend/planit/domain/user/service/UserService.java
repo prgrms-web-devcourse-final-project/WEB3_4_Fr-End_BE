@@ -3,6 +3,7 @@ package com.frend.planit.domain.user.service;
 import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
 import com.frend.planit.domain.calendar.service.CalendarService;
 import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationReceivedResponseDto;
+import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationSentResponseDto;
 import com.frend.planit.domain.mateboard.application.service.MateApplicationService;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.comment.service.MateCommentService;
@@ -108,10 +109,15 @@ public class UserService {
                 .orElseThrow(() -> new ServiceException(ErrorType.USER_NOT_FOUND));
         return calendarService.getUserCalendarActivity(user);
     }
-    
+
     @Transactional(readOnly = true)
     public List<MateApplicationReceivedResponseDto> getApplicationsForMyPosts(Long writerId) {
         return mateApplicationService.getApplicationsForMyPosts(writerId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MateApplicationSentResponseDto> getMyApplications(Long userId) {
+        return mateApplicationService.getMyApplications(userId);
     }
 
 }

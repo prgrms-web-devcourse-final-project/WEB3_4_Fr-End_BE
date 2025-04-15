@@ -8,32 +8,56 @@
     value="%green([%d{yyyy-MM-dd HH:mm:ss.SSS}]) [%thread] %highlight([%level]) %cyan(%logger{36}) >> %msg%n"/>
   <springProperty scope="context" name="PROFILE" source="spring.profiles.active"/>
 
-  <!-- 콘솔 출력 (INFO 이상 출력, 색상 적용) -->
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>INFO</level>
-    </filter>
-    <encoder>
-      <pattern>${LOG_PATTERN_COLORED}</pattern>
-    </encoder>
-  </appender>
+  <!-- test, local 프로파일 설정 -->
+  <!-- 콘솔 출력: debug 부터, 로그 저장: debug 부터 -->
+  <springProfile name="test,local">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>${LOG_PATTERN_COLORED}</pattern>
+      </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+        <fileNamePattern>
+          backend/logs/main/%d{yyyy-MM-dd}/${PROFILE}_%d{yyyyMMdd_HH}_%i.log
+        </fileNamePattern>
+        <maxFileSize>20MB</maxFileSize>
+        <maxHistory>7</maxHistory>
+      </rollingPolicy>
+      <encoder>
+        <pattern>${LOG_PATTERN}</pattern>
+      </encoder>
+    </appender>
+  </springProfile>
 
-  <!-- 로그 파일 저장 (전체 레벨 저장, 색상 없음) -->
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>
-        backend/logs/main/%d{yyyy-MM-dd}/${PROFILE}_%d{yyyyMMdd_HHmmss}_%i.log.gz
-      </fileNamePattern>
-      <maxFileSize>20MB</maxFileSize>
-      <maxHistory>7</maxHistory>
-    </rollingPolicy>
-    <encoder>
-      <pattern>${LOG_PATTERN}</pattern>
-    </encoder>
-  </appender>
+  <!-- dev, prod 프로파일 설정 (ubuntu 서버 전용) -->
+  <!-- 콘솔 출력: info 부터, 로그 저장: debug 부터 -->
+  <springProfile name="dev,prod">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>INFO</level>
+      </filter>
+      <encoder>
+        <pattern>${LOG_PATTERN_COLORED}</pattern>
+      </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+        <fileNamePattern>
+          /home/ubuntu/logs/${PROFILE}/%d{yyyyMMdd_HH}_%i.log
+        </fileNamePattern>
+        <maxFileSize>20MB</maxFileSize>
+        <maxHistory>7</maxHistory>
+      </rollingPolicy>
+      <encoder>
+        <pattern>${LOG_PATTERN}</pattern>
+      </encoder>
+    </appender>
+  </springProfile>
 
-  <!-- 기본 로그 레벨 (콘솔은 필터링하여 INFO 부터 출력) -->
-  <root level="TRACE">
+
+  <!-- 기본 로그 레벨 -->
+  <root level="DEBUG">
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>

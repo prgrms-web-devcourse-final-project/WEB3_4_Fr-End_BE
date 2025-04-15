@@ -41,8 +41,8 @@ public class ExceptionLoggingAspect {
                 .appendResponseBody()
                 .appendRequestParameter();
 
-        log.warn(logBuilder.appendExecutionTime().appendClientIP().toString());
-        log.trace("원인: ", ex);
+        log.error(logBuilder.appendExecutionTime().appendClientIP().toString());
+        log.debug("원인: ", ex);
 
         return logBuilder.getResult();
     }

@@ -130,7 +130,17 @@ public class LogBuilder {
 
     public LogBuilder appendClientIP() {
         String clientIP = request.getRemoteAddr();
-        append(CLIENT_IP + clientIP);
+        String maskedIP;
+        if (clientIP.contains(".")) {
+            // IPv4 마스킹: 앞 두 옥텟만 표시
+            maskedIP = clientIP.replaceAll("^(\\d+\\.\\d+)\\.\\d+\\.\\d+$", "$1.*.*");
+        } else if (clientIP.contains(":")) {
+            // IPv6 마스킹: 앞 2개 그룹만 표시
+            maskedIP = clientIP.replaceAll("^(([0-9a-fA-F]{0,4}:){1,2}).*", "$1::");
+        } else {
+            maskedIP = clientIP;
+        }
+        append(CLIENT_IP + maskedIP);
         return this;
     }
 

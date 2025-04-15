@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frend.planit.TestConfig;
 import com.frend.planit.domain.calendar.dto.response.CalendarActivityResponseDto;
+import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationReceivedResponseDto;
+import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationSentResponseDto;
 import com.frend.planit.domain.mateboard.comment.dto.response.MateCommentResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.service.MateService;
@@ -260,5 +262,68 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[1].sharedUserNicknames[0]").value("사용자1"))
                 .andExpect(jsonPath("$[1].sharedUserNicknames[1]").value("친구2"));
     }
+
+    @Test
+    @WithMockCustomUser(id = 1L, username = "사용자1")
+    @DisplayName("내가 쓴 메이트 게시글에 신청된 동행 목록 조회 API")
+    void getReceivedApplications() throws Exception {
+        Long mockUserId = 1L;
+
+        MateApplicationReceivedResponseDto dto = new MateApplicationReceivedResponseDto(
+                100L,
+                10L,
+                "6월 말 제주도 동행 구해요",
+                "혼자 제주도 여행 가는데...",
+                2L,
+                "신청자닉네임",
+                "https://image.test.com/user.png",
+                "PENDING"
+        );
+
+        when(userService.getApplicationsForMyPosts(mockUserId)).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/api/v1/user/me/activity/mate-applications/received")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].applicationId").value(100L))
+                .andExpect(jsonPath("$[0].matePostId").value(10L))
+                .andExpect(jsonPath("$[0].mateTitle").value("6월 말 제주도 동행 구해요"))
+                .andExpect(jsonPath("$[0].mateContentPreview").value("혼자 제주도 여행 가는데..."))
+                .andExpect(jsonPath("$[0].applicantId").value(2L))
+                .andExpect(jsonPath("$[0].applicantNickname").value("신청자닉네임"))
+                .andExpect(jsonPath("$[0].applicantProfileImage").value("https://image.test.com/user.png"))
+                .andExpect(jsonPath("$[0].status").value("PENDING"));
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, username = "사용자1")
+    @DisplayName("내가 신청한 메이트 게시글 목록 조회 API")
+    void getSentApplications() throws Exception {
+        Long mockUserId = 1L;
+
+        MateApplicationSentResponseDto dto = new MateApplicationSentResponseDto(
+                200L,
+                20L,
+                "부산 바다 동행 구합니다",
+                "해운대 근처 숙소 예약했고요...",
+                "작성자닉네임",
+                "https://image.test.com/writer.png",
+                "ACCEPTED"
+        );
+
+        when(userService.getMyApplications(mockUserId)).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/api/v1/user/me/activity/mate-applications/sent")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].applicationId").value(200L))
+                .andExpect(jsonPath("$[0].matePostId").value(20L))
+                .andExpect(jsonPath("$[0].mateTitle").value("부산 바다 동행 구합니다"))
+                .andExpect(jsonPath("$[0].mateContentPreview").value("해운대 근처 숙소 예약했고요..."))
+                .andExpect(jsonPath("$[0].writerNickname").value("작성자닉네임"))
+                .andExpect(jsonPath("$[0].writerProfileImage").value("https://image.test.com/writer.png"))
+                .andExpect(jsonPath("$[0].status").value("ACCEPTED"));
+    }
+
 
 }

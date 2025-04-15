@@ -47,6 +47,9 @@ dependencies {
     implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2'
 
+    // Mailing
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -72,6 +75,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 
     test {
         useJUnitPlatform()

@@ -154,10 +154,10 @@ public class MateApplicationService {
         // 4. 신청 상태 확인 + 인원 초과 여부 확인
         validateRecruitmentNotFull(mateApplication.getMate());
 
-        // 6. 수락 처리
+        // 5. 수락 처리
         mateApplication.accept();
 
-        // 7. 인원이 다 찼으면 모집 종료
+        // 6. 인원이 다 찼으면 모집 종료
         mate.closeRecruitmentIfFull();
     }
 

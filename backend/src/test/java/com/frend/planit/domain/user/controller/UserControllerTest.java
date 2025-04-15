@@ -69,7 +69,8 @@ class UserControllerTest {
                 "닉네임",
                 "01012345678",
                 LocalDate.of(1998, 1, 1),
-                Gender.MALE
+                Gender.MALE,
+                true
         );
 
         doNothing().when(userService).updateFirstInfo(mockUserId, request);

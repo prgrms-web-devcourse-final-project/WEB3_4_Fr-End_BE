@@ -108,10 +108,10 @@ public class ScheduleService {
     // 공통 메서드
 
     // 여행 일정 존재 여부 확인
-    public ScheduleEntity findScheduleById(Long scheduleId, Long calendarId) {
+    public ScheduleEntity findScheduleById(Long calendarId, Long scheduleId) {
 
         // 스케줄 존재 여부 확인
-        ScheduleEntity schedules = scheduleRepository.findByIdAndCalendarId(scheduleId, calendarId)
+        ScheduleEntity schedules = scheduleRepository.findByIdAndCalendarId(calendarId, scheduleId)
                 .orElseThrow(() -> new ServiceException(ErrorType.SCHEDULE_NOT_FOUND));
 
         return schedules;
@@ -121,6 +121,10 @@ public class ScheduleService {
     public List<ScheduleEntity> findAllByCalendarId(Long calendarId) {
         // 여행 일정 존재 여부 확인
         List<ScheduleEntity> scheduleEntities = scheduleRepository.findAllByCalendarId(calendarId);
+
+        if (scheduleEntities.isEmpty()) {
+            throw new ServiceException(ErrorType.SCHEDULE_NOT_FOUND);
+        }
 
         return scheduleEntities;
     }

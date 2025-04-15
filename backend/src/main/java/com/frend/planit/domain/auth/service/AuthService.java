@@ -162,27 +162,23 @@ public class AuthService {
         String clientId = client.getClientId();
         String redirectUri = client.getRedirectUri();
 
-        String scope = "openid email profile";
         String responseType = "code";
         String accessType = "offline";
         String prompt = "consent";
 
-        if (socialType == SocialType.KAKAO) {
-            scope = "profile_nickname profile_image";
-        } else if (socialType == SocialType.NAVER) {
-            scope = "name";
-        }
-
-        return UriComponentsBuilder
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder
                 .fromUriString(getOauthBaseUrl(socialType))
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", redirectUri)
                 .queryParam("response_type", responseType)
-                .queryParam("scope", scope)
                 .queryParam("access_type", accessType)
-                .queryParam("prompt", prompt)
-                .build()
-                .toUriString();
+                .queryParam("prompt", prompt);
+
+        if (socialType == SocialType.GOOGLE) {
+            uriBuilder.queryParam("scope", "openid");
+        }
+
+        return uriBuilder.build().toUriString();
     }
 
     private String getOauthBaseUrl(SocialType type) {

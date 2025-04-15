@@ -9,6 +9,8 @@ import static com.frend.planit.global.response.ErrorType.NOT_AUTHORIZED;
 import static com.frend.planit.global.response.ErrorType.SELF_APPLICATION_NOT_ALLOWED;
 import static com.frend.planit.global.response.ErrorType.USER_NOT_FOUND;
 
+import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationReceivedResponseDto;
+import com.frend.planit.domain.mateboard.application.dto.response.MateApplicationSentResponseDto;
 import com.frend.planit.domain.mateboard.application.entity.MateApplication;
 import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
 import com.frend.planit.domain.mateboard.application.repository.MateApplicationRepository;
@@ -18,6 +20,7 @@ import com.frend.planit.domain.mateboard.post.service.MateService;
 import com.frend.planit.domain.user.entity.User;
 import com.frend.planit.domain.user.repository.UserRepository;
 import com.frend.planit.global.exception.ServiceException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -207,4 +210,46 @@ public class MateApplicationService {
             throw new ServiceException(MATE_ALREADY_FULL);
         }
     }
+
+    // 내 활동 목록 조회 : 내가 쓴 게시글에 신청한 사용자들 목록 조회
+    @Transactional(readOnly = true)
+    public List<MateApplicationReceivedResponseDto> getApplicationsForMyPosts(Long writerId) {
+        List<MateApplication> applications = mateApplicationRepository.findAllByWriterId(writerId);
+
+        return applications.stream()
+                .map(app -> new MateApplicationReceivedResponseDto(
+                        app.getId(),
+                        app.getMate().getId(),
+                        app.getMate().getTitle(),
+                        app.getMate().getContent().length() > 100
+                                ? app.getMate().getContent().substring(0, 100) + "..."
+                                : app.getMate().getContent(),
+                        app.getApplicant().getId(),
+                        app.getApplicant().getNickname(),
+                        app.getApplicant().getProfileImageUrl(),
+                        app.getStatus().name()
+                ))
+                .toList();
+    }
+
+    // 내 활동 목록 조회 : 내가 메이트 신청한 목록 조회
+    @Transactional(readOnly = true)
+    public List<MateApplicationSentResponseDto> getMyApplications(Long userId) {
+        List<MateApplication> applications = mateApplicationRepository.findAllByApplicantId(userId);
+
+        return applications.stream()
+                .map(app -> new MateApplicationSentResponseDto(
+                        app.getId(),
+                        app.getMate().getId(),
+                        app.getMate().getTitle(),
+                        app.getMate().getContent().length() > 100
+                                ? app.getMate().getContent().substring(0, 100) + "..."
+                                : app.getMate().getContent(),
+                        app.getMate().getWriter().getNickname(),
+                        app.getMate().getWriter().getProfileImageUrl(),
+                        app.getStatus().name()
+                ))
+                .toList();
+    }
+
 }

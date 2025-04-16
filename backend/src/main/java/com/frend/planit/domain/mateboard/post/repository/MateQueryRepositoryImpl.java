@@ -1,7 +1,5 @@
 package com.frend.planit.domain.mateboard.post.repository;
 
-import static com.frend.planit.domain.mateboard.post.entity.QMate.mate;
-
 import com.frend.planit.domain.image.entity.QImage;
 import com.frend.planit.domain.image.type.HolderType;
 import com.frend.planit.domain.mateboard.application.entity.MateApplicationStatus;
@@ -9,7 +7,6 @@ import com.frend.planit.domain.mateboard.application.entity.QMateApplication;
 import com.frend.planit.domain.mateboard.comment.entity.QMateComment;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
 import com.frend.planit.domain.mateboard.post.dto.response.QMateResponseDto;
-import com.frend.planit.domain.mateboard.post.entity.Mate;
 import com.frend.planit.domain.mateboard.post.entity.QMate;
 import com.frend.planit.domain.mateboard.post.entity.QMatePostLike;
 import com.frend.planit.domain.mateboard.post.entity.RecruitmentStatus;
@@ -46,17 +43,6 @@ import org.springframework.stereotype.Repository;
 public class MateQueryRepositoryImpl implements MateQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-
-    @Override
-    public Mate findMateWithDetails(Long id) {
-        return queryFactory
-                .selectFrom(mate)
-                .leftJoin(mate.writer).fetchJoin()
-                .leftJoin(mate.applications).fetchJoin()
-                .leftJoin(mate.postLikes).fetchJoin()
-                .where(mate.id.eq(id))
-                .fetchOne();
-    }
 
     @Override
     public Page<MateResponseDto> searchMatePosts(String keyword, String status, String region,

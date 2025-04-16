@@ -14,7 +14,9 @@ public interface MatePostLikeRepository extends JpaRepository<MatePostLike, Long
 
     // 해당 게시글에 눌린 좋아요 수 카운트
     Long countByMatePost(Mate mate);
-    
+
     List<MatePostLike> findByMatePostId(Long matePostId);
+
+    List<MatePostLike> findByUserId(Long userId);
 
 }

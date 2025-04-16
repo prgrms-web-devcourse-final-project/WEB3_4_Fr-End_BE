@@ -1,7 +1,6 @@
 package com.frend.planit.domain.mateboard.post.repository;
 
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
-import com.frend.planit.domain.mateboard.post.entity.Mate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,7 +18,5 @@ public interface MateQueryRepository {
      */
     Page<MateResponseDto> searchMatePosts(String keyword, String status, String region,
             Pageable pageable);
-
-    Mate findMateWithDetails(Long id);
 
 }

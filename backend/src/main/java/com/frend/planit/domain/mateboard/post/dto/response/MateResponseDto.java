@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 메이트 모집 게시글 조회, 목록 응답 시에 사용하는 Response DTO입니다.
@@ -20,6 +21,7 @@ import lombok.Getter;
  * @version 1.0
  * @since 2025-03-28
  */
+@Setter
 @Getter
 public class MateResponseDto {
 
@@ -43,6 +45,8 @@ public class MateResponseDto {
     private final int likeCount;
     private final LocalDateTime createdAt;
     private final boolean isApplied;
+
+    private Boolean likedByUser; // 로그인하지 않은 경우 null 가능
 
     private final List<PostLikeInfo> postLike;
     private final List<MateApplicationInfo> mateApplications;

@@ -2,13 +2,14 @@ package com.frend.planit.domain.mateboard.post.controller;
 
 import com.frend.planit.domain.mateboard.post.dto.request.MateRequestDto;
 import com.frend.planit.domain.mateboard.post.dto.response.MateResponseDto;
+import com.frend.planit.domain.mateboard.post.repository.MatePostLikeRepository;
 import com.frend.planit.domain.mateboard.post.service.MateService;
 import com.frend.planit.global.response.PageResponse;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MateController {
 
     private final MateService mateService;
+    private final MatePostLikeRepository matePostLikeRepository;
 
     /**
      * 메이트 모집 게시글을 생성합니다.
@@ -61,20 +63,46 @@ public class MateController {
      * @return mates 페이징 된 게시글 목록
      */
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public PageResponse<MateResponseDto> searchMatePosts(
+    public ResponseEntity<?> getAllMatePosts(
+            @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String region,
-            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable) {
-        return mateService.searchMatePosts(keyword, status, region, pageable);
+            Pageable pageable
+    ) {
+        PageResponse<MateResponseDto> postList = mateService.searchMatePosts(keyword, status,
+                region, pageable);
+
+        // 2. 로그인한 유저가 좋아요 누른 게시글 ID 조회
+        if (userId != null) {
+            List<Long> likedPostIds = matePostLikeRepository.findByUserId(userId).stream()
+                    .map(like -> like.getMatePost().getId())
+                    .toList();
+
+            // 3. 게시글 DTO에 likedByUser 값 설정
+            for (MateResponseDto dto : postList.getData()) {
+                dto.setLikedByUser(likedPostIds.contains(dto.getMatePostId()));
+            }
+        }
+
+        // 4. 응답 반환 (postLike 배열 제거됨)
+        return ResponseEntity.ok(Map.of(
+                "content", postList.getData(),
+                "pageInfo", Map.of(
+                        "currentPage", postList.getCurrentPage(),
+                        "pageSize", postList.getPageSize(),
+                        "totalPages", postList.getTotalPages(),
+                        "hasNext", postList.isHasNext(),
+                        "hasPrevious", postList.isHasPrevious(),
+                        "totalData", postList.getTotalData()
+                )
+        ));
     }
 
     /**
      * 메이트 모집 게시글 단건 조회합니다.
      *
-     * @param id 조회할 게시글 ID
+     * @param matePostId 조회할 게시글 ID
      * @return 조회된 된 게시글 id
      */
     @GetMapping("/{matePostId}")
@@ -87,7 +115,7 @@ public class MateController {
     /**
      * 메이트 모집 게시글을 수정합니다.
      *
-     * @param id             수정할 게시글 ID
+     * @param matePostId     수정할 게시글 ID
      * @param mateRequestDto 수정할 게시글의 요청 본문(제목, 내용, 날짜, 지역, 성별 등)
      * @param userId         로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
      * @return 수정된 게시글 응답 DTO
@@ -103,8 +131,8 @@ public class MateController {
     /**
      * 메이트 모집 게시글을 삭제합니다.
      *
-     * @param id     삭제할 게시글 ID
-     * @param userId 로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
+     * @param matePostId 삭제할 게시글 ID
+     * @param userId     로그인한 사용자 정보 (@AuthenticationPrincipal로 주입)
      * @return 삭제한 게시글 응답 DTO
      */
     @DeleteMapping("/{matePostId}")
